@@ -1,5 +1,4 @@
 import { BrandMark } from "@/components/shell/brand-mark";
-import { ActionLink } from "@/components/ui/action-link";
 
 export default function SignInPage() {
   return (
@@ -19,8 +18,18 @@ export default function SignInPage() {
           <form className="mt-8 space-y-5">
             <label className="block text-sm font-bold" htmlFor="email">Email<input className="mt-2 min-h-12 w-full border border-[var(--line)] bg-white/70 px-4 font-normal focus:border-[var(--signal)] focus:outline-none" id="email" name="email" type="email" autoComplete="email" /></label>
             <label className="block text-sm font-bold" htmlFor="password">Contraseña<input className="mt-2 min-h-12 w-full border border-[var(--line)] bg-white/70 px-4 font-normal focus:border-[var(--signal)] focus:outline-none" id="password" name="password" type="password" autoComplete="current-password" /></label>
-            <ActionLink className="w-full" href="/workspace">Ingresar al workspace</ActionLink>
+            <button
+              aria-describedby="auth-status"
+              className="min-h-11 w-full cursor-not-allowed rounded-full bg-[var(--ink-muted)] px-5 py-2.5 text-sm font-bold text-white"
+              disabled
+              type="submit"
+            >
+              Ingresar al workspace
+            </button>
           </form>
+          <p className="mt-3 text-center text-xs font-bold text-[var(--ink-muted)]" id="auth-status">
+            El acceso estará disponible cuando activemos la autenticación.
+          </p>
           <p className="mt-6 text-center text-xs text-[var(--ink-muted)]">¿Recibiste una invitación? Abrí el enlace que te envió tu coach.</p>
         </div>
       </section>

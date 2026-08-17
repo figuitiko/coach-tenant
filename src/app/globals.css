@@ -5,8 +5,9 @@
   --paper-light: #fbf8f1;
   --ink: #101b2b;
   --ink-muted: #596170;
-  --signal: #ef5a24;
-  --signal-dark: #bb3611;
+  --signal: #a83b18;
+  --signal-dark: #7f280d;
+  --signal-bright: #ff8a58;
   --line: rgba(16, 27, 43, 0.18);
 }
 

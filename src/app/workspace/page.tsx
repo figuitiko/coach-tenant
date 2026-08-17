@@ -1,5 +1,5 @@
-import { WorkspaceShell } from "@/components/shell/workspace-shell";
+import { redirect } from "next/navigation";
 
 export default function WorkspacePage() {
-  return <WorkspaceShell />;
+  redirect("/sign-in");
 }

@@ -28,7 +28,7 @@ export function PublicLanding() {
             Planificá entrenamientos, revisá cada registro y seguí la evolución de tus alumnos sin perseguir mensajes ni planillas.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <ActionLink href="/workspace">Entrar al workspace</ActionLink>
+            <ActionLink href="/sign-in">Entrar al workspace</ActionLink>
             <ActionLink href="#metodo" tone="quiet">
               Ver cómo funciona
             </ActionLink>
@@ -70,7 +70,7 @@ export function PublicLanding() {
             ["03", "Dirigí", "Feedback puntual para el próximo paso."],
           ].map(([number, title, copy]) => (
             <article className="border-l border-white/20 pl-5" key={number}>
-              <p className="text-xs font-extrabold tracking-[0.18em] text-[var(--signal)]">{number}</p>
+              <p className="text-xs font-extrabold tracking-[0.18em] text-[var(--signal-bright)]">{number}</p>
               <h2 className="display-type mt-3 text-3xl">{title}</h2>
               <p className="mt-2 text-sm text-white/65">{copy}</p>
             </article>

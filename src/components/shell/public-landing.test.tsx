@@ -11,7 +11,7 @@ describe("PublicLanding", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /entrar al workspace/i })).toHaveAttribute(
       "href",
-      "/workspace",
+      "/sign-in",
     );
   });
 });
