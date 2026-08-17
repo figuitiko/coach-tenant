@@ -13,4 +13,18 @@ describe("WorkspaceShell", () => {
       "page",
     );
   });
+
+  it("offers a workspace switch affordance for multi-membership accounts", () => {
+    render(
+      <WorkspaceShell
+        currentMembership={{ workspaceId: "w-1", workspaceSlug: "north", workspaceName: "North", role: "COACH" }}
+        memberships={[
+          { workspaceId: "w-1", workspaceSlug: "north", workspaceName: "North", role: "COACH" },
+          { workspaceId: "w-2", workspaceSlug: "south", workspaceName: "South", role: "STUDENT" },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: /cambiar a south/i })).toHaveAttribute("href", "/w/south");
+  });
 });

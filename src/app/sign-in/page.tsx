@@ -1,4 +1,5 @@
 import { BrandMark } from "@/components/shell/brand-mark";
+import { SignInForm } from "@/components/auth/sign-in-form";
 
 export default function SignInPage() {
   return (
@@ -15,21 +16,7 @@ export default function SignInPage() {
           <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[var(--signal)]">Acceso de equipo</p>
           <h1 className="display-type mt-3 text-5xl font-semibold tracking-tight">Volvé al trabajo.</h1>
           <p className="mt-3 text-sm leading-6 text-[var(--ink-muted)]">Ingresá con las credenciales de tu workspace.</p>
-          <form className="mt-8 space-y-5">
-            <label className="block text-sm font-bold" htmlFor="email">Email<input className="mt-2 min-h-12 w-full border border-[var(--line)] bg-white/70 px-4 font-normal focus:border-[var(--signal)] focus:outline-none" id="email" name="email" type="email" autoComplete="email" /></label>
-            <label className="block text-sm font-bold" htmlFor="password">Contraseña<input className="mt-2 min-h-12 w-full border border-[var(--line)] bg-white/70 px-4 font-normal focus:border-[var(--signal)] focus:outline-none" id="password" name="password" type="password" autoComplete="current-password" /></label>
-            <button
-              aria-describedby="auth-status"
-              className="min-h-11 w-full cursor-not-allowed rounded-full bg-[var(--ink-muted)] px-5 py-2.5 text-sm font-bold text-white"
-              disabled
-              type="submit"
-            >
-              Ingresar al workspace
-            </button>
-          </form>
-          <p className="mt-3 text-center text-xs font-bold text-[var(--ink-muted)]" id="auth-status">
-            El acceso estará disponible cuando activemos la autenticación.
-          </p>
+          <SignInForm />
           <p className="mt-6 text-center text-xs text-[var(--ink-muted)]">¿Recibiste una invitación? Abrí el enlace que te envió tu coach.</p>
         </div>
       </section>

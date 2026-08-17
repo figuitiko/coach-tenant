@@ -1,5 +1,6 @@
 import { BrandMark } from "./brand-mark";
 import { StatusPill } from "@/components/ui/status-pill";
+import type { WorkspaceMembershipDto } from "@/modules/tenancy/application/workspace-access";
 
 const queue = [
   ["ML", "Martina López", "Pierna · Sesión 04", "Hace 18 min"],
@@ -14,7 +15,20 @@ const navigationItems = [
   { href: "#perfil", label: "Perfil" },
 ];
 
-export function WorkspaceShell() {
+const defaultMembership: WorkspaceMembershipDto = {
+  workspaceId: "preview",
+  workspaceSlug: "fuerza-norte",
+  workspaceName: "Fuerza Norte",
+  role: "COACH",
+};
+
+export function WorkspaceShell({
+  currentMembership = defaultMembership,
+  memberships = [defaultMembership],
+}: {
+  currentMembership?: WorkspaceMembershipDto;
+  memberships?: WorkspaceMembershipDto[];
+}) {
   return (
     <div className="min-h-screen bg-[var(--paper-light)] lg:grid lg:grid-cols-[15rem_1fr]">
       <aside className="hidden border-r border-[var(--line)] bg-[var(--paper)] p-6 lg:flex lg:flex-col">
@@ -31,12 +45,20 @@ export function WorkspaceShell() {
             </a>
           ))}
         </nav>
-        <div className="mt-auto border-t border-[var(--line)] pt-5 text-sm"><strong>Fuerza Norte</strong><p className="mt-1 text-xs text-[var(--ink-muted)]">Workspace piloto</p></div>
+        <div className="mt-auto border-t border-[var(--line)] pt-5 text-sm">
+          <strong>{currentMembership.workspaceName}</strong>
+          <p className="mt-1 text-xs text-[var(--ink-muted)]">{currentMembership.role === "COACH" ? "Panel del coach" : "Panel del alumno"}</p>
+          {memberships.filter((membership) => membership.workspaceId !== currentMembership.workspaceId).map((membership) => (
+            <a className="mt-3 block text-xs font-bold text-[var(--signal-dark)] underline underline-offset-4" href={`/w/${membership.workspaceSlug}`} key={membership.workspaceId}>
+              Cambiar a {membership.workspaceName}
+            </a>
+          ))}
+        </div>
       </aside>
       <main className="pb-24 lg:pb-0" id="inicio">
         <header className="flex items-center justify-between border-b border-[var(--line)] px-5 py-4 sm:px-8 lg:px-10">
           <div className="lg:hidden"><BrandMark /></div>
-          <p className="hidden text-xs font-extrabold uppercase tracking-[0.15em] text-[var(--ink-muted)] lg:block">Panel del coach</p>
+          <p className="hidden text-xs font-extrabold uppercase tracking-[0.15em] text-[var(--ink-muted)] lg:block">Panel {currentMembership.role === "COACH" ? "del coach" : "del alumno"}</p>
           <span className="grid size-10 place-items-center rounded-full bg-[var(--ink)] text-xs font-bold text-white" id="perfil">FR</span>
         </header>
         <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:px-10 lg:py-12">
