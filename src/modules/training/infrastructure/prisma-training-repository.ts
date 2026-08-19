@@ -1,5 +1,5 @@
 import type { Prisma, PrismaClient } from "@/generated/prisma/client";
-import { TrainingAccessDeniedError, TrainingValidationError, type AssignedWorkout, type CoachTrainingDashboard, type PrescribedExercise, type SaveSetInput, type TrainingRepository, type WorkoutPlanDraft } from "../application/training-service";
+import { TrainingAccessDeniedError, TrainingValidationError, type AssignedWorkout, type CoachTrainingDashboard, type PlanScheduleInput, type PrescribedExercise, type SaveSetInput, type TrainingRepository } from "../application/training-service";
 
 const workoutInclude = {
   exercises: { orderBy: { order: "asc" as const } },
@@ -24,7 +24,12 @@ export class PrismaTrainingRepository implements TrainingRepository {
   async createExercise(input: { workspaceId: string; actorId: string; name: string; notes: string | null }) {
     return this.database.$transaction(async (tx) => {
       await requireCoach(tx, input.workspaceId, input.actorId);
-      return tx.exercise.create({ data: { workspaceId: input.workspaceId, createdById: input.actorId, name: input.name, notes: input.notes }, select: { id: true, name: true } });
+      const exercise = await tx.exercise.create({ data: { workspaceId: input.workspaceId, createdById: input.actorId, name: input.name, notes: input.notes }, select: { id: true, name: true } });
+      await Promise.all([
+        tx.auditEvent.create({ data: { workspaceId: input.workspaceId, actorId: input.actorId, action: "exercise.created", entityType: "Exercise", entityId: exercise.id } }),
+        tx.productEvent.create({ data: { workspaceId: input.workspaceId, userId: input.actorId, name: "exercise_created", properties: { exerciseId: exercise.id } } }),
+      ]);
+      return exercise;
     });
   }
 
@@ -70,50 +75,41 @@ export class PrismaTrainingRepository implements TrainingRepository {
         },
         select: { id: true, name: true },
       });
-      await tx.auditEvent.create({ data: { workspaceId: input.workspaceId, actorId: input.actorId, action: "workout_template.updated", entityType: "WorkoutTemplate", entityId: template.id } });
+      await Promise.all([
+        tx.auditEvent.create({ data: { workspaceId: input.workspaceId, actorId: input.actorId, action: "workout_template.updated", entityType: "WorkoutTemplate", entityId: template.id } }),
+        tx.productEvent.create({ data: { workspaceId: input.workspaceId, userId: input.actorId, name: "workout_template_updated", properties: { templateId: template.id } } }),
+      ]);
       return updated;
     });
   }
 
-  async createPlan(input: { workspaceId: string; actorId: string; name: string; startsOn: string; endsOn: string; templateId: string; scheduledOn: string }) {
+  async createPlan(input: PlanScheduleInput & { workspaceId: string; actorId: string }) {
     return this.database.$transaction(async (tx) => {
       await requireCoach(tx, input.workspaceId, input.actorId);
-      const template = await tx.workoutTemplate.findFirst({ where: { id: input.templateId, workspaceId: input.workspaceId }, select: { id: true } });
-      if (!template) throw new TrainingAccessDeniedError();
-      return tx.workoutPlan.create({
+      const templateIds = [...new Set(input.workouts.map((workout) => workout.templateId))];
+      const templateCount = await tx.workoutTemplate.count({ where: { id: { in: templateIds }, workspaceId: input.workspaceId } });
+      if (templateCount !== templateIds.length) return null;
+      const plan = await tx.workoutPlan.create({
         data: {
           workspaceId: input.workspaceId,
           createdById: input.actorId,
           name: input.name,
           startsOn: dateOnly(input.startsOn),
           endsOn: dateOnly(input.endsOn),
-          workouts: { create: { templateId: input.templateId, order: 0, scheduledOn: dateOnly(input.scheduledOn) } },
+          workouts: { create: input.workouts.map((workout) => ({ templateId: workout.templateId, order: workout.order, scheduledOn: dateOnly(workout.scheduledOn) })) },
         },
         select: { id: true, name: true },
       });
+      await Promise.all([
+        tx.auditEvent.create({ data: { workspaceId: input.workspaceId, actorId: input.actorId, action: "workout_plan.created", entityType: "WorkoutPlan", entityId: plan.id } }),
+        tx.productEvent.create({ data: { workspaceId: input.workspaceId, userId: input.actorId, name: "workout_plan_created", properties: { planId: plan.id, workoutCount: input.workouts.length } } }),
+      ]);
+      return plan;
     });
   }
 
   findMembership(membershipId: string) {
     return this.database.membership.findUnique({ where: { id: membershipId }, select: { workspaceId: true, role: true, userId: true } });
-  }
-
-  async assignPlan(input: { workspaceId: string; actorId: string; studentMembershipId: string; plan: WorkoutPlanDraft }) {
-    const savedPlan = await this.database.$transaction(async (tx) => {
-      await requireCoach(tx, input.workspaceId, input.actorId);
-      const created = await tx.workoutPlan.create({
-        data: {
-          workspaceId: input.workspaceId,
-          createdById: input.actorId,
-          name: input.plan.name,
-          startsOn: dateOnly(input.plan.startsOn),
-          endsOn: dateOnly(input.plan.endsOn),
-          workouts: { create: input.plan.workouts.map((workout, order) => ({ templateId: workout.templateId, order, scheduledOn: dateOnly(workout.scheduledOn) })) },
-        }, select: { id: true },
-      });
-      return created.id;
-    });
-    return this.assignSavedPlan({ ...input, planId: savedPlan });
   }
 
   async assignSavedPlan(input: { workspaceId: string; actorId: string; studentMembershipId: string; planId: string }) {
@@ -126,7 +122,7 @@ export class PrismaTrainingRepository implements TrainingRepository {
           include: { workouts: { orderBy: { order: "asc" }, include: { template: { include: { exercises: { orderBy: { order: "asc" }, include: { exercise: { select: { name: true } } } } } } } } },
         }),
       ]);
-      if (!membership || !plan) throw new TrainingAccessDeniedError();
+      if (!membership || !plan) return null;
       const assignment = await tx.studentPlanAssignment.create({
         data: {
           workspaceId: input.workspaceId,

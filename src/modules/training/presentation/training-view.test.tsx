@@ -13,11 +13,15 @@ describe("training views", () => {
 
     expect(screen.getByRole("heading", { name: /biblioteca de ejercicios/i })).toBeInTheDocument();
     expect(screen.getByRole("form", { name: /crear ejercicio/i })).toBeInTheDocument();
-    expect(screen.getByRole("form", { name: /crear plantilla/i })).toBeInTheDocument();
+    const createTemplate = screen.getByRole("form", { name: /crear plantilla/i });
+    expect(within(createTemplate).getAllByLabelText(/incluir ejercicio/i)).toHaveLength(3);
     const editForm = screen.getByRole("form", { name: /editar plantilla día a/i });
     expect(within(editForm).getByLabelText(/descripción/i)).toHaveValue("Fuerza base");
-    expect(within(editForm).getByLabelText(/orden/i)).toHaveValue(0);
-    expect(screen.getByRole("form", { name: /programar plan/i })).toBeInTheDocument();
+    expect(within(editForm).getAllByLabelText(/orden/i)[0]).toHaveValue(0);
+    expect(within(editForm).getByLabelText(/mantener ejercicio 1/i)).toBeChecked();
+    expect(within(editForm).getByLabelText(/agregar ejercicio/i)).not.toBeChecked();
+    const planForm = screen.getByRole("form", { name: /programar plan/i });
+    expect(within(planForm).getAllByLabelText(/incluir entrenamiento/i)).toHaveLength(3);
     expect(screen.getByRole("form", { name: /asignar plan/i })).toBeInTheDocument();
   });
 
@@ -36,7 +40,8 @@ describe("training views", () => {
     const logger = screen.getByRole("form", { name: /registrar serie 1 de sentadilla/i });
     expect(within(logger).getByLabelText(/repeticiones reales/i)).toHaveAttribute("inputmode", "numeric");
     expect(within(logger).getByLabelText(/peso real/i)).toHaveAttribute("inputmode", "decimal");
-    expect(within(logger).getByRole("button", { name: /guardar y seguir después/i })).toHaveClass("min-h-12");
+    expect(within(logger).getByLabelText(/serie completada/i)).not.toBeChecked();
+    expect(within(logger).getByRole("button", { name: /guardar serie/i })).toHaveClass("min-h-12");
     expect(screen.getByRole("button", { name: /finalizar entrenamiento/i })).toHaveClass("min-h-12");
   });
 });

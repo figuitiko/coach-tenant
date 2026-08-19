@@ -46,7 +46,7 @@ integration("PrismaTrainingRepository against PostgreSQL", () => {
     const student = { actorId: studentId, workspaceId, role: "STUDENT" } as const;
     const exercise = await service.createExercise(coach, { name: "Sentadilla integración" });
     const template = await service.createTemplate(coach, { name: "Día integración", exercises: [{ exerciseId: exercise.id, exerciseName: exercise.name, order: 0, prescribedSets: 3, repMin: 6, repMax: 8, targetRpe: 8, restSeconds: 120, notes: null }] });
-    const plan = await service.createPlan(coach, { name: "Bloque integración", startsOn: "2026-08-18", endsOn: "2026-08-24", templateId: template.id, scheduledOn: "2026-08-18" });
+    const plan = await service.createPlan(coach, { name: "Bloque integración", startsOn: "2026-08-18", endsOn: "2026-08-24", workouts: [{ templateId: template.id, scheduledOn: "2026-08-18", order: 0 }] });
     const membership = await database.membership.findUniqueOrThrow({ where: { workspaceId_userId: { workspaceId, userId: studentId } } });
     const assignment = await service.assignSavedPlan(coach, { planId: plan.id, studentMembershipId: membership.id });
     const workout = assignment.workouts[0];
@@ -70,6 +70,9 @@ integration("PrismaTrainingRepository against PostgreSQL", () => {
     await service.completeWorkout(student, workout.id);
 
     expect(await database.productEvent.count({ where: { workspaceId, name: "workout_template_created" } })).toBe(1);
+    expect(await database.productEvent.count({ where: { workspaceId, name: "exercise_created" } })).toBe(1);
+    expect(await database.productEvent.count({ where: { workspaceId, name: "workout_plan_created" } })).toBe(1);
+    expect(await database.productEvent.count({ where: { workspaceId, name: "workout_template_updated" } })).toBe(1);
     expect(await database.productEvent.count({ where: { workspaceId, name: "workout_plan_assigned" } })).toBe(1);
     expect(await database.productEvent.count({ where: { workspaceId, name: "workout_started" } })).toBe(1);
     expect(await database.productEvent.count({ where: { workspaceId, name: "workout_completed" } })).toBe(1);

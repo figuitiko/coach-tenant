@@ -6,10 +6,9 @@ import {
   type AssignedWorkout,
   type PrescribedExercise,
   type TrainingRepository,
-  type WorkoutPlanDraft,
 } from "./training-service";
 
-const plan: WorkoutPlanDraft = {
+const plan = {
   name: "Base de fuerza",
   startsOn: "2026-08-18",
   endsOn: "2026-08-24",
@@ -52,6 +51,28 @@ describe("TrainingService authorization", () => {
       { actorId: "student-1", workspaceId: "workspace-1", role: "STUDENT" },
       { assignedWorkoutId: "foreign", exerciseSnapshotId: "snapshot-exercise-1", setNumber: 1, reps: 8, weight: 80, unit: "KG", rpe: 8, completed: true },
     )).rejects.toBeInstanceOf(TrainingAccessDeniedError);
+
+    repository.assignments.push(assignmentFixture({ id: "same-workspace-other-student", studentId: "student-2" }));
+    await expect(service.saveSet(
+      { actorId: "student-1", workspaceId: "workspace-1", role: "STUDENT" },
+      { assignedWorkoutId: "same-workspace-other-student", exerciseSnapshotId: "snapshot-exercise-1", setNumber: 1, reps: 8, weight: 80, unit: "KG", rpe: 8, completed: true },
+    )).rejects.toBeInstanceOf(TrainingAccessDeniedError);
+  });
+
+  it("denies crafted foreign template and plan ids", async () => {
+    const repository = repositoryFixture();
+    repository.memberships.set("student-membership", { workspaceId: "workspace-1", role: "STUDENT", userId: "student-1" });
+    const service = new TrainingService(repository);
+    const coach = { actorId: "coach-1", workspaceId: "workspace-1", role: "COACH" } as const;
+
+    await expect(service.createPlan(coach, {
+      name: "Plan adulterado",
+      startsOn: "2026-08-18",
+      endsOn: "2026-08-24",
+      workouts: [{ templateId: "foreign-template", scheduledOn: "2026-08-18", order: 0 }],
+    })).rejects.toBeInstanceOf(TrainingAccessDeniedError);
+    await expect(service.assignSavedPlan(coach, { studentMembershipId: "student-membership", planId: "foreign-plan" }))
+      .rejects.toBeInstanceOf(TrainingAccessDeniedError);
   });
 });
 
@@ -63,26 +84,11 @@ describe("plan assignment", () => {
     const service = new TrainingService(repository);
     const coach = { actorId: "coach-1", workspaceId: "workspace-1", role: "COACH" } as const;
 
-    await expect(service.assignPlan(coach, { studentMembershipId: "coach-target", plan }))
+    repository.plans.set("plan-1", { workspaceId: "workspace-1", name: "Base", workouts: [{ templateId: "template-1", scheduledOn: "2026-08-18", order: 0 }] });
+    await expect(service.assignSavedPlan(coach, { studentMembershipId: "coach-target", planId: "plan-1" }))
       .rejects.toBeInstanceOf(TrainingValidationError);
-    await expect(service.assignPlan(coach, { studentMembershipId: "foreign-student", plan }))
+    await expect(service.assignSavedPlan(coach, { studentMembershipId: "foreign-student", planId: "plan-1" }))
       .rejects.toBeInstanceOf(TrainingAccessDeniedError);
-  });
-
-  it("captures an immutable workout snapshot at assignment time", async () => {
-    const repository = repositoryFixture();
-    repository.memberships.set("student-membership", { workspaceId: "workspace-1", role: "STUDENT", userId: "student-1" });
-    const service = new TrainingService(repository);
-    const draft = structuredClone(plan);
-
-    const assigned = await service.assignPlan(
-      { actorId: "coach-1", workspaceId: "workspace-1", role: "COACH" },
-      { studentMembershipId: "student-membership", plan: draft },
-    );
-    draft.workouts[0].exercises[0].exerciseName = "Sentadilla editada";
-    draft.workouts[0].exercises[0].repMax = 12;
-
-    expect(assigned.workouts[0].exercises[0]).toMatchObject({ exerciseName: "Sentadilla", repMax: 8 });
   });
 
   it("edits a scoped template without changing an existing assignment snapshot", async () => {
@@ -91,8 +97,9 @@ describe("plan assignment", () => {
     const service = new TrainingService(repository);
     const coach = { actorId: "coach-1", workspaceId: "workspace-1", role: "COACH" } as const;
     const originalPlan = structuredClone(plan);
-    repository.templates.push({ id: "template-1", name: "Día A", description: null, exercises: structuredClone(originalPlan.workouts[0].exercises) });
-    const assigned = await service.assignPlan(coach, { studentMembershipId: "student-membership", plan: originalPlan });
+    repository.templates.push({ id: "template-1", workspaceId: "workspace-1", name: "Día A", description: null, exercises: structuredClone(originalPlan.workouts[0].exercises) });
+    repository.plans.set("plan-1", { workspaceId: "workspace-1", name: "Base", workouts: [{ templateId: "template-1", scheduledOn: "2026-08-18", order: 0 }] });
+    const assigned = await service.assignSavedPlan(coach, { studentMembershipId: "student-membership", planId: "plan-1" });
 
     await service.editTemplate(coach, {
       templateId: "template-1",
@@ -109,6 +116,19 @@ describe("plan assignment", () => {
 });
 
 describe("student workout logging", () => {
+  it("persists both completed and incomplete set states", async () => {
+    const repository = repositoryFixture();
+    repository.assignments.push(assignmentFixture());
+    const service = new TrainingService(repository);
+    const student = { actorId: "student-1", workspaceId: "workspace-1", role: "STUDENT" } as const;
+    const base = { assignedWorkoutId: "assigned-workout-1", exerciseSnapshotId: "snapshot-exercise-1", reps: 8, weight: 80, unit: "KG", rpe: 8 } as const;
+
+    await service.saveSet(student, { ...base, setNumber: 1, completed: true });
+    await service.saveSet(student, { ...base, setNumber: 2, completed: false });
+
+    expect((await service.getStudentSchedule(student, "2026-08-18"))[0].session?.sets)
+      .toEqual(expect.arrayContaining([expect.objectContaining({ setNumber: 1, completed: true }), expect.objectContaining({ setNumber: 2, completed: false })]));
+  });
   it("saves actual set data and resumes an incomplete workout", async () => {
     const repository = repositoryFixture();
     repository.assignments.push(assignmentFixture());
@@ -162,17 +182,20 @@ function assignmentFixture(overrides: Partial<AssignedWorkout> = {}): AssignedWo
 }
 
 function repositoryFixture(): TrainingRepository & {
-  templates: Array<{ id: string; name: string; description?: string | null; exercises: PrescribedExercise[] }>;
+  templates: Array<{ id: string; workspaceId: string; name: string; description?: string | null; exercises: PrescribedExercise[] }>;
+  plans: Map<string, { workspaceId: string; name: string; workouts: Array<{ templateId: string; scheduledOn: string; order: number }> }>;
   memberships: Map<string, { workspaceId: string; role: "COACH" | "STUDENT"; userId?: string }>;
   assignments: AssignedWorkout[];
   events: { name: string }[];
 } {
-  const templates: Array<{ id: string; name: string; description?: string | null; exercises: PrescribedExercise[] }> = [];
+  const templates: Array<{ id: string; workspaceId: string; name: string; description?: string | null; exercises: PrescribedExercise[] }> = [];
+  const plans = new Map<string, { workspaceId: string; name: string; workouts: Array<{ templateId: string; scheduledOn: string; order: number }> }>();
   const memberships = new Map<string, { workspaceId: string; role: "COACH" | "STUDENT"; userId?: string }>();
   const assignments: AssignedWorkout[] = [];
   const events: { name: string }[] = [];
   return {
     templates,
+    plans,
     memberships,
     assignments,
     events,
@@ -184,21 +207,29 @@ function repositoryFixture(): TrainingRepository & {
       Object.assign(template, { name: input.name, description: input.description, exercises: structuredClone(input.exercises) });
       return { id: template.id, name: template.name };
     },
-    async createPlan(input) { return { id: "plan-1", name: input.name }; },
+    async createPlan(input) {
+      if (input.workouts.some((workout) => !templates.some((template) => template.id === workout.templateId && template.workspaceId === input.workspaceId))) return null;
+      plans.set("plan-1", { workspaceId: input.workspaceId, name: input.name, workouts: structuredClone(input.workouts) });
+      return { id: "plan-1", name: input.name };
+    },
     async findMembership(id) { return memberships.get(id) ?? null; },
-    async assignPlan(input) {
+    async assignSavedPlan(input) {
+      const savedPlan = plans.get(input.planId);
+      const membership = memberships.get(input.studentMembershipId);
+      if (!savedPlan || savedPlan.workspaceId !== input.workspaceId || !membership?.userId) return null;
       const studentId = memberships.get(input.studentMembershipId)?.userId ?? "student-1";
-      const workouts = structuredClone(input.plan.workouts).map((workout, index) => assignmentFixture({
+      const workouts = savedPlan.workouts.map((workout, index) => {
+        const template = templates.find((item) => item.id === workout.templateId)!;
+        return assignmentFixture({
         id: `assigned-workout-${index + 1}`,
         studentId,
         scheduledOn: workout.scheduledOn,
-        templateName: workout.templateName,
-        exercises: workout.exercises.map((exercise, exerciseIndex) => ({ id: `snapshot-exercise-${exerciseIndex + 1}`, ...exercise })),
-      }));
+        templateName: template.name,
+        exercises: structuredClone(template.exercises).map((exercise, exerciseIndex) => ({ id: `snapshot-exercise-${exerciseIndex + 1}`, ...exercise })),
+      }); });
       assignments.push(...workouts);
       return { id: "assignment-1", workouts };
     },
-    async assignSavedPlan() { return { id: "assignment-1", workouts: [] }; },
     async listStudentSchedule(input) {
       return assignments.filter((item) => item.workspaceId === input.workspaceId && item.studentId === input.studentId && item.scheduledOn === input.date);
     },

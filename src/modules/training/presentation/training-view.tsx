@@ -39,13 +39,8 @@ export function CoachTrainingView({
           <form action={actions.createTemplate} aria-label="Crear plantilla" className="mt-5 grid grid-cols-2 gap-4">
             <label className={`${labelClass} col-span-2`}>Nombre de plantilla<input className={fieldClass} name="name" required /></label>
             <label className={`${labelClass} col-span-2`}>Descripción<textarea className={`${fieldClass} min-h-20 py-3`} name="description" /></label>
-            <label className={`${labelClass} col-span-2`}>Ejercicio<select className={fieldClass} name="exerciseId" required><option value="">Elegí uno</option>{dashboard.exercises.map((exercise) => <option key={exercise.id} value={exercise.id}>{exercise.name}</option>)}</select></label>
-            <label className={labelClass}>Series<input className={fieldClass} inputMode="numeric" min="1" name="sets" required type="number" /></label>
-            <label className={labelClass}>Reps mín.<input className={fieldClass} inputMode="numeric" min="1" name="repMin" required type="number" /></label>
-            <label className={labelClass}>Reps máx.<input className={fieldClass} inputMode="numeric" min="1" name="repMax" required type="number" /></label>
-            <label className={labelClass}>RPE objetivo<input className={fieldClass} inputMode="decimal" max="10" min="1" name="targetRpe" step="0.5" type="number" /></label>
-            <label className={labelClass}>Descanso (seg.)<input className={fieldClass} inputMode="numeric" min="0" name="restSeconds" type="number" /></label>
-            <label className={`${labelClass} col-span-2`}>Indicaciones<textarea className={`${fieldClass} min-h-20 py-3`} name="notes" /></label>
+            <input name="exerciseCount" type="hidden" value="3" />
+            {[0, 1, 2].map((index) => <PrescriptionFields exercises={dashboard.exercises} includeLabel={`Incluir ejercicio ${index + 1}`} index={index} key={index} />)}
             <button className={`${buttonClass} col-span-2`} type="submit">Crear plantilla</button>
           </form>
         </article>
@@ -61,23 +56,13 @@ export function CoachTrainingView({
                 <summary className="cursor-pointer font-extrabold">{template.name}</summary>
                 <form action={actions.editTemplate} aria-label={`Editar plantilla ${template.name}`} className="mt-5 grid grid-cols-2 gap-4">
                   <input name="templateId" type="hidden" value={template.id} />
-                  <input name="exerciseCount" type="hidden" value={template.exercises.length} />
+                  <input name="exerciseCount" type="hidden" value={template.exercises.length + 1} />
                   <label className={`${labelClass} col-span-2`}>Nombre<input className={fieldClass} defaultValue={template.name} name="name" required /></label>
                   <label className={`${labelClass} col-span-2`}>Descripción<textarea className={`${fieldClass} min-h-20 py-3`} defaultValue={template.description ?? ""} name="description" /></label>
                   {template.exercises.map((exercise, index) => (
-                    <fieldset className="col-span-2 grid grid-cols-2 gap-3 border-t border-[var(--line)] pt-4" key={`${exercise.exerciseId}-${index}`}>
-                      <legend className="px-2 text-sm font-extrabold">Ejercicio {index + 1}</legend>
-                      <input name={`exerciseName-${index}`} type="hidden" value={exercise.exerciseName} />
-                      <label className={`${labelClass} col-span-2`}>Ejercicio<select className={fieldClass} defaultValue={exercise.exerciseId} name={`exerciseId-${index}`} required>{dashboard.exercises.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
-                      <label className={labelClass}>Orden<input className={fieldClass} defaultValue={exercise.order} min="0" name={`order-${index}`} required type="number" /></label>
-                      <label className={labelClass}>Series<input className={fieldClass} defaultValue={exercise.prescribedSets} min="1" name={`sets-${index}`} required type="number" /></label>
-                      <label className={labelClass}>Reps mín.<input className={fieldClass} defaultValue={exercise.repMin} min="1" name={`repMin-${index}`} required type="number" /></label>
-                      <label className={labelClass}>Reps máx.<input className={fieldClass} defaultValue={exercise.repMax} min="1" name={`repMax-${index}`} required type="number" /></label>
-                      <label className={labelClass}>RPE objetivo<input className={fieldClass} defaultValue={exercise.targetRpe ?? ""} max="10" min="1" name={`targetRpe-${index}`} step="0.5" type="number" /></label>
-                      <label className={labelClass}>Descanso (seg.)<input className={fieldClass} defaultValue={exercise.restSeconds ?? ""} min="0" name={`restSeconds-${index}`} type="number" /></label>
-                      <label className={`${labelClass} col-span-2`}>Indicaciones<textarea className={`${fieldClass} min-h-20 py-3`} defaultValue={exercise.notes ?? ""} name={`notes-${index}`} /></label>
-                    </fieldset>
+                    <PrescriptionFields defaultValue={exercise} exercises={dashboard.exercises} includeLabel={`Mantener ejercicio ${index + 1}`} index={index} key={`${exercise.exerciseId}-${index}`} />
                   ))}
+                  <PrescriptionFields exercises={dashboard.exercises} includeLabel="Agregar ejercicio" index={template.exercises.length} />
                   <button className={`${buttonClass} col-span-2`} type="submit">Guardar cambios</button>
                 </form>
               </details>
@@ -93,8 +78,15 @@ export function CoachTrainingView({
             <label className={`${labelClass} col-span-2 !text-white/75`}>Nombre del bloque<input className={`${fieldClass} text-[var(--ink)]`} name="name" required /></label>
             <label className={`${labelClass} !text-white/75`}>Inicio<input className={`${fieldClass} text-[var(--ink)]`} name="startsOn" required type="date" /></label>
             <label className={`${labelClass} !text-white/75`}>Fin<input className={`${fieldClass} text-[var(--ink)]`} name="endsOn" required type="date" /></label>
-            <label className={`${labelClass} col-span-2 !text-white/75`}>Plantilla<select className={`${fieldClass} text-[var(--ink)]`} name="templateId" required><option value="">Elegí una</option>{dashboard.templates.map((template) => <option key={template.id} value={template.id}>{template.name}</option>)}</select></label>
-            <label className={`${labelClass} col-span-2 !text-white/75`}>Día del entrenamiento<input className={`${fieldClass} text-[var(--ink)]`} name="scheduledOn" required type="date" /></label>
+            <input name="workoutCount" type="hidden" value="3" />
+            {[0, 1, 2].map((index) => (
+              <fieldset className="col-span-2 grid grid-cols-2 gap-3 border-t border-white/20 pt-3" key={index}>
+                <legend className="px-2 text-sm font-extrabold">Entrenamiento {index + 1}</legend>
+                <label className="col-span-2 flex min-h-11 items-center gap-2 text-sm font-bold"><input defaultChecked={index === 0} name={`includeWorkout-${index}`} type="checkbox" value="true" />Incluir entrenamiento {index + 1}</label>
+                <label className={`${labelClass} col-span-2 !text-white/75`}>Plantilla<select className={`${fieldClass} text-[var(--ink)]`} name={`templateId-${index}`}><option value="">Elegí una</option>{dashboard.templates.map((template) => <option key={template.id} value={template.id}>{template.name}</option>)}</select></label>
+                <label className={`${labelClass} col-span-2 !text-white/75`}>Fecha<input className={`${fieldClass} text-[var(--ink)]`} name={`scheduledOn-${index}`} type="date" /></label>
+              </fieldset>
+            ))}
             <button className={`${buttonClass} col-span-2 bg-[var(--signal-bright)] text-[var(--ink)]`} type="submit">Programar plan</button>
           </form>
         </article>
@@ -153,7 +145,9 @@ export function StudentTrainingView({
                         <label className={labelClass}>Unidad<select className={fieldClass} defaultValue={logged?.unit ?? "KG"} name="unit"><option value="KG">kg</option><option value="LB">lb</option></select></label>
                         <label className={labelClass}>RPE real<input className={fieldClass} defaultValue={logged?.rpe ?? ""} inputMode="decimal" max="10" min="1" name="rpe" step="0.5" type="number" /></label>
                         <label className={`${labelClass} col-span-2 sm:col-span-4`}>Notas<textarea className={`${fieldClass} min-h-20 py-3`} defaultValue={logged?.notes ?? ""} name="notes" /></label>
-                        <button className={`${buttonClass} col-span-2 sm:col-span-4`} name="completed" type="submit" value="false">Guardar y seguir después</button>
+                        <input name="completed" type="hidden" value="false" />
+                        <label className="col-span-2 flex min-h-12 items-center gap-3 text-sm font-extrabold sm:col-span-4"><input defaultChecked={logged?.completed ?? false} name="completed" type="checkbox" value="true" />Serie completada</label>
+                        <button className={`${buttonClass} col-span-2 sm:col-span-4`} type="submit">Guardar serie</button>
                       </form>
                     );
                   })}
@@ -168,6 +162,34 @@ export function StudentTrainingView({
         </article>
       ))}
     </div>
+  );
+}
+
+function PrescriptionFields({
+  exercises,
+  includeLabel,
+  index,
+  defaultValue,
+}: {
+  exercises: CoachTrainingDashboard["exercises"];
+  includeLabel: string;
+  index: number;
+  defaultValue?: CoachTrainingDashboard["templates"][number]["exercises"][number];
+}) {
+  return (
+    <fieldset className="col-span-2 grid grid-cols-2 gap-3 border-t border-[var(--line)] pt-4">
+      <legend className="px-2 text-sm font-extrabold">Ejercicio {index + 1}</legend>
+      <label className="col-span-2 flex min-h-11 items-center gap-2 text-sm font-bold"><input defaultChecked={Boolean(defaultValue) || index === 0} name={`include-${index}`} type="checkbox" value="true" />{includeLabel}</label>
+      <input name={`exerciseName-${index}`} type="hidden" value={defaultValue?.exerciseName ?? "Ejercicio"} />
+      <label className={`${labelClass} col-span-2`}>Ejercicio<select className={fieldClass} defaultValue={defaultValue?.exerciseId ?? ""} name={`exerciseId-${index}`}><option value="">Elegí uno</option>{exercises.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
+      <label className={labelClass}>Orden<input className={fieldClass} defaultValue={defaultValue?.order ?? index} min="0" name={`order-${index}`} type="number" /></label>
+      <label className={labelClass}>Series<input className={fieldClass} defaultValue={defaultValue?.prescribedSets ?? ""} min="1" name={`sets-${index}`} type="number" /></label>
+      <label className={labelClass}>Reps mín.<input className={fieldClass} defaultValue={defaultValue?.repMin ?? ""} min="1" name={`repMin-${index}`} type="number" /></label>
+      <label className={labelClass}>Reps máx.<input className={fieldClass} defaultValue={defaultValue?.repMax ?? ""} min="1" name={`repMax-${index}`} type="number" /></label>
+      <label className={labelClass}>RPE objetivo<input className={fieldClass} defaultValue={defaultValue?.targetRpe ?? ""} max="10" min="1" name={`targetRpe-${index}`} step="0.5" type="number" /></label>
+      <label className={labelClass}>Descanso (seg.)<input className={fieldClass} defaultValue={defaultValue?.restSeconds ?? ""} min="0" name={`restSeconds-${index}`} type="number" /></label>
+      <label className={`${labelClass} col-span-2`}>Indicaciones<textarea className={`${fieldClass} min-h-20 py-3`} defaultValue={defaultValue?.notes ?? ""} name={`notes-${index}`} /></label>
+    </fieldset>
   );
 }
 

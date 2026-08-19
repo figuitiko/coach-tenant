@@ -16,16 +16,11 @@ export type PrescribedExercise = {
   notes: string | null;
 };
 
-export type WorkoutPlanDraft = {
+export type PlanScheduleInput = {
   name: string;
   startsOn: string;
   endsOn: string;
-  workouts: Array<{
-    scheduledOn: string;
-    templateId: string;
-    templateName: string;
-    exercises: PrescribedExercise[];
-  }>;
+  workouts: Array<{ templateId: string; scheduledOn: string; order: number }>;
 };
 
 export type LoggedSet = {
@@ -81,10 +76,9 @@ export interface TrainingRepository {
   createExercise(input: { workspaceId: string; actorId: string; name: string; notes: string | null }): Promise<{ id: string; name: string }>;
   createTemplate(input: { workspaceId: string; actorId: string; name: string; description?: string | null; exercises: PrescribedExercise[] }): Promise<{ id: string; name: string }>;
   editTemplate(input: { workspaceId: string; actorId: string; templateId: string; name: string; description: string | null; exercises: PrescribedExercise[] }): Promise<{ id: string; name: string } | null>;
-  createPlan(input: { workspaceId: string; actorId: string; name: string; startsOn: string; endsOn: string; templateId: string; scheduledOn: string }): Promise<{ id: string; name: string }>;
+  createPlan(input: PlanScheduleInput & { workspaceId: string; actorId: string }): Promise<{ id: string; name: string } | null>;
   findMembership(membershipId: string): Promise<{ workspaceId: string; role: TrainingRole; userId?: string } | null>;
-  assignPlan(input: { workspaceId: string; actorId: string; studentMembershipId: string; plan: WorkoutPlanDraft }): Promise<{ id: string; workouts: AssignedWorkout[] }>;
-  assignSavedPlan(input: { workspaceId: string; actorId: string; studentMembershipId: string; planId: string }): Promise<{ id: string; workouts: AssignedWorkout[] }>;
+  assignSavedPlan(input: { workspaceId: string; actorId: string; studentMembershipId: string; planId: string }): Promise<{ id: string; workouts: AssignedWorkout[] } | null>;
   listStudentSchedule(input: { workspaceId: string; studentId: string; date: string }): Promise<AssignedWorkout[]>;
   saveSet(input: SaveSetInput & { workspaceId: string; studentId: string; savedAt: Date }): Promise<AssignedWorkout | null>;
   completeWorkout(input: { workspaceId: string; studentId: string; assignedWorkoutId: string; completedAt: Date }): Promise<WorkoutSessionDto | null>;
@@ -146,24 +140,12 @@ export class TrainingService {
     return updated;
   }
 
-  async assignPlan(actor: TrainingActor, input: { studentMembershipId: string; plan: WorkoutPlanDraft }) {
+  async createPlan(actor: TrainingActor, input: PlanScheduleInput) {
     requireCoach(actor);
-    validatePlan(input.plan);
-    const membership = await this.repository.findMembership(input.studentMembershipId);
-    if (!membership || membership.workspaceId !== actor.workspaceId) throw new TrainingAccessDeniedError();
-    if (membership.role !== "STUDENT") throw new TrainingValidationError("Plans can only be assigned to students");
-    return this.repository.assignPlan({
-      workspaceId: actor.workspaceId,
-      actorId: actor.actorId,
-      studentMembershipId: input.studentMembershipId,
-      plan: structuredClone(input.plan),
-    });
-  }
-
-  async createPlan(actor: TrainingActor, input: { name: string; startsOn: string; endsOn: string; templateId: string; scheduledOn: string }) {
-    requireCoach(actor);
-    validatePlan({ ...input, workouts: [{ scheduledOn: input.scheduledOn, templateId: input.templateId, templateName: "snapshot pending", exercises: [validPlaceholderPrescription] }] });
-    return this.repository.createPlan({ workspaceId: actor.workspaceId, actorId: actor.actorId, ...input, name: input.name.trim() });
+    validateSchedule(input);
+    const plan = await this.repository.createPlan({ workspaceId: actor.workspaceId, actorId: actor.actorId, ...structuredClone(input), name: input.name.trim() });
+    if (!plan) throw new TrainingAccessDeniedError();
+    return plan;
   }
 
   async assignSavedPlan(actor: TrainingActor, input: { studentMembershipId: string; planId: string }) {
@@ -171,7 +153,9 @@ export class TrainingService {
     const membership = await this.repository.findMembership(input.studentMembershipId);
     if (!membership || membership.workspaceId !== actor.workspaceId) throw new TrainingAccessDeniedError();
     if (membership.role !== "STUDENT") throw new TrainingValidationError("Plans can only be assigned to students");
-    return this.repository.assignSavedPlan({ workspaceId: actor.workspaceId, actorId: actor.actorId, ...input });
+    const assignment = await this.repository.assignSavedPlan({ workspaceId: actor.workspaceId, actorId: actor.actorId, ...input });
+    if (!assignment) throw new TrainingAccessDeniedError();
+    return assignment;
   }
 
   async getCoachDashboard(actor: TrainingActor) {
@@ -206,18 +190,6 @@ export class TrainingService {
   }
 }
 
-const validPlaceholderPrescription: PrescribedExercise = {
-  exerciseId: "validation-placeholder",
-  exerciseName: "validation-placeholder",
-  order: 0,
-  prescribedSets: 1,
-  repMin: 1,
-  repMax: 1,
-  targetRpe: null,
-  restSeconds: null,
-  notes: null,
-};
-
 function requireCoach(actor: TrainingActor) {
   if (actor.role !== "COACH") throw new TrainingAccessDeniedError();
 }
@@ -247,14 +219,14 @@ function validatePrescription(input: PrescribedExercise) {
   if (input.restSeconds !== null && (!Number.isInteger(input.restSeconds) || input.restSeconds < 0 || input.restSeconds > 3600)) throw new TrainingValidationError("Rest time is invalid");
 }
 
-function validatePlan(plan: WorkoutPlanDraft) {
+function validateSchedule(plan: PlanScheduleInput) {
   requiredText(plan.name, "Plan name is required");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(plan.startsOn) || !/^\d{4}-\d{2}-\d{2}$/.test(plan.endsOn) || plan.endsOn < plan.startsOn) throw new TrainingValidationError("Plan dates are invalid");
   if (!plan.workouts.length) throw new TrainingValidationError("A plan needs a scheduled workout");
+  const orders = new Set<number>();
   for (const workout of plan.workouts) {
-    if (workout.scheduledOn < plan.startsOn || workout.scheduledOn > plan.endsOn) throw new TrainingValidationError("Workout date is outside the plan");
-    if (!workout.templateId || !workout.exercises.length) throw new TrainingValidationError("Scheduled workout is invalid");
-    workout.exercises.forEach(validatePrescription);
+    if (!workout.templateId || workout.scheduledOn < plan.startsOn || workout.scheduledOn > plan.endsOn || !Number.isInteger(workout.order) || workout.order < 0 || orders.has(workout.order)) throw new TrainingValidationError("Scheduled workout is invalid");
+    orders.add(workout.order);
   }
 }
 

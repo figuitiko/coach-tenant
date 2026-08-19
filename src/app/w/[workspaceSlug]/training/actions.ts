@@ -18,7 +18,7 @@ export async function createTemplateAction(workspaceSlug: string, formData: Form
     await trainingService.createTemplate(actor, {
       name: input.name,
       description: input.description,
-      exercises: [{ exerciseId: input.exerciseId, exerciseName: "Ejercicio", order: 0, prescribedSets: input.sets, repMin: input.repMin, repMax: input.repMax, targetRpe: input.targetRpe, restSeconds: input.restSeconds, notes: input.notes }],
+      exercises: input.exercises,
     });
   });
 }
