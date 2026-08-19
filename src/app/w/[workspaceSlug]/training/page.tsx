@@ -4,6 +4,7 @@ import { CrossTenantAccessError, UnauthenticatedError } from "@/modules/tenancy/
 import { requireWorkspaceAccess } from "@/modules/tenancy/infrastructure/workspace-dal";
 import { trainingService } from "@/modules/training/infrastructure/training-use-cases";
 import { CoachTrainingView, StudentTrainingView } from "@/modules/training/presentation/training-view";
+import { calendarDateInTimeZone, isCalendarDate } from "@/modules/training/presentation/local-date";
 import { assignPlanAction, completeWorkoutAction, createExerciseAction, createPlanAction, createTemplateAction, editTemplateAction, saveSetAction } from "./actions";
 
 export const runtime = "nodejs";
@@ -43,7 +44,9 @@ async function loadTrainingContext(workspaceSlug: string, requestedDate?: string
   try {
     const access = await requireWorkspaceAccess(workspaceSlug);
     const actor = { actorId: access.userId, workspaceId: access.workspace.workspaceId, role: access.workspace.role } as const;
-    const date = requestedDate && /^\d{4}-\d{2}-\d{2}$/.test(requestedDate) ? requestedDate : new Date().toISOString().slice(0, 10);
+    const date = requestedDate && isCalendarDate(requestedDate)
+      ? requestedDate
+      : calendarDateInTimeZone(new Date(), access.workspace.timeZone);
     return { actor, date };
   } catch (error) {
     if (error instanceof UnauthenticatedError) redirect("/sign-in");

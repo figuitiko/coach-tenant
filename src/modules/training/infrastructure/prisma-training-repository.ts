@@ -113,7 +113,7 @@ export class PrismaTrainingRepository implements TrainingRepository {
   }
 
   async assignSavedPlan(input: { workspaceId: string; actorId: string; studentMembershipId: string; planId: string }) {
-    return this.database.$transaction(async (tx) => {
+    return serializableTransaction(this.database, async (tx) => {
       await requireCoach(tx, input.workspaceId, input.actorId);
       const [membership, plan] = await Promise.all([
         tx.membership.findFirst({ where: { id: input.studentMembershipId, workspaceId: input.workspaceId, role: "STUDENT" }, select: { id: true, userId: true } }),
@@ -123,6 +123,14 @@ export class PrismaTrainingRepository implements TrainingRepository {
         }),
       ]);
       if (!membership || !plan) return null;
+      const existing = await tx.studentPlanAssignment.findUnique({
+        where: { workspaceId_planId_studentMembershipId: { workspaceId: input.workspaceId, planId: plan.id, studentMembershipId: membership.id } },
+        select: { id: true },
+      });
+      if (existing) {
+        const workouts = await tx.assignedWorkout.findMany({ where: { assignmentId: existing.id }, orderBy: { scheduledOn: "asc" }, include: workoutInclude });
+        return { id: existing.id, workouts: workouts.map(mapWorkout) };
+      }
       const assignment = await tx.studentPlanAssignment.create({
         data: {
           workspaceId: input.workspaceId,
@@ -170,7 +178,7 @@ export class PrismaTrainingRepository implements TrainingRepository {
   }
 
   async saveSet(input: SaveSetInput & { workspaceId: string; studentId: string; savedAt: Date }) {
-    return this.database.$transaction(async (tx) => {
+    return serializableTransaction(this.database, async (tx) => {
       const workout = await tx.assignedWorkout.findFirst({
         where: { id: input.assignedWorkoutId, workspaceId: input.workspaceId, studentId: input.studentId, status: { not: "COMPLETED" }, exercises: { some: { id: input.exerciseSnapshotId } } },
         select: { id: true, session: { select: { id: true } } },
@@ -244,6 +252,25 @@ export class PrismaTrainingRepository implements TrainingRepository {
       students: students.map((student) => ({ membershipId: student.id, name: student.user.name })),
     };
   }
+}
+
+async function serializableTransaction<T>(
+  database: PrismaClient,
+  operation: (transaction: Prisma.TransactionClient) => Promise<T>,
+): Promise<T> {
+  const maxAttempts = 3;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      return await database.$transaction(operation, { isolationLevel: "Serializable" });
+    } catch (error) {
+      if (!isTransactionConflict(error) || attempt === maxAttempts) throw error;
+    }
+  }
+  throw new Error("Unreachable transaction retry state");
+}
+
+function isTransactionConflict(error: unknown): error is { code: "P2034" | "P2002" } {
+  return typeof error === "object" && error !== null && "code" in error && (error.code === "P2034" || error.code === "P2002");
 }
 
 type DatabaseLike = Pick<PrismaClient, "membership">;

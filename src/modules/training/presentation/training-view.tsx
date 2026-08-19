@@ -1,6 +1,11 @@
+"use client";
+
+import { useActionState, type ReactNode } from "react";
+import { useFormStatus } from "react-dom";
+import { initialTrainingActionState, type TrainingActionState } from "./training-action-state";
 import type { AssignedWorkout, CoachTrainingDashboard } from "../application/training-service";
 
-type FormAction = (formData: FormData) => Promise<void>;
+type FormAction = (previousState: TrainingActionState, formData: FormData) => Promise<TrainingActionState>;
 
 const fieldClass = "mt-1 min-h-12 w-full rounded-lg border border-[var(--line)] bg-white px-3 text-base";
 const labelClass = "text-xs font-extrabold uppercase tracking-[0.1em] text-[var(--ink-muted)]";
@@ -24,11 +29,11 @@ export function CoachTrainingView({
       <section className="mt-9 grid gap-5 lg:grid-cols-2" aria-labelledby="exercise-library-title">
         <article className="bg-[var(--paper)] p-5 sm:p-7">
           <h2 className="display-type text-3xl font-semibold" id="exercise-library-title">Biblioteca de ejercicios</h2>
-          <form action={actions.createExercise} aria-label="Crear ejercicio" className="mt-5 grid gap-4">
+          <ActionForm action={actions.createExercise} ariaLabel="Crear ejercicio" className="mt-5 grid gap-4">
             <label className={labelClass}>Nombre<input className={fieldClass} name="name" required /></label>
             <label className={labelClass}>Notas técnicas<textarea className={`${fieldClass} min-h-24 py-3`} name="notes" /></label>
-            <button className={buttonClass} type="submit">Guardar ejercicio</button>
-          </form>
+            <SubmitButton className={buttonClass}>Guardar ejercicio</SubmitButton>
+          </ActionForm>
           <ul className="mt-6 divide-y divide-[var(--line)] border-y border-[var(--line)]">
             {dashboard.exercises.map((exercise) => <li className="py-3 font-bold" key={exercise.id}>{exercise.name}</li>)}
           </ul>
@@ -36,13 +41,13 @@ export function CoachTrainingView({
 
         <article className="border border-[var(--line)] bg-white/60 p-5 sm:p-7">
           <h2 className="display-type text-3xl font-semibold">Plantilla práctica</h2>
-          <form action={actions.createTemplate} aria-label="Crear plantilla" className="mt-5 grid grid-cols-2 gap-4">
+          <ActionForm action={actions.createTemplate} ariaLabel="Crear plantilla" className="mt-5 grid grid-cols-2 gap-4">
             <label className={`${labelClass} col-span-2`}>Nombre de plantilla<input className={fieldClass} name="name" required /></label>
             <label className={`${labelClass} col-span-2`}>Descripción<textarea className={`${fieldClass} min-h-20 py-3`} name="description" /></label>
             <input name="exerciseCount" type="hidden" value="3" />
             {[0, 1, 2].map((index) => <PrescriptionFields exercises={dashboard.exercises} includeLabel={`Incluir ejercicio ${index + 1}`} index={index} key={index} />)}
-            <button className={`${buttonClass} col-span-2`} type="submit">Crear plantilla</button>
-          </form>
+            <SubmitButton className={`${buttonClass} col-span-2`}>Crear plantilla</SubmitButton>
+          </ActionForm>
         </article>
       </section>
 
@@ -54,7 +59,7 @@ export function CoachTrainingView({
             {dashboard.templates.map((template) => (
               <details className="border border-[var(--line)] bg-white p-4" key={template.id} open>
                 <summary className="cursor-pointer font-extrabold">{template.name}</summary>
-                <form action={actions.editTemplate} aria-label={`Editar plantilla ${template.name}`} className="mt-5 grid grid-cols-2 gap-4">
+                <ActionForm action={actions.editTemplate} ariaLabel={`Editar plantilla ${template.name}`} className="mt-5 grid grid-cols-2 gap-4">
                   <input name="templateId" type="hidden" value={template.id} />
                   <input name="exerciseCount" type="hidden" value={template.exercises.length + 1} />
                   <label className={`${labelClass} col-span-2`}>Nombre<input className={fieldClass} defaultValue={template.name} name="name" required /></label>
@@ -63,8 +68,8 @@ export function CoachTrainingView({
                     <PrescriptionFields defaultValue={exercise} exercises={dashboard.exercises} includeLabel={`Mantener ejercicio ${index + 1}`} index={index} key={`${exercise.exerciseId}-${index}`} />
                   ))}
                   <PrescriptionFields exercises={dashboard.exercises} includeLabel="Agregar ejercicio" index={template.exercises.length} />
-                  <button className={`${buttonClass} col-span-2`} type="submit">Guardar cambios</button>
-                </form>
+                  <SubmitButton className={`${buttonClass} col-span-2`}>Guardar cambios</SubmitButton>
+                </ActionForm>
               </details>
             ))}
           </div>
@@ -74,7 +79,7 @@ export function CoachTrainingView({
       <section className="mt-5 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]" aria-label="Planificación">
         <article className="border-t-4 border-[var(--signal)] bg-[var(--ink)] p-5 text-white sm:p-7">
           <h2 className="display-type text-3xl font-semibold">Calendario del plan</h2>
-          <form action={actions.createPlan} aria-label="Programar plan" className="mt-5 grid grid-cols-2 gap-4">
+          <ActionForm action={actions.createPlan} ariaLabel="Programar plan" className="mt-5 grid grid-cols-2 gap-4">
             <label className={`${labelClass} col-span-2 !text-white/75`}>Nombre del bloque<input className={`${fieldClass} text-[var(--ink)]`} name="name" required /></label>
             <label className={`${labelClass} !text-white/75`}>Inicio<input className={`${fieldClass} text-[var(--ink)]`} name="startsOn" required type="date" /></label>
             <label className={`${labelClass} !text-white/75`}>Fin<input className={`${fieldClass} text-[var(--ink)]`} name="endsOn" required type="date" /></label>
@@ -87,16 +92,16 @@ export function CoachTrainingView({
                 <label className={`${labelClass} col-span-2 !text-white/75`}>Fecha<input className={`${fieldClass} text-[var(--ink)]`} name={`scheduledOn-${index}`} type="date" /></label>
               </fieldset>
             ))}
-            <button className={`${buttonClass} col-span-2 bg-[var(--signal-bright)] text-[var(--ink)]`} type="submit">Programar plan</button>
-          </form>
+            <SubmitButton className={`${buttonClass} col-span-2 bg-[var(--signal-bright)] text-[var(--ink)]`}>Programar plan</SubmitButton>
+          </ActionForm>
         </article>
         <article className="bg-[var(--paper)] p-5 sm:p-7">
           <h2 className="display-type text-3xl font-semibold">Asignación</h2>
-          <form action={actions.assignPlan} aria-label="Asignar plan" className="mt-5 grid gap-4">
+          <ActionForm action={actions.assignPlan} ariaLabel="Asignar plan" className="mt-5 grid gap-4">
             <label className={labelClass}>Plan<select className={fieldClass} name="planId" required><option value="">Elegí uno</option>{dashboard.plans.map((plan) => <option key={plan.id} value={plan.id}>{plan.name}</option>)}</select></label>
             <label className={labelClass}>Alumno<select className={fieldClass} name="studentMembershipId" required><option value="">Elegí uno</option>{dashboard.students.map((student) => <option key={student.membershipId} value={student.membershipId}>{student.name}</option>)}</select></label>
-            <button className={buttonClass} type="submit">Asignar plan</button>
-          </form>
+            <SubmitButton className={buttonClass}>Asignar plan</SubmitButton>
+          </ActionForm>
         </article>
       </section>
     </div>
@@ -135,7 +140,7 @@ export function StudentTrainingView({
                     const setNumber = index + 1;
                     const logged = workout.session?.sets.find((set) => set.exerciseSnapshotId === exercise.id && set.setNumber === setNumber);
                     return (
-                      <form action={actions.saveSet} aria-label={`Registrar serie ${setNumber} de ${exercise.exerciseName}`} className="grid grid-cols-2 gap-3 rounded-xl border border-[var(--line)] bg-white p-4 sm:grid-cols-4" key={setNumber}>
+                      <ActionForm action={actions.saveSet} ariaLabel={`Registrar serie ${setNumber} de ${exercise.exerciseName}`} className="grid grid-cols-2 gap-3 rounded-xl border border-[var(--line)] bg-white p-4 sm:grid-cols-4" key={setNumber}>
                         <input name="assignedWorkoutId" type="hidden" value={workout.id} />
                         <input name="exerciseSnapshotId" type="hidden" value={exercise.id} />
                         <input name="setNumber" type="hidden" value={setNumber} />
@@ -147,22 +152,39 @@ export function StudentTrainingView({
                         <label className={`${labelClass} col-span-2 sm:col-span-4`}>Notas<textarea className={`${fieldClass} min-h-20 py-3`} defaultValue={logged?.notes ?? ""} name="notes" /></label>
                         <input name="completed" type="hidden" value="false" />
                         <label className="col-span-2 flex min-h-12 items-center gap-3 text-sm font-extrabold sm:col-span-4"><input defaultChecked={logged?.completed ?? false} name="completed" type="checkbox" value="true" />Serie completada</label>
-                        <button className={`${buttonClass} col-span-2 sm:col-span-4`} type="submit">Guardar serie</button>
-                      </form>
+                        <SubmitButton className={`${buttonClass} col-span-2 sm:col-span-4`}>Guardar serie</SubmitButton>
+                      </ActionForm>
                     );
                   })}
                 </div>
               </section>
             ))}
           </div>
-          <form action={actions.completeWorkout} className="mt-5">
+          <ActionForm action={actions.completeWorkout} className="mt-5">
             <input name="assignedWorkoutId" type="hidden" value={workout.id} />
-            <button className={`${buttonClass} w-full bg-[var(--ink)]`} disabled={workout.status === "COMPLETED"} type="submit">{workout.status === "COMPLETED" ? "Entrenamiento finalizado" : "Finalizar entrenamiento"}</button>
-          </form>
+            <SubmitButton className={`${buttonClass} w-full bg-[var(--ink)]`} disabled={workout.status === "COMPLETED"}>{workout.status === "COMPLETED" ? "Entrenamiento finalizado" : "Finalizar entrenamiento"}</SubmitButton>
+          </ActionForm>
         </article>
       ))}
     </div>
   );
+}
+
+function ActionForm({ action, ariaLabel, className, children }: { action: FormAction; ariaLabel?: string; className?: string; children: ReactNode }) {
+  const [state, formAction] = useActionState(action, initialTrainingActionState);
+  return (
+    <form action={formAction} aria-label={ariaLabel} className={className}>
+      {children}
+      <p aria-live="polite" className={state.status === "error" ? "text-sm font-bold text-red-700" : "sr-only"} role={state.status === "error" ? "alert" : "status"}>
+        {state.message}
+      </p>
+    </form>
+  );
+}
+
+function SubmitButton({ className, disabled = false, children }: { className: string; disabled?: boolean; children: ReactNode }) {
+  const { pending } = useFormStatus();
+  return <button aria-disabled={pending || disabled} className={className} disabled={pending || disabled} type="submit">{pending ? "Guardando…" : children}</button>;
 }
 
 function PrescriptionFields({

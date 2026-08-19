@@ -4,6 +4,7 @@ export type WorkspaceMembershipDto = {
   workspaceId: string;
   workspaceSlug: string;
   workspaceName: string;
+  timeZone: string;
   role: MembershipRole;
 };
 

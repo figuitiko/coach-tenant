@@ -1,6 +1,10 @@
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
+import { initialTrainingActionState } from "./training-action-state";
 import { CoachTrainingView, StudentTrainingView } from "./training-view";
+
+const action = async () => initialTrainingActionState;
 
 describe("training views", () => {
   it("gives coaches practical, labelled creation and scheduling forms", () => {
@@ -9,7 +13,7 @@ describe("training views", () => {
       templates: [{ id: "template-1", name: "Día A", description: "Fuerza base", exercises: [{ exerciseId: "exercise-1", exerciseName: "Sentadilla", order: 0, prescribedSets: 3, repMin: 6, repMax: 8, targetRpe: 8, restSeconds: 120, notes: null }] }],
       plans: [],
       students: [{ membershipId: "membership-1", name: "Martina López" }],
-    }} actions={{ createExercise: async () => {}, createTemplate: async () => {}, editTemplate: async () => {}, createPlan: async () => {}, assignPlan: async () => {} }} />);
+    }} actions={{ createExercise: action, createTemplate: action, editTemplate: action, createPlan: action, assignPlan: action }} />);
 
     expect(screen.getByRole("heading", { name: /biblioteca de ejercicios/i })).toBeInTheDocument();
     expect(screen.getByRole("form", { name: /crear ejercicio/i })).toBeInTheDocument();
@@ -35,7 +39,7 @@ describe("training views", () => {
       status: "IN_PROGRESS",
       exercises: [{ id: "snapshot-exercise-1", exerciseId: "exercise-1", exerciseName: "Sentadilla", order: 0, prescribedSets: 3, repMin: 6, repMax: 8, targetRpe: 8, restSeconds: 120, notes: null }],
       session: { id: "session-1", startedAt: new Date("2026-08-18T18:00:00Z"), completedAt: null, sets: [] },
-    }]} actions={{ saveSet: async () => {}, completeWorkout: async () => {} }} />);
+    }]} actions={{ saveSet: action, completeWorkout: action }} />);
 
     const logger = screen.getByRole("form", { name: /registrar serie 1 de sentadilla/i });
     expect(within(logger).getByLabelText(/repeticiones reales/i)).toHaveAttribute("inputmode", "numeric");
@@ -43,5 +47,25 @@ describe("training views", () => {
     expect(within(logger).getByLabelText(/serie completada/i)).not.toBeChecked();
     expect(within(logger).getByRole("button", { name: /guardar serie/i })).toHaveClass("min-h-12");
     expect(screen.getByRole("button", { name: /finalizar entrenamiento/i })).toHaveClass("min-h-12");
+  });
+
+  it("announces action feedback and disables repeat submission while pending", async () => {
+    let resolveAction!: (state: typeof initialTrainingActionState) => void;
+    const pendingAction = () => new Promise<typeof initialTrainingActionState>((resolve) => { resolveAction = resolve; });
+    const user = userEvent.setup();
+    render(<CoachTrainingView dashboard={{ exercises: [], templates: [], plans: [], students: [] }} actions={{
+      createExercise: pendingAction,
+      createTemplate: action,
+      editTemplate: action,
+      createPlan: action,
+      assignPlan: action,
+    }} />);
+    const form = screen.getByRole("form", { name: /crear ejercicio/i });
+    await user.type(within(form).getByLabelText(/nombre/i), "Sentadilla");
+    await user.click(within(form).getByRole("button", { name: /guardar ejercicio/i }));
+
+    expect(within(form).getByRole("button", { name: /guardando/i })).toBeDisabled();
+    expect(within(form).getByRole("status")).toHaveAttribute("aria-live", "polite");
+    resolveAction({ status: "success", message: "Cambios guardados." });
   });
 });

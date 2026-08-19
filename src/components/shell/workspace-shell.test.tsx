@@ -17,10 +17,10 @@ describe("WorkspaceShell", () => {
   it("offers a workspace switch affordance for multi-membership accounts", () => {
     render(
       <WorkspaceShell
-        currentMembership={{ workspaceId: "w-1", workspaceSlug: "north", workspaceName: "North", role: "COACH" }}
+        currentMembership={{ workspaceId: "w-1", workspaceSlug: "north", workspaceName: "North", timeZone: "America/Mexico_City", role: "COACH" }}
         memberships={[
-          { workspaceId: "w-1", workspaceSlug: "north", workspaceName: "North", role: "COACH" },
-          { workspaceId: "w-2", workspaceSlug: "south", workspaceName: "South", role: "STUDENT" },
+          { workspaceId: "w-1", workspaceSlug: "north", workspaceName: "North", timeZone: "America/Mexico_City", role: "COACH" },
+          { workspaceId: "w-2", workspaceSlug: "south", workspaceName: "South", timeZone: "America/Mexico_City", role: "STUDENT" },
         ]}
       />,
     );

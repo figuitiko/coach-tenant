@@ -77,6 +77,22 @@ describe("TrainingService authorization", () => {
 });
 
 describe("plan assignment", () => {
+  it("replays the same student and plan assignment without duplicating workouts", async () => {
+    const repository = repositoryFixture();
+    repository.memberships.set("student-membership", { workspaceId: "workspace-1", role: "STUDENT", userId: "student-1" });
+    repository.templates.push({ id: "template-1", workspaceId: "workspace-1", name: "Día A", exercises: structuredClone(plan.workouts[0].exercises) });
+    repository.plans.set("plan-1", { workspaceId: "workspace-1", name: "Base", workouts: [{ templateId: "template-1", scheduledOn: "2026-08-18", order: 0 }] });
+    const service = new TrainingService(repository);
+    const coach = { actorId: "coach-1", workspaceId: "workspace-1", role: "COACH" } as const;
+
+    const first = await service.assignSavedPlan(coach, { studentMembershipId: "student-membership", planId: "plan-1" });
+    const replay = await service.assignSavedPlan(coach, { studentMembershipId: "student-membership", planId: "plan-1" });
+
+    expect(replay.id).toBe(first.id);
+    expect(repository.assignments).toHaveLength(1);
+    expect(repository.events.filter((event) => event.name === "workout_plan_assigned")).toHaveLength(1);
+  });
+
   it("rejects non-student and cross-workspace membership targets", async () => {
     const repository = repositoryFixture();
     repository.memberships.set("coach-target", { workspaceId: "workspace-1", role: "COACH" });
@@ -167,6 +183,23 @@ describe("student workout logging", () => {
   });
 });
 
+describe("calendar validation", () => {
+  it("rejects impossible plan and schedule dates rather than allowing Date normalization", async () => {
+    const repository = repositoryFixture();
+    const service = new TrainingService(repository);
+    const coach = { actorId: "coach-1", workspaceId: "workspace-1", role: "COACH" } as const;
+    const student = { actorId: "student-1", workspaceId: "workspace-1", role: "STUDENT" } as const;
+
+    await expect(service.createPlan(coach, {
+      name: "Fecha imposible",
+      startsOn: "2026-02-30",
+      endsOn: "2026-03-02",
+      workouts: [{ templateId: "template-1", scheduledOn: "2026-03-01", order: 0 }],
+    })).rejects.toBeInstanceOf(TrainingValidationError);
+    await expect(service.getStudentSchedule(student, "2026-02-30")).rejects.toBeInstanceOf(TrainingValidationError);
+  });
+});
+
 function assignmentFixture(overrides: Partial<AssignedWorkout> = {}): AssignedWorkout {
   return {
     id: "assigned-workout-1",
@@ -214,6 +247,8 @@ function repositoryFixture(): TrainingRepository & {
     },
     async findMembership(id) { return memberships.get(id) ?? null; },
     async assignSavedPlan(input) {
+      const existing = assignments.find((item) => item.studentId === memberships.get(input.studentMembershipId)?.userId && item.id.startsWith(`assigned-${input.planId}-`));
+      if (existing) return { id: `assignment-${input.planId}-${input.studentMembershipId}`, workouts: [existing] };
       const savedPlan = plans.get(input.planId);
       const membership = memberships.get(input.studentMembershipId);
       if (!savedPlan || savedPlan.workspaceId !== input.workspaceId || !membership?.userId) return null;
@@ -221,14 +256,15 @@ function repositoryFixture(): TrainingRepository & {
       const workouts = savedPlan.workouts.map((workout, index) => {
         const template = templates.find((item) => item.id === workout.templateId)!;
         return assignmentFixture({
-        id: `assigned-workout-${index + 1}`,
+        id: `assigned-${input.planId}-${index + 1}`,
         studentId,
         scheduledOn: workout.scheduledOn,
         templateName: template.name,
         exercises: structuredClone(template.exercises).map((exercise, exerciseIndex) => ({ id: `snapshot-exercise-${exerciseIndex + 1}`, ...exercise })),
       }); });
       assignments.push(...workouts);
-      return { id: "assignment-1", workouts };
+      events.push({ name: "workout_plan_assigned" });
+      return { id: `assignment-${input.planId}-${input.studentMembershipId}`, workouts };
     },
     async listStudentSchedule(input) {
       return assignments.filter((item) => item.workspaceId === input.workspaceId && item.studentId === input.studentId && item.scheduledOn === input.date);

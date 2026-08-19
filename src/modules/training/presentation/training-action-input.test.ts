@@ -57,6 +57,19 @@ describe("training action validation", () => {
     ]);
   });
 
+  it("rejects calendar-shaped but impossible dates", () => {
+    const form = new FormData();
+    form.set("name", "Fecha imposible");
+    form.set("startsOn", "2026-02-30");
+    form.set("endsOn", "2026-03-02");
+    form.set("workoutCount", "1");
+    form.set("includeWorkout-0", "true");
+    form.set("templateId-0", "template-1");
+    form.set("scheduledOn-0", "2026-03-01");
+
+    expect(() => parsePlanForm(form)).toThrow(TrainingFormError);
+  });
+
   it("parses decimal actual data without trusting tenant identity from the form", () => {
     const form = new FormData();
     form.set("assignedWorkoutId", "workout-1");

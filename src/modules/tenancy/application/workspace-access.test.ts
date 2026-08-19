@@ -8,8 +8,8 @@ import {
 } from "./workspace-access";
 
 const memberships: WorkspaceMembershipDto[] = [
-  { workspaceId: "w-1", workspaceSlug: "north", workspaceName: "North", role: "COACH" },
-  { workspaceId: "w-2", workspaceSlug: "south", workspaceName: "South", role: "STUDENT" },
+  { workspaceId: "w-1", workspaceSlug: "north", workspaceName: "North", timeZone: "America/Mexico_City", role: "COACH" },
+  { workspaceId: "w-2", workspaceSlug: "south", workspaceName: "South", timeZone: "America/New_York", role: "STUDENT" },
 ];
 
 describe("workspace authorization", () => {

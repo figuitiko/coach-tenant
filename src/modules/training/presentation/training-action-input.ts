@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isCalendarDate } from "./local-date";
 
 export class TrainingFormError extends Error {
   constructor() {
@@ -10,7 +11,7 @@ export class TrainingFormError extends Error {
 const requiredId = z.string().trim().min(1).max(120);
 const requiredName = z.string().trim().min(1).max(120);
 const optionalNotes = z.string().trim().max(500).transform((value) => value || null);
-const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+const date = z.string().refine(isCalendarDate);
 const optionalNumber = z.preprocess((value) => value === "" || value === null || value === undefined ? null : value, z.coerce.number().nullable());
 
 export function parseExerciseForm(formData: FormData) {

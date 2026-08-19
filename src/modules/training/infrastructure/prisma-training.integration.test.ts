@@ -49,6 +49,9 @@ integration("PrismaTrainingRepository against PostgreSQL", () => {
     const plan = await service.createPlan(coach, { name: "Bloque integración", startsOn: "2026-08-18", endsOn: "2026-08-24", workouts: [{ templateId: template.id, scheduledOn: "2026-08-18", order: 0 }] });
     const membership = await database.membership.findUniqueOrThrow({ where: { workspaceId_userId: { workspaceId, userId: studentId } } });
     const assignment = await service.assignSavedPlan(coach, { planId: plan.id, studentMembershipId: membership.id });
+    const replayedAssignment = await service.assignSavedPlan(coach, { planId: plan.id, studentMembershipId: membership.id });
+    expect(replayedAssignment.id).toBe(assignment.id);
+    expect(await database.studentPlanAssignment.count({ where: { workspaceId, planId: plan.id, studentMembershipId: membership.id } })).toBe(1);
     const workout = assignment.workouts[0];
 
     await service.editTemplate(coach, {
@@ -64,8 +67,15 @@ integration("PrismaTrainingRepository against PostgreSQL", () => {
 
     await expect(service.saveSet({ ...student, workspaceId: otherWorkspaceId }, { assignedWorkoutId: workout.id, exerciseSnapshotId: workout.exercises[0].id, setNumber: 1, reps: 7, weight: 80, unit: "KG", rpe: 8, completed: false }))
       .rejects.toBeInstanceOf(TrainingAccessDeniedError);
-    await service.saveSet(student, { assignedWorkoutId: workout.id, exerciseSnapshotId: workout.exercises[0].id, setNumber: 1, reps: 7, weight: 80, unit: "KG", rpe: 8, completed: false });
-    expect((await service.getStudentSchedule(student, "2026-08-18"))[0].session?.sets[0].reps).toBe(7);
+    const concurrentFirstSaves = await Promise.allSettled([
+      service.saveSet(student, { assignedWorkoutId: workout.id, exerciseSnapshotId: workout.exercises[0].id, setNumber: 1, reps: 7, weight: 80, unit: "KG", rpe: 8, completed: false }),
+      service.saveSet(student, { assignedWorkoutId: workout.id, exerciseSnapshotId: workout.exercises[0].id, setNumber: 1, reps: 8, weight: 82.5, unit: "KG", rpe: 8.5, completed: true }),
+    ]);
+    expect(concurrentFirstSaves.every((result) => result.status === "fulfilled")).toBe(true);
+    expect(await database.workoutSession.count({ where: { assignedWorkoutId: workout.id } })).toBe(1);
+    expect(await database.exerciseLog.count({ where: { assignedExerciseId: workout.exercises[0].id } })).toBe(1);
+    expect(await database.setLog.count({ where: { exerciseLog: { assignedExerciseId: workout.exercises[0].id }, setNumber: 1 } })).toBe(1);
+    expect([7, 8]).toContain((await service.getStudentSchedule(student, "2026-08-18"))[0].session?.sets[0].reps);
     await service.completeWorkout(student, workout.id);
     await service.completeWorkout(student, workout.id);
 

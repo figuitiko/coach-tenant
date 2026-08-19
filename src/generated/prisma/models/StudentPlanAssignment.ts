@@ -213,6 +213,7 @@ export type StudentPlanAssignmentOrderByWithRelationInput = {
 
 export type StudentPlanAssignmentWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  workspaceId_planId_studentMembershipId?: Prisma.StudentPlanAssignmentWorkspaceIdPlanIdStudentMembershipIdCompoundUniqueInput
   AND?: Prisma.StudentPlanAssignmentWhereInput | Prisma.StudentPlanAssignmentWhereInput[]
   OR?: Prisma.StudentPlanAssignmentWhereInput[]
   NOT?: Prisma.StudentPlanAssignmentWhereInput | Prisma.StudentPlanAssignmentWhereInput[]
@@ -226,7 +227,7 @@ export type StudentPlanAssignmentWhereUniqueInput = Prisma.AtLeast<{
   studentMembership?: Prisma.XOR<Prisma.MembershipScalarRelationFilter, Prisma.MembershipWhereInput>
   assignedBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   workouts?: Prisma.AssignedWorkoutListRelationFilter
-}, "id">
+}, "id" | "workspaceId_planId_studentMembershipId">
 
 export type StudentPlanAssignmentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -323,6 +324,12 @@ export type StudentPlanAssignmentListRelationFilter = {
 
 export type StudentPlanAssignmentOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type StudentPlanAssignmentWorkspaceIdPlanIdStudentMembershipIdCompoundUniqueInput = {
+  workspaceId: string
+  planId: string
+  studentMembershipId: string
 }
 
 export type StudentPlanAssignmentCountOrderByAggregateInput = {

@@ -11,13 +11,14 @@ export class PrismaWorkspaceRepository {
       select: {
         workspaceId: true,
         role: true,
-        workspace: { select: { slug: true, name: true } },
+        workspace: { select: { slug: true, name: true, timeZone: true } },
       },
     });
     return records.map((record) => ({
       workspaceId: record.workspaceId,
       workspaceSlug: record.workspace.slug,
       workspaceName: record.workspace.name,
+      timeZone: record.workspace.timeZone,
       role: record.role,
     }));
   }

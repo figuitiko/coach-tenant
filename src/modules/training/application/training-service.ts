@@ -1,3 +1,5 @@
+import { isCalendarDate } from "../presentation/local-date";
+
 export type TrainingRole = "COACH" | "STUDENT";
 export type WeightUnit = "KG" | "LB";
 export type WorkoutStatus = "PLANNED" | "IN_PROGRESS" | "COMPLETED";
@@ -165,7 +167,7 @@ export class TrainingService {
 
   async getStudentSchedule(actor: TrainingActor, date: string) {
     requireStudent(actor);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new TrainingValidationError("Invalid schedule date");
+    if (!isCalendarDate(date)) throw new TrainingValidationError("Invalid schedule date");
     return this.repository.listStudentSchedule({ workspaceId: actor.workspaceId, studentId: actor.actorId, date });
   }
 
@@ -221,11 +223,11 @@ function validatePrescription(input: PrescribedExercise) {
 
 function validateSchedule(plan: PlanScheduleInput) {
   requiredText(plan.name, "Plan name is required");
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(plan.startsOn) || !/^\d{4}-\d{2}-\d{2}$/.test(plan.endsOn) || plan.endsOn < plan.startsOn) throw new TrainingValidationError("Plan dates are invalid");
+  if (!isCalendarDate(plan.startsOn) || !isCalendarDate(plan.endsOn) || plan.endsOn < plan.startsOn) throw new TrainingValidationError("Plan dates are invalid");
   if (!plan.workouts.length) throw new TrainingValidationError("A plan needs a scheduled workout");
   const orders = new Set<number>();
   for (const workout of plan.workouts) {
-    if (!workout.templateId || workout.scheduledOn < plan.startsOn || workout.scheduledOn > plan.endsOn || !Number.isInteger(workout.order) || workout.order < 0 || orders.has(workout.order)) throw new TrainingValidationError("Scheduled workout is invalid");
+    if (!workout.templateId || !isCalendarDate(workout.scheduledOn) || workout.scheduledOn < plan.startsOn || workout.scheduledOn > plan.endsOn || !Number.isInteger(workout.order) || workout.order < 0 || orders.has(workout.order)) throw new TrainingValidationError("Scheduled workout is invalid");
     orders.add(workout.order);
   }
 }

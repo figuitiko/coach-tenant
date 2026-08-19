@@ -19,6 +19,7 @@ const defaultMembership: WorkspaceMembershipDto = {
   workspaceId: "preview",
   workspaceSlug: "fuerza-norte",
   workspaceName: "Fuerza Norte",
+  timeZone: "America/Mexico_City",
   role: "COACH",
 };
 

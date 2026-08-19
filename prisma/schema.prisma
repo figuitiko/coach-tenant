@@ -95,6 +95,7 @@ model Workspace {
   id               String                  @id @default(cuid())
   slug             String                  @unique
   name             String
+  timeZone         String                  @default("America/Mexico_City")
   ownerId          String
   createdAt        DateTime                @default(now())
   updatedAt        DateTime                @updatedAt
@@ -274,6 +275,7 @@ model StudentPlanAssignment {
 
   @@index([workspaceId, assignedAt])
   @@index([studentMembershipId, assignedAt])
+  @@unique([workspaceId, planId, studentMembershipId])
 }
 
 model AssignedWorkout {
