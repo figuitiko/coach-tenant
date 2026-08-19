@@ -37,4 +37,18 @@ describe("SignInForm", () => {
     expect(screen.getByRole("button", { name: /ingresar al workspace/i })).toBeEnabled();
     expect(screen.queryByText(/database says/i)).not.toBeInTheDocument();
   });
+
+  it("preserves an explicitly validated invitation callback", async () => {
+    const navigate = vi.fn();
+    const signIn: EmailSignIn = async () => ({ error: null });
+    const user = userEvent.setup();
+    const callbackUrl = "/invite/abcdefghijklmnopqrstuvwxyzABCDEFG123456789_-";
+    render(<SignInForm callbackUrl={callbackUrl} navigate={navigate} signIn={signIn} />);
+
+    await user.type(screen.getByLabelText(/email/i), "student@example.com");
+    await user.type(screen.getByLabelText(/contraseña/i), "correct horse battery staple");
+    await user.click(screen.getByRole("button", { name: /ingresar al workspace/i }));
+
+    expect(navigate).toHaveBeenCalledWith(callbackUrl);
+  });
 });

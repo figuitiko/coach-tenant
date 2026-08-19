@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { authClient } from "@/modules/identity/infrastructure/auth-client";
+import { safeRelativeCallback } from "@/modules/identity/application/auth-callback";
 
 export type EmailSignIn = (credentials: { email: string; password: string }) => Promise<{
   error: { message?: string } | null;
@@ -10,9 +11,11 @@ export type EmailSignIn = (credentials: { email: string; password: string }) => 
 export function SignInForm({
   signIn = (credentials) => authClient.signIn.email(credentials),
   navigate,
+  callbackUrl = "/workspace",
 }: {
   signIn?: EmailSignIn;
   navigate?: (path: string) => void;
+  callbackUrl?: string;
 }) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
@@ -30,10 +33,7 @@ export function SignInForm({
         return;
       }
       setStatus("success");
-      const callbackUrl = new URLSearchParams(window.location.search).get("callbackURL");
-      const nextPath = callbackUrl?.startsWith("/") && !callbackUrl.startsWith("//")
-        ? callbackUrl
-        : "/workspace";
+      const nextPath = safeRelativeCallback(callbackUrl, "/workspace");
       (navigate ?? ((path: string) => window.location.assign(path)))(nextPath);
     } catch {
       setStatus("error");
