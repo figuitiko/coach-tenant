@@ -23,13 +23,15 @@ The project uses the Next.js App Router, TypeScript, Tailwind CSS, Vitest + Test
 
 ## PostgreSQL integration tests
 
-The invitation repository integration suite never substitutes SQLite for PostgreSQL. Apply migrations
-to a disposable PostgreSQL database, then run the gated suite:
+`pnpm test` intentionally runs the fast local unit/component suite only. PostgreSQL repository and
+concurrency tests use a separate mandatory command: it exits with an error rather than silently skipping
+when `TEST_DATABASE_URL` is absent. Apply migrations to a disposable PostgreSQL database, then run:
 
 ```bash
 export TEST_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/coach_tenand_test"
 DATABASE_URL="$TEST_DATABASE_URL" pnpm prisma migrate deploy
-pnpm vitest run src/modules/tenancy/infrastructure/prisma-invitation.integration.test.ts
+pnpm test:integration:pg
 ```
 
-Without `TEST_DATABASE_URL`, the suite is reported as skipped.
+CI provisions PostgreSQL, applies every migration, and runs both `pnpm test` and
+`pnpm test:integration:pg` before lint and type checking.
