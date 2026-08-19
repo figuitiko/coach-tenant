@@ -12,22 +12,38 @@ enum MembershipRole {
   STUDENT
 }
 
+enum WorkoutStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum WeightUnit {
+  KG
+  LB
+}
+
 model User {
-  id              String       @id @default(cuid())
-  name            String
-  email           String       @unique
-  emailVerified   Boolean      @default(false)
-  image           String?
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  sessions        Session[]
-  accounts        Account[]
-  memberships     Membership[]
-  ownedWorkspaces Workspace[]  @relation("WorkspaceOwner")
-  invitationsSent Invitation[] @relation("InvitationSender")
-  invitationsUsed Invitation[] @relation("InvitationAcceptor")
-  auditEvents     AuditEvent[] @relation("AuditActor")
-  productEvents   ProductEvent[]
+  id               String                  @id @default(cuid())
+  name             String
+  email            String                  @unique
+  emailVerified    Boolean                 @default(false)
+  image            String?
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  sessions         Session[]
+  accounts         Account[]
+  memberships      Membership[]
+  ownedWorkspaces  Workspace[]             @relation("WorkspaceOwner")
+  invitationsSent  Invitation[]            @relation("InvitationSender")
+  invitationsUsed  Invitation[]            @relation("InvitationAcceptor")
+  auditEvents      AuditEvent[]            @relation("AuditActor")
+  productEvents    ProductEvent[]
+  exercisesCreated Exercise[]              @relation("ExerciseCreator")
+  templatesCreated WorkoutTemplate[]       @relation("TemplateCreator")
+  plansCreated     WorkoutPlan[]           @relation("PlanCreator")
+  planAssignments  StudentPlanAssignment[] @relation("PlanAssigner")
+  workoutSessions  WorkoutSession[]
 }
 
 model Session {
@@ -76,30 +92,36 @@ model Verification {
 }
 
 model Workspace {
-  id            String         @id @default(cuid())
-  slug          String         @unique
-  name          String
-  ownerId       String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  owner         User           @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Restrict)
-  memberships   Membership[]
-  invitations   Invitation[]
-  auditEvents   AuditEvent[]
-  productEvents ProductEvent[]
+  id               String                  @id @default(cuid())
+  slug             String                  @unique
+  name             String
+  ownerId          String
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  owner            User                    @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  memberships      Membership[]
+  invitations      Invitation[]
+  auditEvents      AuditEvent[]
+  productEvents    ProductEvent[]
+  exercises        Exercise[]
+  workoutTemplates WorkoutTemplate[]
+  workoutPlans     WorkoutPlan[]
+  planAssignments  StudentPlanAssignment[]
+  assignedWorkouts AssignedWorkout[]
 
   @@index([ownerId])
 }
 
 model Membership {
-  id          String         @id @default(cuid())
-  workspaceId String
-  userId      String
-  role        MembershipRole
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  workspace   Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String                  @id @default(cuid())
+  workspaceId     String
+  userId          String
+  role            MembershipRole
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  workspace       Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user            User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planAssignments StudentPlanAssignment[] @relation("AssignedStudentMembership")
 
   @@unique([workspaceId, userId])
   @@index([userId])
@@ -152,4 +174,189 @@ model ProductEvent {
 
   @@index([workspaceId, createdAt])
   @@index([userId, createdAt])
+}
+
+model Exercise {
+  id                String             @id @default(cuid())
+  workspaceId       String
+  createdById       String
+  name              String
+  notes             String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  workspace         Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy         User               @relation("ExerciseCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  templateExercises TemplateExercise[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId, createdAt])
+}
+
+model WorkoutTemplate {
+  id           String             @id @default(cuid())
+  workspaceId  String
+  createdById  String
+  name         String
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  workspace    Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy    User               @relation("TemplateCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  exercises    TemplateExercise[]
+  planWorkouts PlanWorkout[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId, createdAt])
+}
+
+model TemplateExercise {
+  id             String          @id @default(cuid())
+  templateId     String
+  exerciseId     String
+  order          Int
+  prescribedSets Int
+  repMin         Int
+  repMax         Int
+  targetRpe      Decimal?        @db.Decimal(3, 1)
+  restSeconds    Int?
+  notes          String?
+  template       WorkoutTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  exercise       Exercise        @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+
+  @@unique([templateId, order])
+  @@index([exerciseId])
+}
+
+model WorkoutPlan {
+  id          String                  @id @default(cuid())
+  workspaceId String
+  createdById String
+  name        String
+  startsOn    DateTime                @db.Date
+  endsOn      DateTime                @db.Date
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+  workspace   Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy   User                    @relation("PlanCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  workouts    PlanWorkout[]
+  assignments StudentPlanAssignment[]
+
+  @@index([workspaceId, startsOn])
+}
+
+model PlanWorkout {
+  id               String            @id @default(cuid())
+  planId           String
+  templateId       String
+  order            Int
+  scheduledOn      DateTime          @db.Date
+  plan             WorkoutPlan       @relation(fields: [planId], references: [id], onDelete: Cascade)
+  template         WorkoutTemplate   @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  assignedWorkouts AssignedWorkout[]
+
+  @@unique([planId, order])
+  @@index([templateId])
+  @@index([scheduledOn])
+}
+
+model StudentPlanAssignment {
+  id                  String            @id @default(cuid())
+  workspaceId         String
+  planId              String
+  studentMembershipId String
+  assignedById        String
+  assignedAt          DateTime          @default(now())
+  workspace           Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  plan                WorkoutPlan       @relation(fields: [planId], references: [id], onDelete: Restrict)
+  studentMembership   Membership        @relation("AssignedStudentMembership", fields: [studentMembershipId], references: [id], onDelete: Restrict)
+  assignedBy          User              @relation("PlanAssigner", fields: [assignedById], references: [id], onDelete: Restrict)
+  workouts            AssignedWorkout[]
+
+  @@index([workspaceId, assignedAt])
+  @@index([studentMembershipId, assignedAt])
+}
+
+model AssignedWorkout {
+  id               String                @id @default(cuid())
+  workspaceId      String
+  assignmentId     String
+  planWorkoutId    String
+  sourceTemplateId String
+  studentId        String
+  templateName     String
+  scheduledOn      DateTime              @db.Date
+  status           WorkoutStatus         @default(PLANNED)
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  workspace        Workspace             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  assignment       StudentPlanAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  planWorkout      PlanWorkout           @relation(fields: [planWorkoutId], references: [id], onDelete: Restrict)
+  exercises        AssignedExercise[]
+  session          WorkoutSession?
+
+  @@index([workspaceId, studentId, scheduledOn])
+  @@index([assignmentId])
+}
+
+model AssignedExercise {
+  id                String          @id @default(cuid())
+  assignedWorkoutId String
+  sourceExerciseId  String
+  exerciseName      String
+  order             Int
+  prescribedSets    Int
+  repMin            Int
+  repMax            Int
+  targetRpe         Decimal?        @db.Decimal(3, 1)
+  restSeconds       Int?
+  notes             String?
+  assignedWorkout   AssignedWorkout @relation(fields: [assignedWorkoutId], references: [id], onDelete: Cascade)
+  exerciseLogs      ExerciseLog[]
+
+  @@unique([assignedWorkoutId, order])
+}
+
+model WorkoutSession {
+  id                String          @id @default(cuid())
+  assignedWorkoutId String          @unique
+  studentId         String
+  status            WorkoutStatus   @default(IN_PROGRESS)
+  startedAt         DateTime        @default(now())
+  completedAt       DateTime?
+  updatedAt         DateTime        @updatedAt
+  assignedWorkout   AssignedWorkout @relation(fields: [assignedWorkoutId], references: [id], onDelete: Cascade)
+  student           User            @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  exerciseLogs      ExerciseLog[]
+
+  @@index([studentId, startedAt])
+}
+
+model ExerciseLog {
+  id                 String           @id @default(cuid())
+  sessionId          String
+  assignedExerciseId String
+  notes              String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  session            WorkoutSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  assignedExercise   AssignedExercise @relation(fields: [assignedExerciseId], references: [id], onDelete: Restrict)
+  sets               SetLog[]
+
+  @@unique([sessionId, assignedExerciseId])
+}
+
+model SetLog {
+  id            String      @id @default(cuid())
+  exerciseLogId String
+  setNumber     Int
+  reps          Int
+  weight        Decimal     @db.Decimal(8, 2)
+  unit          WeightUnit
+  rpe           Decimal?    @db.Decimal(3, 1)
+  completed     Boolean     @default(false)
+  notes         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  exerciseLog   ExerciseLog @relation(fields: [exerciseLogId], references: [id], onDelete: Cascade)
+
+  @@unique([exerciseLogId, setNumber])
 }

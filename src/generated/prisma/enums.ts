@@ -15,3 +15,20 @@ export const MembershipRole = {
 } as const
 
 export type MembershipRole = (typeof MembershipRole)[keyof typeof MembershipRole]
+
+
+export const WorkoutStatus = {
+  PLANNED: 'PLANNED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED'
+} as const
+
+export type WorkoutStatus = (typeof WorkoutStatus)[keyof typeof WorkoutStatus]
+
+
+export const WeightUnit = {
+  KG: 'KG',
+  LB: 'LB'
+} as const
+
+export type WeightUnit = (typeof WeightUnit)[keyof typeof WeightUnit]

@@ -86,3 +86,58 @@ export type AuditEvent = Prisma.AuditEventModel
  * 
  */
 export type ProductEvent = Prisma.ProductEventModel
+/**
+ * Model Exercise
+ * 
+ */
+export type Exercise = Prisma.ExerciseModel
+/**
+ * Model WorkoutTemplate
+ * 
+ */
+export type WorkoutTemplate = Prisma.WorkoutTemplateModel
+/**
+ * Model TemplateExercise
+ * 
+ */
+export type TemplateExercise = Prisma.TemplateExerciseModel
+/**
+ * Model WorkoutPlan
+ * 
+ */
+export type WorkoutPlan = Prisma.WorkoutPlanModel
+/**
+ * Model PlanWorkout
+ * 
+ */
+export type PlanWorkout = Prisma.PlanWorkoutModel
+/**
+ * Model StudentPlanAssignment
+ * 
+ */
+export type StudentPlanAssignment = Prisma.StudentPlanAssignmentModel
+/**
+ * Model AssignedWorkout
+ * 
+ */
+export type AssignedWorkout = Prisma.AssignedWorkoutModel
+/**
+ * Model AssignedExercise
+ * 
+ */
+export type AssignedExercise = Prisma.AssignedExerciseModel
+/**
+ * Model WorkoutSession
+ * 
+ */
+export type WorkoutSession = Prisma.WorkoutSessionModel
+/**
+ * Model ExerciseLog
+ * 
+ */
+export type ExerciseLog = Prisma.ExerciseLogModel
+/**
+ * Model SetLog
+ * 
+ */
+export type SetLog = Prisma.SetLogModel

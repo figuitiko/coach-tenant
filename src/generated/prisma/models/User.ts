@@ -206,6 +206,11 @@ export type UserWhereInput = {
   invitationsUsed?: Prisma.InvitationListRelationFilter
   auditEvents?: Prisma.AuditEventListRelationFilter
   productEvents?: Prisma.ProductEventListRelationFilter
+  exercisesCreated?: Prisma.ExerciseListRelationFilter
+  templatesCreated?: Prisma.WorkoutTemplateListRelationFilter
+  plansCreated?: Prisma.WorkoutPlanListRelationFilter
+  planAssignments?: Prisma.StudentPlanAssignmentListRelationFilter
+  workoutSessions?: Prisma.WorkoutSessionListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -224,6 +229,11 @@ export type UserOrderByWithRelationInput = {
   invitationsUsed?: Prisma.InvitationOrderByRelationAggregateInput
   auditEvents?: Prisma.AuditEventOrderByRelationAggregateInput
   productEvents?: Prisma.ProductEventOrderByRelationAggregateInput
+  exercisesCreated?: Prisma.ExerciseOrderByRelationAggregateInput
+  templatesCreated?: Prisma.WorkoutTemplateOrderByRelationAggregateInput
+  plansCreated?: Prisma.WorkoutPlanOrderByRelationAggregateInput
+  planAssignments?: Prisma.StudentPlanAssignmentOrderByRelationAggregateInput
+  workoutSessions?: Prisma.WorkoutSessionOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -245,6 +255,11 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   invitationsUsed?: Prisma.InvitationListRelationFilter
   auditEvents?: Prisma.AuditEventListRelationFilter
   productEvents?: Prisma.ProductEventListRelationFilter
+  exercisesCreated?: Prisma.ExerciseListRelationFilter
+  templatesCreated?: Prisma.WorkoutTemplateListRelationFilter
+  plansCreated?: Prisma.WorkoutPlanListRelationFilter
+  planAssignments?: Prisma.StudentPlanAssignmentListRelationFilter
+  workoutSessions?: Prisma.WorkoutSessionListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -289,6 +304,11 @@ export type UserCreateInput = {
   invitationsUsed?: Prisma.InvitationCreateNestedManyWithoutAcceptedByInput
   auditEvents?: Prisma.AuditEventCreateNestedManyWithoutActorInput
   productEvents?: Prisma.ProductEventCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -307,6 +327,11 @@ export type UserUncheckedCreateInput = {
   invitationsUsed?: Prisma.InvitationUncheckedCreateNestedManyWithoutAcceptedByInput
   auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutActorInput
   productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseUncheckedCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type UserUpdateInput = {
@@ -325,6 +350,11 @@ export type UserUpdateInput = {
   invitationsUsed?: Prisma.InvitationUpdateManyWithoutAcceptedByNestedInput
   auditEvents?: Prisma.AuditEventUpdateManyWithoutActorNestedInput
   productEvents?: Prisma.ProductEventUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -343,6 +373,11 @@ export type UserUncheckedUpdateInput = {
   invitationsUsed?: Prisma.InvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
   auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutActorNestedInput
   productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUncheckedUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -549,6 +584,76 @@ export type UserUpdateOneWithoutProductEventsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutProductEventsInput, Prisma.UserUpdateWithoutProductEventsInput>, Prisma.UserUncheckedUpdateWithoutProductEventsInput>
 }
 
+export type UserCreateNestedOneWithoutExercisesCreatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutExercisesCreatedInput, Prisma.UserUncheckedCreateWithoutExercisesCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutExercisesCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutExercisesCreatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutExercisesCreatedInput, Prisma.UserUncheckedCreateWithoutExercisesCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutExercisesCreatedInput
+  upsert?: Prisma.UserUpsertWithoutExercisesCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutExercisesCreatedInput, Prisma.UserUpdateWithoutExercisesCreatedInput>, Prisma.UserUncheckedUpdateWithoutExercisesCreatedInput>
+}
+
+export type UserCreateNestedOneWithoutTemplatesCreatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTemplatesCreatedInput, Prisma.UserUncheckedCreateWithoutTemplatesCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTemplatesCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutTemplatesCreatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTemplatesCreatedInput, Prisma.UserUncheckedCreateWithoutTemplatesCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTemplatesCreatedInput
+  upsert?: Prisma.UserUpsertWithoutTemplatesCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTemplatesCreatedInput, Prisma.UserUpdateWithoutTemplatesCreatedInput>, Prisma.UserUncheckedUpdateWithoutTemplatesCreatedInput>
+}
+
+export type UserCreateNestedOneWithoutPlansCreatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPlansCreatedInput, Prisma.UserUncheckedCreateWithoutPlansCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPlansCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPlansCreatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPlansCreatedInput, Prisma.UserUncheckedCreateWithoutPlansCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPlansCreatedInput
+  upsert?: Prisma.UserUpsertWithoutPlansCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPlansCreatedInput, Prisma.UserUpdateWithoutPlansCreatedInput>, Prisma.UserUncheckedUpdateWithoutPlansCreatedInput>
+}
+
+export type UserCreateNestedOneWithoutPlanAssignmentsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPlanAssignmentsInput, Prisma.UserUncheckedCreateWithoutPlanAssignmentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPlanAssignmentsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPlanAssignmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPlanAssignmentsInput, Prisma.UserUncheckedCreateWithoutPlanAssignmentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPlanAssignmentsInput
+  upsert?: Prisma.UserUpsertWithoutPlanAssignmentsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPlanAssignmentsInput, Prisma.UserUpdateWithoutPlanAssignmentsInput>, Prisma.UserUncheckedUpdateWithoutPlanAssignmentsInput>
+}
+
+export type UserCreateNestedOneWithoutWorkoutSessionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutWorkoutSessionsInput, Prisma.UserUncheckedCreateWithoutWorkoutSessionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWorkoutSessionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutWorkoutSessionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutWorkoutSessionsInput, Prisma.UserUncheckedCreateWithoutWorkoutSessionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWorkoutSessionsInput
+  upsert?: Prisma.UserUpsertWithoutWorkoutSessionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutWorkoutSessionsInput, Prisma.UserUpdateWithoutWorkoutSessionsInput>, Prisma.UserUncheckedUpdateWithoutWorkoutSessionsInput>
+}
+
 export type UserCreateWithoutSessionsInput = {
   id?: string
   name: string
@@ -564,6 +669,11 @@ export type UserCreateWithoutSessionsInput = {
   invitationsUsed?: Prisma.InvitationCreateNestedManyWithoutAcceptedByInput
   auditEvents?: Prisma.AuditEventCreateNestedManyWithoutActorInput
   productEvents?: Prisma.ProductEventCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -581,6 +691,11 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   invitationsUsed?: Prisma.InvitationUncheckedCreateNestedManyWithoutAcceptedByInput
   auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutActorInput
   productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseUncheckedCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -614,6 +729,11 @@ export type UserUpdateWithoutSessionsInput = {
   invitationsUsed?: Prisma.InvitationUpdateManyWithoutAcceptedByNestedInput
   auditEvents?: Prisma.AuditEventUpdateManyWithoutActorNestedInput
   productEvents?: Prisma.ProductEventUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -631,6 +751,11 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   invitationsUsed?: Prisma.InvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
   auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutActorNestedInput
   productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUncheckedUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -648,6 +773,11 @@ export type UserCreateWithoutAccountsInput = {
   invitationsUsed?: Prisma.InvitationCreateNestedManyWithoutAcceptedByInput
   auditEvents?: Prisma.AuditEventCreateNestedManyWithoutActorInput
   productEvents?: Prisma.ProductEventCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -665,6 +795,11 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   invitationsUsed?: Prisma.InvitationUncheckedCreateNestedManyWithoutAcceptedByInput
   auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutActorInput
   productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseUncheckedCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -698,6 +833,11 @@ export type UserUpdateWithoutAccountsInput = {
   invitationsUsed?: Prisma.InvitationUpdateManyWithoutAcceptedByNestedInput
   auditEvents?: Prisma.AuditEventUpdateManyWithoutActorNestedInput
   productEvents?: Prisma.ProductEventUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -715,6 +855,11 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   invitationsUsed?: Prisma.InvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
   auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutActorNestedInput
   productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUncheckedUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type UserCreateWithoutOwnedWorkspacesInput = {
@@ -732,6 +877,11 @@ export type UserCreateWithoutOwnedWorkspacesInput = {
   invitationsUsed?: Prisma.InvitationCreateNestedManyWithoutAcceptedByInput
   auditEvents?: Prisma.AuditEventCreateNestedManyWithoutActorInput
   productEvents?: Prisma.ProductEventCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
 }
 
 export type UserUncheckedCreateWithoutOwnedWorkspacesInput = {
@@ -749,6 +899,11 @@ export type UserUncheckedCreateWithoutOwnedWorkspacesInput = {
   invitationsUsed?: Prisma.InvitationUncheckedCreateNestedManyWithoutAcceptedByInput
   auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutActorInput
   productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseUncheckedCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type UserCreateOrConnectWithoutOwnedWorkspacesInput = {
@@ -782,6 +937,11 @@ export type UserUpdateWithoutOwnedWorkspacesInput = {
   invitationsUsed?: Prisma.InvitationUpdateManyWithoutAcceptedByNestedInput
   auditEvents?: Prisma.AuditEventUpdateManyWithoutActorNestedInput
   productEvents?: Prisma.ProductEventUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOwnedWorkspacesInput = {
@@ -799,6 +959,11 @@ export type UserUncheckedUpdateWithoutOwnedWorkspacesInput = {
   invitationsUsed?: Prisma.InvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
   auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutActorNestedInput
   productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUncheckedUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type UserCreateWithoutMembershipsInput = {
@@ -816,6 +981,11 @@ export type UserCreateWithoutMembershipsInput = {
   invitationsUsed?: Prisma.InvitationCreateNestedManyWithoutAcceptedByInput
   auditEvents?: Prisma.AuditEventCreateNestedManyWithoutActorInput
   productEvents?: Prisma.ProductEventCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -833,6 +1003,11 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   invitationsUsed?: Prisma.InvitationUncheckedCreateNestedManyWithoutAcceptedByInput
   auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutActorInput
   productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseUncheckedCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -866,6 +1041,11 @@ export type UserUpdateWithoutMembershipsInput = {
   invitationsUsed?: Prisma.InvitationUpdateManyWithoutAcceptedByNestedInput
   auditEvents?: Prisma.AuditEventUpdateManyWithoutActorNestedInput
   productEvents?: Prisma.ProductEventUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -883,6 +1063,11 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   invitationsUsed?: Prisma.InvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
   auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutActorNestedInput
   productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUncheckedUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type UserCreateWithoutInvitationsSentInput = {
@@ -900,6 +1085,11 @@ export type UserCreateWithoutInvitationsSentInput = {
   invitationsUsed?: Prisma.InvitationCreateNestedManyWithoutAcceptedByInput
   auditEvents?: Prisma.AuditEventCreateNestedManyWithoutActorInput
   productEvents?: Prisma.ProductEventCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
 }
 
 export type UserUncheckedCreateWithoutInvitationsSentInput = {
@@ -917,6 +1107,11 @@ export type UserUncheckedCreateWithoutInvitationsSentInput = {
   invitationsUsed?: Prisma.InvitationUncheckedCreateNestedManyWithoutAcceptedByInput
   auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutActorInput
   productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseUncheckedCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type UserCreateOrConnectWithoutInvitationsSentInput = {
@@ -939,6 +1134,11 @@ export type UserCreateWithoutInvitationsUsedInput = {
   invitationsSent?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
   auditEvents?: Prisma.AuditEventCreateNestedManyWithoutActorInput
   productEvents?: Prisma.ProductEventCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
 }
 
 export type UserUncheckedCreateWithoutInvitationsUsedInput = {
@@ -956,6 +1156,11 @@ export type UserUncheckedCreateWithoutInvitationsUsedInput = {
   invitationsSent?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
   auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutActorInput
   productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseUncheckedCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type UserCreateOrConnectWithoutInvitationsUsedInput = {
@@ -989,6 +1194,11 @@ export type UserUpdateWithoutInvitationsSentInput = {
   invitationsUsed?: Prisma.InvitationUpdateManyWithoutAcceptedByNestedInput
   auditEvents?: Prisma.AuditEventUpdateManyWithoutActorNestedInput
   productEvents?: Prisma.ProductEventUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInvitationsSentInput = {
@@ -1006,6 +1216,11 @@ export type UserUncheckedUpdateWithoutInvitationsSentInput = {
   invitationsUsed?: Prisma.InvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
   auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutActorNestedInput
   productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUncheckedUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type UserUpsertWithoutInvitationsUsedInput = {
@@ -1034,6 +1249,11 @@ export type UserUpdateWithoutInvitationsUsedInput = {
   invitationsSent?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
   auditEvents?: Prisma.AuditEventUpdateManyWithoutActorNestedInput
   productEvents?: Prisma.ProductEventUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInvitationsUsedInput = {
@@ -1051,6 +1271,11 @@ export type UserUncheckedUpdateWithoutInvitationsUsedInput = {
   invitationsSent?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
   auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutActorNestedInput
   productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUncheckedUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type UserCreateWithoutAuditEventsInput = {
@@ -1068,6 +1293,11 @@ export type UserCreateWithoutAuditEventsInput = {
   invitationsSent?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
   invitationsUsed?: Prisma.InvitationCreateNestedManyWithoutAcceptedByInput
   productEvents?: Prisma.ProductEventCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
 }
 
 export type UserUncheckedCreateWithoutAuditEventsInput = {
@@ -1085,6 +1315,11 @@ export type UserUncheckedCreateWithoutAuditEventsInput = {
   invitationsSent?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
   invitationsUsed?: Prisma.InvitationUncheckedCreateNestedManyWithoutAcceptedByInput
   productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseUncheckedCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type UserCreateOrConnectWithoutAuditEventsInput = {
@@ -1118,6 +1353,11 @@ export type UserUpdateWithoutAuditEventsInput = {
   invitationsSent?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
   invitationsUsed?: Prisma.InvitationUpdateManyWithoutAcceptedByNestedInput
   productEvents?: Prisma.ProductEventUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditEventsInput = {
@@ -1135,6 +1375,11 @@ export type UserUncheckedUpdateWithoutAuditEventsInput = {
   invitationsSent?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
   invitationsUsed?: Prisma.InvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
   productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUncheckedUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type UserCreateWithoutProductEventsInput = {
@@ -1152,6 +1397,11 @@ export type UserCreateWithoutProductEventsInput = {
   invitationsSent?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
   invitationsUsed?: Prisma.InvitationCreateNestedManyWithoutAcceptedByInput
   auditEvents?: Prisma.AuditEventCreateNestedManyWithoutActorInput
+  exercisesCreated?: Prisma.ExerciseCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
 }
 
 export type UserUncheckedCreateWithoutProductEventsInput = {
@@ -1169,6 +1419,11 @@ export type UserUncheckedCreateWithoutProductEventsInput = {
   invitationsSent?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
   invitationsUsed?: Prisma.InvitationUncheckedCreateNestedManyWithoutAcceptedByInput
   auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutActorInput
+  exercisesCreated?: Prisma.ExerciseUncheckedCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type UserCreateOrConnectWithoutProductEventsInput = {
@@ -1202,6 +1457,11 @@ export type UserUpdateWithoutProductEventsInput = {
   invitationsSent?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
   invitationsUsed?: Prisma.InvitationUpdateManyWithoutAcceptedByNestedInput
   auditEvents?: Prisma.AuditEventUpdateManyWithoutActorNestedInput
+  exercisesCreated?: Prisma.ExerciseUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProductEventsInput = {
@@ -1219,6 +1479,531 @@ export type UserUncheckedUpdateWithoutProductEventsInput = {
   invitationsSent?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
   invitationsUsed?: Prisma.InvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
   auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutActorNestedInput
+  exercisesCreated?: Prisma.ExerciseUncheckedUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+}
+
+export type UserCreateWithoutExercisesCreatedInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  invitationsSent?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  invitationsUsed?: Prisma.InvitationCreateNestedManyWithoutAcceptedByInput
+  auditEvents?: Prisma.AuditEventCreateNestedManyWithoutActorInput
+  productEvents?: Prisma.ProductEventCreateNestedManyWithoutUserInput
+  templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+}
+
+export type UserUncheckedCreateWithoutExercisesCreatedInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  invitationsSent?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  invitationsUsed?: Prisma.InvitationUncheckedCreateNestedManyWithoutAcceptedByInput
+  auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutActorInput
+  productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutUserInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+}
+
+export type UserCreateOrConnectWithoutExercisesCreatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutExercisesCreatedInput, Prisma.UserUncheckedCreateWithoutExercisesCreatedInput>
+}
+
+export type UserUpsertWithoutExercisesCreatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutExercisesCreatedInput, Prisma.UserUncheckedUpdateWithoutExercisesCreatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutExercisesCreatedInput, Prisma.UserUncheckedCreateWithoutExercisesCreatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutExercisesCreatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutExercisesCreatedInput, Prisma.UserUncheckedUpdateWithoutExercisesCreatedInput>
+}
+
+export type UserUpdateWithoutExercisesCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  invitationsSent?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  invitationsUsed?: Prisma.InvitationUpdateManyWithoutAcceptedByNestedInput
+  auditEvents?: Prisma.AuditEventUpdateManyWithoutActorNestedInput
+  productEvents?: Prisma.ProductEventUpdateManyWithoutUserNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+}
+
+export type UserUncheckedUpdateWithoutExercisesCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  invitationsSent?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  invitationsUsed?: Prisma.InvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
+  auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutActorNestedInput
+  productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutUserNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+}
+
+export type UserCreateWithoutTemplatesCreatedInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  invitationsSent?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  invitationsUsed?: Prisma.InvitationCreateNestedManyWithoutAcceptedByInput
+  auditEvents?: Prisma.AuditEventCreateNestedManyWithoutActorInput
+  productEvents?: Prisma.ProductEventCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+}
+
+export type UserUncheckedCreateWithoutTemplatesCreatedInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  invitationsSent?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  invitationsUsed?: Prisma.InvitationUncheckedCreateNestedManyWithoutAcceptedByInput
+  auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutActorInput
+  productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseUncheckedCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+}
+
+export type UserCreateOrConnectWithoutTemplatesCreatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTemplatesCreatedInput, Prisma.UserUncheckedCreateWithoutTemplatesCreatedInput>
+}
+
+export type UserUpsertWithoutTemplatesCreatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTemplatesCreatedInput, Prisma.UserUncheckedUpdateWithoutTemplatesCreatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTemplatesCreatedInput, Prisma.UserUncheckedCreateWithoutTemplatesCreatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTemplatesCreatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTemplatesCreatedInput, Prisma.UserUncheckedUpdateWithoutTemplatesCreatedInput>
+}
+
+export type UserUpdateWithoutTemplatesCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  invitationsSent?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  invitationsUsed?: Prisma.InvitationUpdateManyWithoutAcceptedByNestedInput
+  auditEvents?: Prisma.AuditEventUpdateManyWithoutActorNestedInput
+  productEvents?: Prisma.ProductEventUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTemplatesCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  invitationsSent?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  invitationsUsed?: Prisma.InvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
+  auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutActorNestedInput
+  productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUncheckedUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+}
+
+export type UserCreateWithoutPlansCreatedInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  invitationsSent?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  invitationsUsed?: Prisma.InvitationCreateNestedManyWithoutAcceptedByInput
+  auditEvents?: Prisma.AuditEventCreateNestedManyWithoutActorInput
+  productEvents?: Prisma.ProductEventCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+}
+
+export type UserUncheckedCreateWithoutPlansCreatedInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  invitationsSent?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  invitationsUsed?: Prisma.InvitationUncheckedCreateNestedManyWithoutAcceptedByInput
+  auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutActorInput
+  productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseUncheckedCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+}
+
+export type UserCreateOrConnectWithoutPlansCreatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPlansCreatedInput, Prisma.UserUncheckedCreateWithoutPlansCreatedInput>
+}
+
+export type UserUpsertWithoutPlansCreatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPlansCreatedInput, Prisma.UserUncheckedUpdateWithoutPlansCreatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPlansCreatedInput, Prisma.UserUncheckedCreateWithoutPlansCreatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPlansCreatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPlansCreatedInput, Prisma.UserUncheckedUpdateWithoutPlansCreatedInput>
+}
+
+export type UserUpdateWithoutPlansCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  invitationsSent?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  invitationsUsed?: Prisma.InvitationUpdateManyWithoutAcceptedByNestedInput
+  auditEvents?: Prisma.AuditEventUpdateManyWithoutActorNestedInput
+  productEvents?: Prisma.ProductEventUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPlansCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  invitationsSent?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  invitationsUsed?: Prisma.InvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
+  auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutActorNestedInput
+  productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUncheckedUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+}
+
+export type UserCreateWithoutPlanAssignmentsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  invitationsSent?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  invitationsUsed?: Prisma.InvitationCreateNestedManyWithoutAcceptedByInput
+  auditEvents?: Prisma.AuditEventCreateNestedManyWithoutActorInput
+  productEvents?: Prisma.ProductEventCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
+  workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+}
+
+export type UserUncheckedCreateWithoutPlanAssignmentsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  invitationsSent?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  invitationsUsed?: Prisma.InvitationUncheckedCreateNestedManyWithoutAcceptedByInput
+  auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutActorInput
+  productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseUncheckedCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+}
+
+export type UserCreateOrConnectWithoutPlanAssignmentsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPlanAssignmentsInput, Prisma.UserUncheckedCreateWithoutPlanAssignmentsInput>
+}
+
+export type UserUpsertWithoutPlanAssignmentsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPlanAssignmentsInput, Prisma.UserUncheckedUpdateWithoutPlanAssignmentsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPlanAssignmentsInput, Prisma.UserUncheckedCreateWithoutPlanAssignmentsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPlanAssignmentsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPlanAssignmentsInput, Prisma.UserUncheckedUpdateWithoutPlanAssignmentsInput>
+}
+
+export type UserUpdateWithoutPlanAssignmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  invitationsSent?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  invitationsUsed?: Prisma.InvitationUpdateManyWithoutAcceptedByNestedInput
+  auditEvents?: Prisma.AuditEventUpdateManyWithoutActorNestedInput
+  productEvents?: Prisma.ProductEventUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPlanAssignmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  invitationsSent?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  invitationsUsed?: Prisma.InvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
+  auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutActorNestedInput
+  productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUncheckedUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+}
+
+export type UserCreateWithoutWorkoutSessionsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  invitationsSent?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  invitationsUsed?: Prisma.InvitationCreateNestedManyWithoutAcceptedByInput
+  auditEvents?: Prisma.AuditEventCreateNestedManyWithoutActorInput
+  productEvents?: Prisma.ProductEventCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+}
+
+export type UserUncheckedCreateWithoutWorkoutSessionsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  invitationsSent?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  invitationsUsed?: Prisma.InvitationUncheckedCreateNestedManyWithoutAcceptedByInput
+  auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutActorInput
+  productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseUncheckedCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+}
+
+export type UserCreateOrConnectWithoutWorkoutSessionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutWorkoutSessionsInput, Prisma.UserUncheckedCreateWithoutWorkoutSessionsInput>
+}
+
+export type UserUpsertWithoutWorkoutSessionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutWorkoutSessionsInput, Prisma.UserUncheckedUpdateWithoutWorkoutSessionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutWorkoutSessionsInput, Prisma.UserUncheckedCreateWithoutWorkoutSessionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutWorkoutSessionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutWorkoutSessionsInput, Prisma.UserUncheckedUpdateWithoutWorkoutSessionsInput>
+}
+
+export type UserUpdateWithoutWorkoutSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  invitationsSent?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  invitationsUsed?: Prisma.InvitationUpdateManyWithoutAcceptedByNestedInput
+  auditEvents?: Prisma.AuditEventUpdateManyWithoutActorNestedInput
+  productEvents?: Prisma.ProductEventUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutWorkoutSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  invitationsSent?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  invitationsUsed?: Prisma.InvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
+  auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutActorNestedInput
+  productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUncheckedUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
 }
 
 
@@ -1235,6 +2020,11 @@ export type UserCountOutputType = {
   invitationsUsed: number
   auditEvents: number
   productEvents: number
+  exercisesCreated: number
+  templatesCreated: number
+  plansCreated: number
+  planAssignments: number
+  workoutSessions: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1246,6 +2036,11 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   invitationsUsed?: boolean | UserCountOutputTypeCountInvitationsUsedArgs
   auditEvents?: boolean | UserCountOutputTypeCountAuditEventsArgs
   productEvents?: boolean | UserCountOutputTypeCountProductEventsArgs
+  exercisesCreated?: boolean | UserCountOutputTypeCountExercisesCreatedArgs
+  templatesCreated?: boolean | UserCountOutputTypeCountTemplatesCreatedArgs
+  plansCreated?: boolean | UserCountOutputTypeCountPlansCreatedArgs
+  planAssignments?: boolean | UserCountOutputTypeCountPlanAssignmentsArgs
+  workoutSessions?: boolean | UserCountOutputTypeCountWorkoutSessionsArgs
 }
 
 /**
@@ -1314,6 +2109,41 @@ export type UserCountOutputTypeCountProductEventsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.ProductEventWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountExercisesCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExerciseWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTemplatesCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkoutTemplateWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPlansCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkoutPlanWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPlanAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StudentPlanAssignmentWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountWorkoutSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkoutSessionWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1331,6 +2161,11 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   invitationsUsed?: boolean | Prisma.User$invitationsUsedArgs<ExtArgs>
   auditEvents?: boolean | Prisma.User$auditEventsArgs<ExtArgs>
   productEvents?: boolean | Prisma.User$productEventsArgs<ExtArgs>
+  exercisesCreated?: boolean | Prisma.User$exercisesCreatedArgs<ExtArgs>
+  templatesCreated?: boolean | Prisma.User$templatesCreatedArgs<ExtArgs>
+  plansCreated?: boolean | Prisma.User$plansCreatedArgs<ExtArgs>
+  planAssignments?: boolean | Prisma.User$planAssignmentsArgs<ExtArgs>
+  workoutSessions?: boolean | Prisma.User$workoutSessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1374,6 +2209,11 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   invitationsUsed?: boolean | Prisma.User$invitationsUsedArgs<ExtArgs>
   auditEvents?: boolean | Prisma.User$auditEventsArgs<ExtArgs>
   productEvents?: boolean | Prisma.User$productEventsArgs<ExtArgs>
+  exercisesCreated?: boolean | Prisma.User$exercisesCreatedArgs<ExtArgs>
+  templatesCreated?: boolean | Prisma.User$templatesCreatedArgs<ExtArgs>
+  plansCreated?: boolean | Prisma.User$plansCreatedArgs<ExtArgs>
+  planAssignments?: boolean | Prisma.User$planAssignmentsArgs<ExtArgs>
+  workoutSessions?: boolean | Prisma.User$workoutSessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1390,6 +2230,11 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     invitationsUsed: Prisma.$InvitationPayload<ExtArgs>[]
     auditEvents: Prisma.$AuditEventPayload<ExtArgs>[]
     productEvents: Prisma.$ProductEventPayload<ExtArgs>[]
+    exercisesCreated: Prisma.$ExercisePayload<ExtArgs>[]
+    templatesCreated: Prisma.$WorkoutTemplatePayload<ExtArgs>[]
+    plansCreated: Prisma.$WorkoutPlanPayload<ExtArgs>[]
+    planAssignments: Prisma.$StudentPlanAssignmentPayload<ExtArgs>[]
+    workoutSessions: Prisma.$WorkoutSessionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1801,6 +2646,11 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   invitationsUsed<T extends Prisma.User$invitationsUsedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$invitationsUsedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   auditEvents<T extends Prisma.User$auditEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   productEvents<T extends Prisma.User$productEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$productEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  exercisesCreated<T extends Prisma.User$exercisesCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$exercisesCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExercisePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  templatesCreated<T extends Prisma.User$templatesCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$templatesCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkoutTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  plansCreated<T extends Prisma.User$plansCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$plansCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkoutPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  planAssignments<T extends Prisma.User$planAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$planAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StudentPlanAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  workoutSessions<T extends Prisma.User$workoutSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$workoutSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkoutSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2419,6 +3269,126 @@ export type User$productEventsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.ProductEventScalarFieldEnum | Prisma.ProductEventScalarFieldEnum[]
+}
+
+/**
+ * User.exercisesCreated
+ */
+export type User$exercisesCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Exercise
+   */
+  select?: Prisma.ExerciseSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Exercise
+   */
+  omit?: Prisma.ExerciseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExerciseInclude<ExtArgs> | null
+  where?: Prisma.ExerciseWhereInput
+  orderBy?: Prisma.ExerciseOrderByWithRelationInput | Prisma.ExerciseOrderByWithRelationInput[]
+  cursor?: Prisma.ExerciseWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExerciseScalarFieldEnum | Prisma.ExerciseScalarFieldEnum[]
+}
+
+/**
+ * User.templatesCreated
+ */
+export type User$templatesCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkoutTemplate
+   */
+  select?: Prisma.WorkoutTemplateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkoutTemplate
+   */
+  omit?: Prisma.WorkoutTemplateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkoutTemplateInclude<ExtArgs> | null
+  where?: Prisma.WorkoutTemplateWhereInput
+  orderBy?: Prisma.WorkoutTemplateOrderByWithRelationInput | Prisma.WorkoutTemplateOrderByWithRelationInput[]
+  cursor?: Prisma.WorkoutTemplateWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkoutTemplateScalarFieldEnum | Prisma.WorkoutTemplateScalarFieldEnum[]
+}
+
+/**
+ * User.plansCreated
+ */
+export type User$plansCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkoutPlan
+   */
+  select?: Prisma.WorkoutPlanSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkoutPlan
+   */
+  omit?: Prisma.WorkoutPlanOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkoutPlanInclude<ExtArgs> | null
+  where?: Prisma.WorkoutPlanWhereInput
+  orderBy?: Prisma.WorkoutPlanOrderByWithRelationInput | Prisma.WorkoutPlanOrderByWithRelationInput[]
+  cursor?: Prisma.WorkoutPlanWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkoutPlanScalarFieldEnum | Prisma.WorkoutPlanScalarFieldEnum[]
+}
+
+/**
+ * User.planAssignments
+ */
+export type User$planAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StudentPlanAssignment
+   */
+  select?: Prisma.StudentPlanAssignmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StudentPlanAssignment
+   */
+  omit?: Prisma.StudentPlanAssignmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StudentPlanAssignmentInclude<ExtArgs> | null
+  where?: Prisma.StudentPlanAssignmentWhereInput
+  orderBy?: Prisma.StudentPlanAssignmentOrderByWithRelationInput | Prisma.StudentPlanAssignmentOrderByWithRelationInput[]
+  cursor?: Prisma.StudentPlanAssignmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StudentPlanAssignmentScalarFieldEnum | Prisma.StudentPlanAssignmentScalarFieldEnum[]
+}
+
+/**
+ * User.workoutSessions
+ */
+export type User$workoutSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkoutSession
+   */
+  select?: Prisma.WorkoutSessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkoutSession
+   */
+  omit?: Prisma.WorkoutSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkoutSessionInclude<ExtArgs> | null
+  where?: Prisma.WorkoutSessionWhereInput
+  orderBy?: Prisma.WorkoutSessionOrderByWithRelationInput | Prisma.WorkoutSessionOrderByWithRelationInput[]
+  cursor?: Prisma.WorkoutSessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkoutSessionScalarFieldEnum | Prisma.WorkoutSessionScalarFieldEnum[]
 }
 
 /**
