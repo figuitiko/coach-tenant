@@ -4,7 +4,7 @@ import { CrossTenantAccessError, UnauthenticatedError } from "@/modules/tenancy/
 import { requireWorkspaceAccess } from "@/modules/tenancy/infrastructure/workspace-dal";
 import { trainingService } from "@/modules/training/infrastructure/training-use-cases";
 import { CoachTrainingView, StudentTrainingView } from "@/modules/training/presentation/training-view";
-import { assignPlanAction, completeWorkoutAction, createExerciseAction, createPlanAction, createTemplateAction, saveSetAction } from "./actions";
+import { assignPlanAction, completeWorkoutAction, createExerciseAction, createPlanAction, createTemplateAction, editTemplateAction, saveSetAction } from "./actions";
 
 export const runtime = "nodejs";
 
@@ -20,6 +20,7 @@ export default async function TrainingPage({
   const actions = {
     createExercise: createExerciseAction.bind(null, workspaceSlug),
     createTemplate: createTemplateAction.bind(null, workspaceSlug),
+    editTemplate: editTemplateAction.bind(null, workspaceSlug),
     createPlan: createPlanAction.bind(null, workspaceSlug),
     assignPlan: assignPlanAction.bind(null, workspaceSlug),
     saveSet: saveSetAction.bind(null, workspaceSlug),

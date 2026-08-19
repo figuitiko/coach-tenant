@@ -6,14 +6,17 @@ describe("training views", () => {
   it("gives coaches practical, labelled creation and scheduling forms", () => {
     render(<CoachTrainingView dashboard={{
       exercises: [{ id: "exercise-1", name: "Sentadilla" }],
-      templates: [{ id: "template-1", name: "Día A" }],
+      templates: [{ id: "template-1", name: "Día A", description: "Fuerza base", exercises: [{ exerciseId: "exercise-1", exerciseName: "Sentadilla", order: 0, prescribedSets: 3, repMin: 6, repMax: 8, targetRpe: 8, restSeconds: 120, notes: null }] }],
       plans: [],
       students: [{ membershipId: "membership-1", name: "Martina López" }],
-    }} actions={{ createExercise: async () => {}, createTemplate: async () => {}, createPlan: async () => {}, assignPlan: async () => {} }} />);
+    }} actions={{ createExercise: async () => {}, createTemplate: async () => {}, editTemplate: async () => {}, createPlan: async () => {}, assignPlan: async () => {} }} />);
 
     expect(screen.getByRole("heading", { name: /biblioteca de ejercicios/i })).toBeInTheDocument();
     expect(screen.getByRole("form", { name: /crear ejercicio/i })).toBeInTheDocument();
     expect(screen.getByRole("form", { name: /crear plantilla/i })).toBeInTheDocument();
+    const editForm = screen.getByRole("form", { name: /editar plantilla día a/i });
+    expect(within(editForm).getByLabelText(/descripción/i)).toHaveValue("Fuerza base");
+    expect(within(editForm).getByLabelText(/orden/i)).toHaveValue(0);
     expect(screen.getByRole("form", { name: /programar plan/i })).toBeInTheDocument();
     expect(screen.getByRole("form", { name: /asignar plan/i })).toBeInTheDocument();
   });

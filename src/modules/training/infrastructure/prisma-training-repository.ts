@@ -28,7 +28,7 @@ export class PrismaTrainingRepository implements TrainingRepository {
     });
   }
 
-  async createTemplate(input: { workspaceId: string; actorId: string; name: string; exercises: PrescribedExercise[] }) {
+  async createTemplate(input: { workspaceId: string; actorId: string; name: string; description?: string | null; exercises: PrescribedExercise[] }) {
     return this.database.$transaction(async (tx) => {
       await requireCoach(tx, input.workspaceId, input.actorId);
       const scopedExercises = await tx.exercise.count({ where: { workspaceId: input.workspaceId, id: { in: input.exercises.map((exercise) => exercise.exerciseId) } } });
@@ -38,6 +38,7 @@ export class PrismaTrainingRepository implements TrainingRepository {
           workspaceId: input.workspaceId,
           createdById: input.actorId,
           name: input.name,
+          description: input.description,
           exercises: { create: input.exercises.map((exercise) => ({ exerciseId: exercise.exerciseId, order: exercise.order, prescribedSets: exercise.prescribedSets, repMin: exercise.repMin, repMax: exercise.repMax, targetRpe: exercise.targetRpe, restSeconds: exercise.restSeconds, notes: exercise.notes })) },
         },
         select: { id: true, name: true },
@@ -47,6 +48,30 @@ export class PrismaTrainingRepository implements TrainingRepository {
         tx.productEvent.create({ data: { workspaceId: input.workspaceId, userId: input.actorId, name: "workout_template_created", properties: { templateId: template.id } } }),
       ]);
       return template;
+    });
+  }
+
+  async editTemplate(input: { workspaceId: string; actorId: string; templateId: string; name: string; description: string | null; exercises: PrescribedExercise[] }) {
+    return this.database.$transaction(async (tx) => {
+      await requireCoach(tx, input.workspaceId, input.actorId);
+      const [template, exerciseCount] = await Promise.all([
+        tx.workoutTemplate.findFirst({ where: { id: input.templateId, workspaceId: input.workspaceId }, select: { id: true } }),
+        tx.exercise.count({ where: { workspaceId: input.workspaceId, id: { in: input.exercises.map((exercise) => exercise.exerciseId) } } }),
+      ]);
+      if (!template) return null;
+      if (exerciseCount !== new Set(input.exercises.map((exercise) => exercise.exerciseId)).size) throw new TrainingAccessDeniedError();
+      await tx.templateExercise.deleteMany({ where: { templateId: template.id } });
+      const updated = await tx.workoutTemplate.update({
+        where: { id: template.id },
+        data: {
+          name: input.name,
+          description: input.description,
+          exercises: { create: input.exercises.map((exercise) => ({ exerciseId: exercise.exerciseId, order: exercise.order, prescribedSets: exercise.prescribedSets, repMin: exercise.repMin, repMax: exercise.repMax, targetRpe: exercise.targetRpe, restSeconds: exercise.restSeconds, notes: exercise.notes })) },
+        },
+        select: { id: true, name: true },
+      });
+      await tx.auditEvent.create({ data: { workspaceId: input.workspaceId, actorId: input.actorId, action: "workout_template.updated", entityType: "WorkoutTemplate", entityId: template.id } });
+      return updated;
     });
   }
 
@@ -198,11 +223,30 @@ export class PrismaTrainingRepository implements TrainingRepository {
     await requireCoach(this.database, input.workspaceId, input.actorId);
     const [exercises, templates, plans, students] = await Promise.all([
       this.database.exercise.findMany({ where: { workspaceId: input.workspaceId }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
-      this.database.workoutTemplate.findMany({ where: { workspaceId: input.workspaceId }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
+      this.database.workoutTemplate.findMany({
+        where: { workspaceId: input.workspaceId },
+        orderBy: { name: "asc" },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          exercises: { orderBy: { order: "asc" }, select: { exerciseId: true, order: true, prescribedSets: true, repMin: true, repMax: true, targetRpe: true, restSeconds: true, notes: true, exercise: { select: { name: true } } } },
+        },
+      }),
       this.database.workoutPlan.findMany({ where: { workspaceId: input.workspaceId }, orderBy: { createdAt: "desc" }, select: { id: true, name: true } }),
       this.database.membership.findMany({ where: { workspaceId: input.workspaceId, role: "STUDENT" }, orderBy: { user: { name: "asc" } }, select: { id: true, user: { select: { name: true } } } }),
     ]);
-    return { exercises, templates, plans, students: students.map((student) => ({ membershipId: student.id, name: student.user.name })) };
+    return {
+      exercises,
+      templates: templates.map((template) => ({
+        id: template.id,
+        name: template.name,
+        description: template.description,
+        exercises: template.exercises.map((item) => ({ exerciseId: item.exerciseId, exerciseName: item.exercise.name, order: item.order, prescribedSets: item.prescribedSets, repMin: item.repMin, repMax: item.repMax, targetRpe: item.targetRpe === null ? null : Number(item.targetRpe), restSeconds: item.restSeconds, notes: item.notes })),
+      })),
+      plans,
+      students: students.map((student) => ({ membershipId: student.id, name: student.user.name })),
+    };
   }
 }
 

@@ -232,6 +232,7 @@ export const WorkoutTemplateScalarFieldEnum = {
   workspaceId: 'workspaceId',
   createdById: 'createdById',
   name: 'name',
+  description: 'description',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

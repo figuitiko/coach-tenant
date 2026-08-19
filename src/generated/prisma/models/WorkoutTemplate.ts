@@ -29,6 +29,7 @@ export type WorkoutTemplateMinAggregateOutputType = {
   workspaceId: string | null
   createdById: string | null
   name: string | null
+  description: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -38,6 +39,7 @@ export type WorkoutTemplateMaxAggregateOutputType = {
   workspaceId: string | null
   createdById: string | null
   name: string | null
+  description: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -47,6 +49,7 @@ export type WorkoutTemplateCountAggregateOutputType = {
   workspaceId: number
   createdById: number
   name: number
+  description: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -58,6 +61,7 @@ export type WorkoutTemplateMinAggregateInputType = {
   workspaceId?: true
   createdById?: true
   name?: true
+  description?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -67,6 +71,7 @@ export type WorkoutTemplateMaxAggregateInputType = {
   workspaceId?: true
   createdById?: true
   name?: true
+  description?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -76,6 +81,7 @@ export type WorkoutTemplateCountAggregateInputType = {
   workspaceId?: true
   createdById?: true
   name?: true
+  description?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -158,6 +164,7 @@ export type WorkoutTemplateGroupByOutputType = {
   workspaceId: string
   createdById: string
   name: string
+  description: string | null
   createdAt: Date
   updatedAt: Date
   _count: WorkoutTemplateCountAggregateOutputType | null
@@ -188,6 +195,7 @@ export type WorkoutTemplateWhereInput = {
   workspaceId?: Prisma.StringFilter<"WorkoutTemplate"> | string
   createdById?: Prisma.StringFilter<"WorkoutTemplate"> | string
   name?: Prisma.StringFilter<"WorkoutTemplate"> | string
+  description?: Prisma.StringNullableFilter<"WorkoutTemplate"> | string | null
   createdAt?: Prisma.DateTimeFilter<"WorkoutTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"WorkoutTemplate"> | Date | string
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
@@ -201,6 +209,7 @@ export type WorkoutTemplateOrderByWithRelationInput = {
   workspaceId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
@@ -218,6 +227,7 @@ export type WorkoutTemplateWhereUniqueInput = Prisma.AtLeast<{
   workspaceId?: Prisma.StringFilter<"WorkoutTemplate"> | string
   createdById?: Prisma.StringFilter<"WorkoutTemplate"> | string
   name?: Prisma.StringFilter<"WorkoutTemplate"> | string
+  description?: Prisma.StringNullableFilter<"WorkoutTemplate"> | string | null
   createdAt?: Prisma.DateTimeFilter<"WorkoutTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"WorkoutTemplate"> | Date | string
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
@@ -231,6 +241,7 @@ export type WorkoutTemplateOrderByWithAggregationInput = {
   workspaceId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.WorkoutTemplateCountOrderByAggregateInput
@@ -246,6 +257,7 @@ export type WorkoutTemplateScalarWhereWithAggregatesInput = {
   workspaceId?: Prisma.StringWithAggregatesFilter<"WorkoutTemplate"> | string
   createdById?: Prisma.StringWithAggregatesFilter<"WorkoutTemplate"> | string
   name?: Prisma.StringWithAggregatesFilter<"WorkoutTemplate"> | string
+  description?: Prisma.StringNullableWithAggregatesFilter<"WorkoutTemplate"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"WorkoutTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"WorkoutTemplate"> | Date | string
 }
@@ -253,6 +265,7 @@ export type WorkoutTemplateScalarWhereWithAggregatesInput = {
 export type WorkoutTemplateCreateInput = {
   id?: string
   name: string
+  description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutWorkoutTemplatesInput
@@ -266,6 +279,7 @@ export type WorkoutTemplateUncheckedCreateInput = {
   workspaceId: string
   createdById: string
   name: string
+  description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   exercises?: Prisma.TemplateExerciseUncheckedCreateNestedManyWithoutTemplateInput
@@ -275,6 +289,7 @@ export type WorkoutTemplateUncheckedCreateInput = {
 export type WorkoutTemplateUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutWorkoutTemplatesNestedInput
@@ -288,6 +303,7 @@ export type WorkoutTemplateUncheckedUpdateInput = {
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exercises?: Prisma.TemplateExerciseUncheckedUpdateManyWithoutTemplateNestedInput
@@ -299,6 +315,7 @@ export type WorkoutTemplateCreateManyInput = {
   workspaceId: string
   createdById: string
   name: string
+  description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -306,6 +323,7 @@ export type WorkoutTemplateCreateManyInput = {
 export type WorkoutTemplateUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -315,6 +333,7 @@ export type WorkoutTemplateUncheckedUpdateManyInput = {
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -339,6 +358,7 @@ export type WorkoutTemplateCountOrderByAggregateInput = {
   workspaceId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -348,6 +368,7 @@ export type WorkoutTemplateMaxOrderByAggregateInput = {
   workspaceId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -357,6 +378,7 @@ export type WorkoutTemplateMinOrderByAggregateInput = {
   workspaceId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -481,6 +503,7 @@ export type WorkoutTemplateUpdateOneRequiredWithoutPlanWorkoutsNestedInput = {
 export type WorkoutTemplateCreateWithoutCreatedByInput = {
   id?: string
   name: string
+  description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutWorkoutTemplatesInput
@@ -492,6 +515,7 @@ export type WorkoutTemplateUncheckedCreateWithoutCreatedByInput = {
   id?: string
   workspaceId: string
   name: string
+  description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   exercises?: Prisma.TemplateExerciseUncheckedCreateNestedManyWithoutTemplateInput
@@ -532,6 +556,7 @@ export type WorkoutTemplateScalarWhereInput = {
   workspaceId?: Prisma.StringFilter<"WorkoutTemplate"> | string
   createdById?: Prisma.StringFilter<"WorkoutTemplate"> | string
   name?: Prisma.StringFilter<"WorkoutTemplate"> | string
+  description?: Prisma.StringNullableFilter<"WorkoutTemplate"> | string | null
   createdAt?: Prisma.DateTimeFilter<"WorkoutTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"WorkoutTemplate"> | Date | string
 }
@@ -539,6 +564,7 @@ export type WorkoutTemplateScalarWhereInput = {
 export type WorkoutTemplateCreateWithoutWorkspaceInput = {
   id?: string
   name: string
+  description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdBy: Prisma.UserCreateNestedOneWithoutTemplatesCreatedInput
@@ -550,6 +576,7 @@ export type WorkoutTemplateUncheckedCreateWithoutWorkspaceInput = {
   id?: string
   createdById: string
   name: string
+  description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   exercises?: Prisma.TemplateExerciseUncheckedCreateNestedManyWithoutTemplateInput
@@ -585,6 +612,7 @@ export type WorkoutTemplateUpdateManyWithWhereWithoutWorkspaceInput = {
 export type WorkoutTemplateCreateWithoutExercisesInput = {
   id?: string
   name: string
+  description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutWorkoutTemplatesInput
@@ -597,6 +625,7 @@ export type WorkoutTemplateUncheckedCreateWithoutExercisesInput = {
   workspaceId: string
   createdById: string
   name: string
+  description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   planWorkouts?: Prisma.PlanWorkoutUncheckedCreateNestedManyWithoutTemplateInput
@@ -621,6 +650,7 @@ export type WorkoutTemplateUpdateToOneWithWhereWithoutExercisesInput = {
 export type WorkoutTemplateUpdateWithoutExercisesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutWorkoutTemplatesNestedInput
@@ -633,6 +663,7 @@ export type WorkoutTemplateUncheckedUpdateWithoutExercisesInput = {
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   planWorkouts?: Prisma.PlanWorkoutUncheckedUpdateManyWithoutTemplateNestedInput
@@ -641,6 +672,7 @@ export type WorkoutTemplateUncheckedUpdateWithoutExercisesInput = {
 export type WorkoutTemplateCreateWithoutPlanWorkoutsInput = {
   id?: string
   name: string
+  description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutWorkoutTemplatesInput
@@ -653,6 +685,7 @@ export type WorkoutTemplateUncheckedCreateWithoutPlanWorkoutsInput = {
   workspaceId: string
   createdById: string
   name: string
+  description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   exercises?: Prisma.TemplateExerciseUncheckedCreateNestedManyWithoutTemplateInput
@@ -677,6 +710,7 @@ export type WorkoutTemplateUpdateToOneWithWhereWithoutPlanWorkoutsInput = {
 export type WorkoutTemplateUpdateWithoutPlanWorkoutsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutWorkoutTemplatesNestedInput
@@ -689,6 +723,7 @@ export type WorkoutTemplateUncheckedUpdateWithoutPlanWorkoutsInput = {
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exercises?: Prisma.TemplateExerciseUncheckedUpdateManyWithoutTemplateNestedInput
@@ -698,6 +733,7 @@ export type WorkoutTemplateCreateManyCreatedByInput = {
   id?: string
   workspaceId: string
   name: string
+  description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -705,6 +741,7 @@ export type WorkoutTemplateCreateManyCreatedByInput = {
 export type WorkoutTemplateUpdateWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutWorkoutTemplatesNestedInput
@@ -716,6 +753,7 @@ export type WorkoutTemplateUncheckedUpdateWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exercises?: Prisma.TemplateExerciseUncheckedUpdateManyWithoutTemplateNestedInput
@@ -726,6 +764,7 @@ export type WorkoutTemplateUncheckedUpdateManyWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -734,6 +773,7 @@ export type WorkoutTemplateCreateManyWorkspaceInput = {
   id?: string
   createdById: string
   name: string
+  description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -741,6 +781,7 @@ export type WorkoutTemplateCreateManyWorkspaceInput = {
 export type WorkoutTemplateUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.UserUpdateOneRequiredWithoutTemplatesCreatedNestedInput
@@ -752,6 +793,7 @@ export type WorkoutTemplateUncheckedUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exercises?: Prisma.TemplateExerciseUncheckedUpdateManyWithoutTemplateNestedInput
@@ -762,6 +804,7 @@ export type WorkoutTemplateUncheckedUpdateManyWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -811,6 +854,7 @@ export type WorkoutTemplateSelect<ExtArgs extends runtime.Types.Extensions.Inter
   workspaceId?: boolean
   createdById?: boolean
   name?: boolean
+  description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -825,6 +869,7 @@ export type WorkoutTemplateSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   workspaceId?: boolean
   createdById?: boolean
   name?: boolean
+  description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -836,6 +881,7 @@ export type WorkoutTemplateSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   workspaceId?: boolean
   createdById?: boolean
   name?: boolean
+  description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -847,11 +893,12 @@ export type WorkoutTemplateSelectScalar = {
   workspaceId?: boolean
   createdById?: boolean
   name?: boolean
+  description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type WorkoutTemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "createdById" | "name" | "createdAt" | "updatedAt", ExtArgs["result"]["workoutTemplate"]>
+export type WorkoutTemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "createdById" | "name" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["workoutTemplate"]>
 export type WorkoutTemplateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -881,6 +928,7 @@ export type $WorkoutTemplatePayload<ExtArgs extends runtime.Types.Extensions.Int
     workspaceId: string
     createdById: string
     name: string
+    description: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["workoutTemplate"]>
@@ -1314,6 +1362,7 @@ export interface WorkoutTemplateFieldRefs {
   readonly workspaceId: Prisma.FieldRef<"WorkoutTemplate", 'String'>
   readonly createdById: Prisma.FieldRef<"WorkoutTemplate", 'String'>
   readonly name: Prisma.FieldRef<"WorkoutTemplate", 'String'>
+  readonly description: Prisma.FieldRef<"WorkoutTemplate", 'String'>
   readonly createdAt: Prisma.FieldRef<"WorkoutTemplate", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"WorkoutTemplate", 'DateTime'>
 }

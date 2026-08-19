@@ -20,6 +20,7 @@ export function parseExerciseForm(formData: FormData) {
 export function parseTemplateForm(formData: FormData) {
   return parse(z.object({
     name: requiredName,
+    description: optionalNotes,
     exerciseId: requiredId,
     sets: z.coerce.number().int().min(1).max(20),
     repMin: z.coerce.number().int().min(1).max(100),
@@ -28,6 +29,42 @@ export function parseTemplateForm(formData: FormData) {
     restSeconds: optionalNumber.pipe(z.number().int().min(0).max(3600).nullable()),
     notes: optionalNotes,
   }), formData);
+}
+
+export function parseEditTemplateForm(formData: FormData) {
+  const header = parse(z.object({
+    templateId: requiredId,
+    name: requiredName,
+    description: optionalNotes,
+    exerciseCount: z.coerce.number().int().min(1).max(30),
+  }), formData);
+  const exerciseSchema = z.object({
+    exerciseId: requiredId,
+    exerciseName: requiredName,
+    order: z.coerce.number().int().min(0).max(100),
+    prescribedSets: z.coerce.number().int().min(1).max(20),
+    repMin: z.coerce.number().int().min(1).max(100),
+    repMax: z.coerce.number().int().min(1).max(100),
+    targetRpe: optionalNumber.pipe(z.number().min(1).max(10).nullable()),
+    restSeconds: optionalNumber.pipe(z.number().int().min(0).max(3600).nullable()),
+    notes: optionalNotes,
+  });
+  const exercises = Array.from({ length: header.exerciseCount }, (_, index) => {
+    const parsed = exerciseSchema.safeParse({
+      exerciseId: formData.get(`exerciseId-${index}`),
+      exerciseName: formData.get(`exerciseName-${index}`),
+      order: formData.get(`order-${index}`),
+      prescribedSets: formData.get(`sets-${index}`),
+      repMin: formData.get(`repMin-${index}`),
+      repMax: formData.get(`repMax-${index}`),
+      targetRpe: formData.get(`targetRpe-${index}`),
+      restSeconds: formData.get(`restSeconds-${index}`),
+      notes: formData.get(`notes-${index}`),
+    });
+    if (!parsed.success) throw new TrainingFormError();
+    return parsed.data;
+  });
+  return { templateId: header.templateId, name: header.name, description: header.description, exercises };
 }
 
 export function parsePlanForm(formData: FormData) {

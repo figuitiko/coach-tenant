@@ -51,8 +51,14 @@ integration("PrismaTrainingRepository against PostgreSQL", () => {
     const assignment = await service.assignSavedPlan(coach, { planId: plan.id, studentMembershipId: membership.id });
     const workout = assignment.workouts[0];
 
-    await database.exercise.update({ where: { id: exercise.id }, data: { name: "Nombre editado" } });
-    await database.templateExercise.updateMany({ where: { templateId: template.id }, data: { repMax: 12 } });
+    await service.editTemplate(coach, {
+      templateId: template.id,
+      name: "Día integración editado",
+      description: "Próximo bloque",
+      exercises: [{ exerciseId: exercise.id, exerciseName: exercise.name, order: 2, prescribedSets: 4, repMin: 8, repMax: 12, targetRpe: 9, restSeconds: 90, notes: "Nueva receta" }],
+    });
+    expect(await database.workoutTemplate.findUnique({ where: { id: template.id }, select: { name: true, description: true } }))
+      .toEqual({ name: "Día integración editado", description: "Próximo bloque" });
     const immutable = (await service.getStudentSchedule(student, "2026-08-18"))[0];
     expect(immutable.exercises[0]).toMatchObject({ exerciseName: "Sentadilla integración", repMax: 8 });
 

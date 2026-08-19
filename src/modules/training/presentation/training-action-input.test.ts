@@ -1,7 +1,30 @@
 import { describe, expect, it } from "vitest";
-import { parseSetForm, TrainingFormError } from "./training-action-input";
+import { parseEditTemplateForm, parseSetForm, TrainingFormError } from "./training-action-input";
 
 describe("training action validation", () => {
+  it("parses an ordered template edit prescription", () => {
+    const form = new FormData();
+    form.set("templateId", "template-1");
+    form.set("name", "Día A revisado");
+    form.set("description", "Siguiente bloque");
+    form.set("exerciseCount", "1");
+    form.set("exerciseId-0", "exercise-1");
+    form.set("exerciseName-0", "Sentadilla");
+    form.set("order-0", "2");
+    form.set("sets-0", "4");
+    form.set("repMin-0", "8");
+    form.set("repMax-0", "10");
+    form.set("targetRpe-0", "8.5");
+    form.set("restSeconds-0", "90");
+    form.set("notes-0", "Tempo controlado");
+
+    expect(parseEditTemplateForm(form)).toMatchObject({
+      templateId: "template-1",
+      description: "Siguiente bloque",
+      exercises: [{ exerciseId: "exercise-1", order: 2, prescribedSets: 4, repMin: 8, repMax: 10, targetRpe: 8.5 }],
+    });
+  });
+
   it("parses decimal actual data without trusting tenant identity from the form", () => {
     const form = new FormData();
     form.set("assignedWorkoutId", "workout-1");

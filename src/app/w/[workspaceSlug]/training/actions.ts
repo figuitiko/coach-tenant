@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireWorkspaceAccess } from "@/modules/tenancy/infrastructure/workspace-dal";
 import { TrainingAccessDeniedError, TrainingValidationError } from "@/modules/training/application/training-service";
 import { trainingService } from "@/modules/training/infrastructure/training-use-cases";
-import { parseAssignmentForm, parseCompletionForm, parseExerciseForm, parsePlanForm, parseSetForm, parseTemplateForm, TrainingFormError } from "@/modules/training/presentation/training-action-input";
+import { parseAssignmentForm, parseCompletionForm, parseEditTemplateForm, parseExerciseForm, parsePlanForm, parseSetForm, parseTemplateForm, TrainingFormError } from "@/modules/training/presentation/training-action-input";
 
 export async function createExerciseAction(workspaceSlug: string, formData: FormData) {
   return execute(workspaceSlug, async (actor) => {
@@ -17,8 +17,15 @@ export async function createTemplateAction(workspaceSlug: string, formData: Form
     const input = parseTemplateForm(formData);
     await trainingService.createTemplate(actor, {
       name: input.name,
+      description: input.description,
       exercises: [{ exerciseId: input.exerciseId, exerciseName: "Ejercicio", order: 0, prescribedSets: input.sets, repMin: input.repMin, repMax: input.repMax, targetRpe: input.targetRpe, restSeconds: input.restSeconds, notes: input.notes }],
     });
+  });
+}
+
+export async function editTemplateAction(workspaceSlug: string, formData: FormData) {
+  return execute(workspaceSlug, async (actor) => {
+    await trainingService.editTemplate(actor, parseEditTemplateForm(formData));
   });
 }
 

@@ -60,7 +60,7 @@ export type AssignedWorkout = {
 
 export type CoachTrainingDashboard = {
   exercises: Array<{ id: string; name: string }>;
-  templates: Array<{ id: string; name: string }>;
+  templates: Array<{ id: string; name: string; description: string | null; exercises: PrescribedExercise[] }>;
   plans: Array<{ id: string; name: string }>;
   students: Array<{ membershipId: string; name: string }>;
 };
@@ -79,7 +79,8 @@ export type SaveSetInput = {
 
 export interface TrainingRepository {
   createExercise(input: { workspaceId: string; actorId: string; name: string; notes: string | null }): Promise<{ id: string; name: string }>;
-  createTemplate(input: { workspaceId: string; actorId: string; name: string; exercises: PrescribedExercise[] }): Promise<{ id: string; name: string }>;
+  createTemplate(input: { workspaceId: string; actorId: string; name: string; description?: string | null; exercises: PrescribedExercise[] }): Promise<{ id: string; name: string }>;
+  editTemplate(input: { workspaceId: string; actorId: string; templateId: string; name: string; description: string | null; exercises: PrescribedExercise[] }): Promise<{ id: string; name: string } | null>;
   createPlan(input: { workspaceId: string; actorId: string; name: string; startsOn: string; endsOn: string; templateId: string; scheduledOn: string }): Promise<{ id: string; name: string }>;
   findMembership(membershipId: string): Promise<{ workspaceId: string; role: TrainingRole; userId?: string } | null>;
   assignPlan(input: { workspaceId: string; actorId: string; studentMembershipId: string; plan: WorkoutPlanDraft }): Promise<{ id: string; workouts: AssignedWorkout[] }>;
@@ -116,7 +117,7 @@ export class TrainingService {
     return this.repository.createExercise({ ...actor, name, notes: optionalText(input.notes) });
   }
 
-  async createTemplate(actor: TrainingActor, input: { name: string; exercises: PrescribedExercise[] }) {
+  async createTemplate(actor: TrainingActor, input: { name: string; description?: string | null; exercises: PrescribedExercise[] }) {
     requireCoach(actor);
     if (!input.exercises.length) throw new TrainingValidationError("A template needs an exercise");
     input.exercises.forEach(validatePrescription);
@@ -124,8 +125,25 @@ export class TrainingService {
       workspaceId: actor.workspaceId,
       actorId: actor.actorId,
       name: requiredText(input.name, "Template name is required"),
+      description: optionalText(input.description),
       exercises: structuredClone(input.exercises),
     });
+  }
+
+  async editTemplate(actor: TrainingActor, input: { templateId: string; name: string; description?: string | null; exercises: PrescribedExercise[] }) {
+    requireCoach(actor);
+    if (!input.templateId || !input.exercises.length) throw new TrainingValidationError("A template needs an exercise");
+    input.exercises.forEach(validatePrescription);
+    const updated = await this.repository.editTemplate({
+      workspaceId: actor.workspaceId,
+      actorId: actor.actorId,
+      templateId: input.templateId,
+      name: requiredText(input.name, "Template name is required"),
+      description: optionalText(input.description),
+      exercises: structuredClone(input.exercises),
+    });
+    if (!updated) throw new TrainingAccessDeniedError();
+    return updated;
   }
 
   async assignPlan(actor: TrainingActor, input: { studentMembershipId: string; plan: WorkoutPlanDraft }) {

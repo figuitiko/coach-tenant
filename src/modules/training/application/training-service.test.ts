@@ -4,6 +4,7 @@ import {
   TrainingService,
   TrainingValidationError,
   type AssignedWorkout,
+  type PrescribedExercise,
   type TrainingRepository,
   type WorkoutPlanDraft,
 } from "./training-service";
@@ -72,15 +73,38 @@ describe("plan assignment", () => {
     const repository = repositoryFixture();
     repository.memberships.set("student-membership", { workspaceId: "workspace-1", role: "STUDENT", userId: "student-1" });
     const service = new TrainingService(repository);
+    const draft = structuredClone(plan);
 
     const assigned = await service.assignPlan(
       { actorId: "coach-1", workspaceId: "workspace-1", role: "COACH" },
-      { studentMembershipId: "student-membership", plan },
+      { studentMembershipId: "student-membership", plan: draft },
     );
-    plan.workouts[0].exercises[0].exerciseName = "Sentadilla editada";
-    plan.workouts[0].exercises[0].repMax = 12;
+    draft.workouts[0].exercises[0].exerciseName = "Sentadilla editada";
+    draft.workouts[0].exercises[0].repMax = 12;
 
     expect(assigned.workouts[0].exercises[0]).toMatchObject({ exerciseName: "Sentadilla", repMax: 8 });
+  });
+
+  it("edits a scoped template without changing an existing assignment snapshot", async () => {
+    const repository = repositoryFixture();
+    repository.memberships.set("student-membership", { workspaceId: "workspace-1", role: "STUDENT", userId: "student-1" });
+    const service = new TrainingService(repository);
+    const coach = { actorId: "coach-1", workspaceId: "workspace-1", role: "COACH" } as const;
+    const originalPlan = structuredClone(plan);
+    repository.templates.push({ id: "template-1", name: "Día A", description: null, exercises: structuredClone(originalPlan.workouts[0].exercises) });
+    const assigned = await service.assignPlan(coach, { studentMembershipId: "student-membership", plan: originalPlan });
+
+    await service.editTemplate(coach, {
+      templateId: "template-1",
+      name: "Día A revisado",
+      description: "Más volumen para el siguiente bloque",
+      exercises: [{ ...originalPlan.workouts[0].exercises[0], order: 2, repMin: 8, repMax: 10 }],
+    });
+
+    expect(repository.templates[0]).toMatchObject({ name: "Día A revisado", description: "Más volumen para el siguiente bloque" });
+    expect(repository.templates[0].exercises[0]).toMatchObject({ order: 2, repMin: 8, repMax: 10 });
+    expect(assigned.workouts[0]).toMatchObject({ templateName: "Día A" });
+    expect(assigned.workouts[0].exercises[0]).toMatchObject({ order: 0, repMin: 6, repMax: 8 });
   });
 });
 
@@ -138,12 +162,12 @@ function assignmentFixture(overrides: Partial<AssignedWorkout> = {}): AssignedWo
 }
 
 function repositoryFixture(): TrainingRepository & {
-  templates: unknown[];
+  templates: Array<{ id: string; name: string; description?: string | null; exercises: PrescribedExercise[] }>;
   memberships: Map<string, { workspaceId: string; role: "COACH" | "STUDENT"; userId?: string }>;
   assignments: AssignedWorkout[];
   events: { name: string }[];
 } {
-  const templates: unknown[] = [];
+  const templates: Array<{ id: string; name: string; description?: string | null; exercises: PrescribedExercise[] }> = [];
   const memberships = new Map<string, { workspaceId: string; role: "COACH" | "STUDENT"; userId?: string }>();
   const assignments: AssignedWorkout[] = [];
   const events: { name: string }[] = [];
@@ -153,7 +177,13 @@ function repositoryFixture(): TrainingRepository & {
     assignments,
     events,
     async createExercise(input) { return { id: "exercise-1", ...input }; },
-    async createTemplate(input) { templates.push(structuredClone(input)); return { id: "template-1", ...input }; },
+    async createTemplate(input) { templates.push({ id: "template-1", ...structuredClone(input) }); return { id: "template-1", ...input }; },
+    async editTemplate(input) {
+      const template = templates.find((item) => item.id === input.templateId);
+      if (!template || input.workspaceId !== "workspace-1") return null;
+      Object.assign(template, { name: input.name, description: input.description, exercises: structuredClone(input.exercises) });
+      return { id: template.id, name: template.name };
+    },
     async createPlan(input) { return { id: "plan-1", name: input.name }; },
     async findMembership(id) { return memberships.get(id) ?? null; },
     async assignPlan(input) {
