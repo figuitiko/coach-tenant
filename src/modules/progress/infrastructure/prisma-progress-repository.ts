@@ -53,10 +53,11 @@ export class PrismaProgressRepository implements ProgressRepository {
   async attachPhoto(input: { workspaceId: string; studentId: string; uploadIntentId: string; attachedAt: Date }) {
     return this.db.$transaction(async (tx) => {
       await requireMember(tx, input.workspaceId, input.studentId, "STUDENT");
-      const existing = await tx.progressPhoto.findUnique({ where: { uploadIntentId: input.uploadIntentId }, select: { id: true } });
+      const ownership = { uploadIntentId: input.uploadIntentId, workspaceId: input.workspaceId, studentId: input.studentId };
+      const existing = await tx.progressPhoto.findFirst({ where: ownership, select: { id: true } });
       if (existing) return existing;
       const consumed = await tx.photoUploadIntent.updateMany({ where: { id: input.uploadIntentId, workspaceId: input.workspaceId, studentId: input.studentId, status: "PENDING", expiresAt: { gt: input.attachedAt }, checkIn: { status: "DRAFT" } }, data: { status: "CONSUMED", consumedAt: input.attachedAt } });
-      if (consumed.count !== 1) return tx.progressPhoto.findUnique({ where: { uploadIntentId: input.uploadIntentId }, select: { id: true } });
+      if (consumed.count !== 1) return tx.progressPhoto.findFirst({ where: ownership, select: { id: true } });
       const intent = await tx.photoUploadIntent.findUniqueOrThrow({ where: { id: input.uploadIntentId } });
       const photo = await tx.progressPhoto.create({ data: { workspaceId: intent.workspaceId, studentId: intent.studentId, checkInId: intent.checkInId, objectKey: intent.objectKey, mimeType: intent.mimeType, sizeBytes: intent.sizeBytes, idempotencyKey: intent.idempotencyKey, uploadIntentId: intent.id }, select: { id: true } });
       await eventPair(tx, input.workspaceId, input.studentId, "progress_photo.attached", "progress_photo_attached", "ProgressPhoto", photo.id, `photo-attach:${photo.id}`);
