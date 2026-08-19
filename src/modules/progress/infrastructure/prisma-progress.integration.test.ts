@@ -38,6 +38,20 @@ describe("PrismaProgressRepository PostgreSQL boundaries", () => {
     expect(await prisma.reviewNote.count()).toBe(1);
     await expect(service.getReviewDetail({ actorId: b.coach.id, workspaceId: b.workspace.id, role: "COACH" }, "CHECK_IN", draft.id)).rejects.toBeInstanceOf(ProgressAccessDeniedError);
   });
+
+  it("converges concurrent draft, attachment, and review retries to one record each", async () => {
+    const a = await fixture("concurrent"); const actor = { actorId: a.student.id, workspaceId: a.workspace.id, role: "STUDENT" as const };
+    const drafts = await Promise.all(Array.from({ length: 4 }, () => service.createDraft(actor)));
+    expect(new Set(drafts.map(item => item.id)).size).toBe(1);
+    const draft = drafts[0];
+    const intent = await service.reserveUploadIntent(actor, { checkInId: draft.id, idempotencyKey: "concurrent-upload", objectKey: `workspaces/${a.workspace.id}/students/${a.student.id}/progress/a.jpg`, mimeType: "image/jpeg", sizeBytes: 42, expiresAt: new Date("2026-08-19T12:05:00Z") });
+    await Promise.all(Array.from({ length: 4 }, () => service.attachPhoto(actor, { uploadIntentId: intent.id })));
+    expect(await prisma.progressPhoto.count()).toBe(1);
+    await service.submitDraft(actor, { checkInId: draft.id, idempotencyKey: "submit-concurrent" });
+    const coachActor = { actorId: a.coach.id, workspaceId: a.workspace.id, role: "COACH" as const };
+    await Promise.all(Array.from({ length: 4 }, () => service.completeReview(coachActor, { kind: "CHECK_IN", itemId: draft.id, note: "Bien", idempotencyKey: "review-concurrent" })));
+    expect(await prisma.reviewNote.count()).toBe(1);
+  });
 });
 
 async function fixture(suffix: string) {

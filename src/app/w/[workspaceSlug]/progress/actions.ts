@@ -10,7 +10,7 @@ import { requireWorkspaceAccess } from "@/modules/tenancy/infrastructure/workspa
 
 export async function saveDraftAction(slug: string, _state: ProgressActionState, data: FormData) { return execute(slug, async actor => { await progressService.editDraft(actor, { checkInId: text(data, "checkInId"), metrics: metrics(data), notes: optional(data, "notes") }); }); }
 export async function submitCheckInAction(slug: string, _state: ProgressActionState, data: FormData) { return execute(slug, async actor => { await progressService.submitDraft(actor, { checkInId: text(data, "checkInId"), idempotencyKey: text(data, "idempotencyKey") }); }); }
-export async function attachPhotoAction(slug: string, _state: ProgressActionState, data: FormData) { return execute(slug, async actor => { await progressService.attachPhoto(actor, { checkInId: text(data, "checkInId"), objectKey: text(data, "objectKey"), mimeType: text(data, "mimeType"), sizeBytes: integer(data, "sizeBytes"), idempotencyKey: text(data, "idempotencyKey") }); }); }
+export async function attachPhotoAction(slug: string, _state: ProgressActionState, data: FormData) { return execute(slug, async actor => { const uploadIntentId = text(data, "uploadIntentId"); const intent = await progressService.getUploadIntent(actor, uploadIntentId); const media = privateMediaFromEnvironment(s3SignerFromEnvironment()); await media.verifyUploadedObject(intent); await progressService.attachPhoto(actor, { uploadIntentId }); }); }
 export async function completeReviewAction(slug: string, _state: ProgressActionState, data: FormData) { return execute(slug, async actor => { await progressService.completeReview(actor, { kind: reviewKind(data), itemId: text(data, "itemId"), note: optional(data, "note") ?? "", idempotencyKey: text(data, "idempotencyKey") }); }); }
 
 export async function requestUploadAction(slug: string, _state: ProgressActionState, data: FormData): Promise<ProgressActionState> {
@@ -21,8 +21,10 @@ export async function requestUploadAction(slug: string, _state: ProgressActionSt
     const dashboard = await progressService.getStudentProgress(actor);
     if (dashboard.draft?.id !== checkInId) throw new ProgressAccessDeniedError();
     const media = privateMediaFromEnvironment(s3SignerFromEnvironment());
-    const intent = await media.createUploadIntent({ workspaceId: actor.workspaceId, studentId: actor.actorId, fileName: text(data, "fileName"), mimeType: text(data, "mimeType"), sizeBytes: integer(data, "sizeBytes") });
-    return { status: "success", message: "Subida privada preparada.", upload: { url: intent.uploadUrl, objectKey: intent.objectKey, expiresAt: intent.expiresAt.toISOString() } };
+    const proposed = await media.createUploadIntent({ workspaceId: actor.workspaceId, studentId: actor.actorId, fileName: text(data, "fileName"), mimeType: text(data, "mimeType"), sizeBytes: integer(data, "sizeBytes") });
+    const intent = await progressService.reserveUploadIntent(actor, { checkInId, idempotencyKey: text(data, "idempotencyKey"), objectKey: proposed.objectKey, mimeType: text(data, "mimeType"), sizeBytes: integer(data, "sizeBytes"), expiresAt: proposed.expiresAt });
+    const url = await media.signUploadIntent(intent);
+    return { status: "success", message: "Subida privada preparada.", upload: { url, intentId: intent.id, expiresAt: intent.expiresAt.toISOString() } };
   } catch (error) { return expected(error); }
 }
 

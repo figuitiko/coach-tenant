@@ -21,6 +21,15 @@ describe("S3PrivateMedia", () => {
     await expect(media.createDownloadUrl({ workspaceId: "w", studentId: "s", objectKey: "workspaces/w/students/other/progress/x.jpg" })).rejects.toBeInstanceOf(PrivateMediaError);
     await expect(media.createDownloadUrl({ workspaceId: "w", studentId: "s", objectKey: "workspaces/w/students/s/progress/x.jpg" })).resolves.toEqual(expect.objectContaining({ downloadUrl: expect.stringContaining("signed.test"), expiresAt: new Date(1_700_000_300_000) }));
   });
+
+  it("refuses expired upload intents and detects forged uploaded metadata when object-head is available", async () => {
+    const media = new S3PrivateMedia({ bucket: "private-bucket", now: () => new Date("2026-08-19T12:10:00Z"), signer: {
+      sign: async () => "https://signed.test",
+      head: async () => ({ mimeType: "image/png", sizeBytes: 999 }),
+    } });
+    await expect(media.signUploadIntent({ objectKey: "workspaces/w/students/s/progress/x.jpg", mimeType: "image/jpeg", expiresAt: new Date("2026-08-19T12:00:00Z") })).rejects.toBeInstanceOf(PrivateMediaError);
+    await expect(media.verifyUploadedObject({ objectKey: "workspaces/w/students/s/progress/x.jpg", mimeType: "image/jpeg", sizeBytes: 42 })).rejects.toBeInstanceOf(PrivateMediaError);
+  });
 });
 
 function fixture() {

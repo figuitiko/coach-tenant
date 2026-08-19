@@ -68,6 +68,7 @@ export type MeasurementCheckInMinAggregateOutputType = {
   thighUnit: $Enums.LengthUnit | null
   notes: string | null
   submitIdempotencyKey: string | null
+  draftSlot: string | null
   submittedAt: Date | null
   reviewedAt: Date | null
   createdAt: Date | null
@@ -96,6 +97,7 @@ export type MeasurementCheckInMaxAggregateOutputType = {
   thighUnit: $Enums.LengthUnit | null
   notes: string | null
   submitIdempotencyKey: string | null
+  draftSlot: string | null
   submittedAt: Date | null
   reviewedAt: Date | null
   createdAt: Date | null
@@ -124,6 +126,7 @@ export type MeasurementCheckInCountAggregateOutputType = {
   thighUnit: number
   notes: number
   submitIdempotencyKey: number
+  draftSlot: number
   submittedAt: number
   reviewedAt: number
   createdAt: number
@@ -174,6 +177,7 @@ export type MeasurementCheckInMinAggregateInputType = {
   thighUnit?: true
   notes?: true
   submitIdempotencyKey?: true
+  draftSlot?: true
   submittedAt?: true
   reviewedAt?: true
   createdAt?: true
@@ -202,6 +206,7 @@ export type MeasurementCheckInMaxAggregateInputType = {
   thighUnit?: true
   notes?: true
   submitIdempotencyKey?: true
+  draftSlot?: true
   submittedAt?: true
   reviewedAt?: true
   createdAt?: true
@@ -230,6 +235,7 @@ export type MeasurementCheckInCountAggregateInputType = {
   thighUnit?: true
   notes?: true
   submitIdempotencyKey?: true
+  draftSlot?: true
   submittedAt?: true
   reviewedAt?: true
   createdAt?: true
@@ -345,6 +351,7 @@ export type MeasurementCheckInGroupByOutputType = {
   thighUnit: $Enums.LengthUnit | null
   notes: string | null
   submitIdempotencyKey: string | null
+  draftSlot: string | null
   submittedAt: Date | null
   reviewedAt: Date | null
   createdAt: Date
@@ -396,6 +403,7 @@ export type MeasurementCheckInWhereInput = {
   thighUnit?: Prisma.EnumLengthUnitNullableFilter<"MeasurementCheckIn"> | $Enums.LengthUnit | null
   notes?: Prisma.StringNullableFilter<"MeasurementCheckIn"> | string | null
   submitIdempotencyKey?: Prisma.StringNullableFilter<"MeasurementCheckIn"> | string | null
+  draftSlot?: Prisma.StringNullableFilter<"MeasurementCheckIn"> | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"MeasurementCheckIn"> | Date | string | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"MeasurementCheckIn"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"MeasurementCheckIn"> | Date | string
@@ -403,6 +411,7 @@ export type MeasurementCheckInWhereInput = {
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   photos?: Prisma.ProgressPhotoListRelationFilter
+  uploadIntents?: Prisma.PhotoUploadIntentListRelationFilter
   reviewNotes?: Prisma.ReviewNoteListRelationFilter
 }
 
@@ -428,6 +437,7 @@ export type MeasurementCheckInOrderByWithRelationInput = {
   thighUnit?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   submitIdempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  draftSlot?: Prisma.SortOrderInput | Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -435,12 +445,14 @@ export type MeasurementCheckInOrderByWithRelationInput = {
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
   student?: Prisma.UserOrderByWithRelationInput
   photos?: Prisma.ProgressPhotoOrderByRelationAggregateInput
+  uploadIntents?: Prisma.PhotoUploadIntentOrderByRelationAggregateInput
   reviewNotes?: Prisma.ReviewNoteOrderByRelationAggregateInput
 }
 
 export type MeasurementCheckInWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   workspaceId_submitIdempotencyKey?: Prisma.MeasurementCheckInWorkspaceIdSubmitIdempotencyKeyCompoundUniqueInput
+  workspaceId_studentId_draftSlot?: Prisma.MeasurementCheckInWorkspaceIdStudentIdDraftSlotCompoundUniqueInput
   AND?: Prisma.MeasurementCheckInWhereInput | Prisma.MeasurementCheckInWhereInput[]
   OR?: Prisma.MeasurementCheckInWhereInput[]
   NOT?: Prisma.MeasurementCheckInWhereInput | Prisma.MeasurementCheckInWhereInput[]
@@ -464,6 +476,7 @@ export type MeasurementCheckInWhereUniqueInput = Prisma.AtLeast<{
   thighUnit?: Prisma.EnumLengthUnitNullableFilter<"MeasurementCheckIn"> | $Enums.LengthUnit | null
   notes?: Prisma.StringNullableFilter<"MeasurementCheckIn"> | string | null
   submitIdempotencyKey?: Prisma.StringNullableFilter<"MeasurementCheckIn"> | string | null
+  draftSlot?: Prisma.StringNullableFilter<"MeasurementCheckIn"> | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"MeasurementCheckIn"> | Date | string | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"MeasurementCheckIn"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"MeasurementCheckIn"> | Date | string
@@ -471,8 +484,9 @@ export type MeasurementCheckInWhereUniqueInput = Prisma.AtLeast<{
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   photos?: Prisma.ProgressPhotoListRelationFilter
+  uploadIntents?: Prisma.PhotoUploadIntentListRelationFilter
   reviewNotes?: Prisma.ReviewNoteListRelationFilter
-}, "id" | "workspaceId_submitIdempotencyKey">
+}, "id" | "workspaceId_submitIdempotencyKey" | "workspaceId_studentId_draftSlot">
 
 export type MeasurementCheckInOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -496,6 +510,7 @@ export type MeasurementCheckInOrderByWithAggregationInput = {
   thighUnit?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   submitIdempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  draftSlot?: Prisma.SortOrderInput | Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -532,6 +547,7 @@ export type MeasurementCheckInScalarWhereWithAggregatesInput = {
   thighUnit?: Prisma.EnumLengthUnitNullableWithAggregatesFilter<"MeasurementCheckIn"> | $Enums.LengthUnit | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"MeasurementCheckIn"> | string | null
   submitIdempotencyKey?: Prisma.StringNullableWithAggregatesFilter<"MeasurementCheckIn"> | string | null
+  draftSlot?: Prisma.StringNullableWithAggregatesFilter<"MeasurementCheckIn"> | string | null
   submittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"MeasurementCheckIn"> | Date | string | null
   reviewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"MeasurementCheckIn"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"MeasurementCheckIn"> | Date | string
@@ -558,6 +574,7 @@ export type MeasurementCheckInCreateInput = {
   thighUnit?: $Enums.LengthUnit | null
   notes?: string | null
   submitIdempotencyKey?: string | null
+  draftSlot?: string | null
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
@@ -565,6 +582,7 @@ export type MeasurementCheckInCreateInput = {
   workspace: Prisma.WorkspaceCreateNestedOneWithoutMeasurementCheckInsInput
   student: Prisma.UserCreateNestedOneWithoutMeasurementCheckInsInput
   photos?: Prisma.ProgressPhotoCreateNestedManyWithoutCheckInInput
+  uploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutCheckInInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCheckInInput
 }
 
@@ -590,11 +608,13 @@ export type MeasurementCheckInUncheckedCreateInput = {
   thighUnit?: $Enums.LengthUnit | null
   notes?: string | null
   submitIdempotencyKey?: string | null
+  draftSlot?: string | null
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   photos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutCheckInInput
+  uploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutCheckInInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCheckInInput
 }
 
@@ -618,6 +638,7 @@ export type MeasurementCheckInUpdateInput = {
   thighUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -625,6 +646,7 @@ export type MeasurementCheckInUpdateInput = {
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutMeasurementCheckInsNestedInput
   student?: Prisma.UserUpdateOneRequiredWithoutMeasurementCheckInsNestedInput
   photos?: Prisma.ProgressPhotoUpdateManyWithoutCheckInNestedInput
+  uploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutCheckInNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCheckInNestedInput
 }
 
@@ -650,11 +672,13 @@ export type MeasurementCheckInUncheckedUpdateInput = {
   thighUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   photos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutCheckInNestedInput
+  uploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutCheckInNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCheckInNestedInput
 }
 
@@ -680,6 +704,7 @@ export type MeasurementCheckInCreateManyInput = {
   thighUnit?: $Enums.LengthUnit | null
   notes?: string | null
   submitIdempotencyKey?: string | null
+  draftSlot?: string | null
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
@@ -706,6 +731,7 @@ export type MeasurementCheckInUpdateManyMutationInput = {
   thighUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -734,6 +760,7 @@ export type MeasurementCheckInUncheckedUpdateManyInput = {
   thighUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -753,6 +780,12 @@ export type MeasurementCheckInOrderByRelationAggregateInput = {
 export type MeasurementCheckInWorkspaceIdSubmitIdempotencyKeyCompoundUniqueInput = {
   workspaceId: string
   submitIdempotencyKey: string
+}
+
+export type MeasurementCheckInWorkspaceIdStudentIdDraftSlotCompoundUniqueInput = {
+  workspaceId: string
+  studentId: string
+  draftSlot: string
 }
 
 export type MeasurementCheckInCountOrderByAggregateInput = {
@@ -777,6 +810,7 @@ export type MeasurementCheckInCountOrderByAggregateInput = {
   thighUnit?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   submitIdempotencyKey?: Prisma.SortOrder
+  draftSlot?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -815,6 +849,7 @@ export type MeasurementCheckInMaxOrderByAggregateInput = {
   thighUnit?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   submitIdempotencyKey?: Prisma.SortOrder
+  draftSlot?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -843,6 +878,7 @@ export type MeasurementCheckInMinOrderByAggregateInput = {
   thighUnit?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   submitIdempotencyKey?: Prisma.SortOrder
+  draftSlot?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -969,6 +1005,20 @@ export type NullableEnumLengthUnitFieldUpdateOperationsInput = {
   set?: $Enums.LengthUnit | null
 }
 
+export type MeasurementCheckInCreateNestedOneWithoutUploadIntentsInput = {
+  create?: Prisma.XOR<Prisma.MeasurementCheckInCreateWithoutUploadIntentsInput, Prisma.MeasurementCheckInUncheckedCreateWithoutUploadIntentsInput>
+  connectOrCreate?: Prisma.MeasurementCheckInCreateOrConnectWithoutUploadIntentsInput
+  connect?: Prisma.MeasurementCheckInWhereUniqueInput
+}
+
+export type MeasurementCheckInUpdateOneRequiredWithoutUploadIntentsNestedInput = {
+  create?: Prisma.XOR<Prisma.MeasurementCheckInCreateWithoutUploadIntentsInput, Prisma.MeasurementCheckInUncheckedCreateWithoutUploadIntentsInput>
+  connectOrCreate?: Prisma.MeasurementCheckInCreateOrConnectWithoutUploadIntentsInput
+  upsert?: Prisma.MeasurementCheckInUpsertWithoutUploadIntentsInput
+  connect?: Prisma.MeasurementCheckInWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MeasurementCheckInUpdateToOneWithWhereWithoutUploadIntentsInput, Prisma.MeasurementCheckInUpdateWithoutUploadIntentsInput>, Prisma.MeasurementCheckInUncheckedUpdateWithoutUploadIntentsInput>
+}
+
 export type MeasurementCheckInCreateNestedOneWithoutPhotosInput = {
   create?: Prisma.XOR<Prisma.MeasurementCheckInCreateWithoutPhotosInput, Prisma.MeasurementCheckInUncheckedCreateWithoutPhotosInput>
   connectOrCreate?: Prisma.MeasurementCheckInCreateOrConnectWithoutPhotosInput
@@ -1019,12 +1069,14 @@ export type MeasurementCheckInCreateWithoutStudentInput = {
   thighUnit?: $Enums.LengthUnit | null
   notes?: string | null
   submitIdempotencyKey?: string | null
+  draftSlot?: string | null
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutMeasurementCheckInsInput
   photos?: Prisma.ProgressPhotoCreateNestedManyWithoutCheckInInput
+  uploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutCheckInInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCheckInInput
 }
 
@@ -1049,11 +1101,13 @@ export type MeasurementCheckInUncheckedCreateWithoutStudentInput = {
   thighUnit?: $Enums.LengthUnit | null
   notes?: string | null
   submitIdempotencyKey?: string | null
+  draftSlot?: string | null
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   photos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutCheckInInput
+  uploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutCheckInInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCheckInInput
 }
 
@@ -1108,6 +1162,7 @@ export type MeasurementCheckInScalarWhereInput = {
   thighUnit?: Prisma.EnumLengthUnitNullableFilter<"MeasurementCheckIn"> | $Enums.LengthUnit | null
   notes?: Prisma.StringNullableFilter<"MeasurementCheckIn"> | string | null
   submitIdempotencyKey?: Prisma.StringNullableFilter<"MeasurementCheckIn"> | string | null
+  draftSlot?: Prisma.StringNullableFilter<"MeasurementCheckIn"> | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"MeasurementCheckIn"> | Date | string | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"MeasurementCheckIn"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"MeasurementCheckIn"> | Date | string
@@ -1134,12 +1189,14 @@ export type MeasurementCheckInCreateWithoutWorkspaceInput = {
   thighUnit?: $Enums.LengthUnit | null
   notes?: string | null
   submitIdempotencyKey?: string | null
+  draftSlot?: string | null
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   student: Prisma.UserCreateNestedOneWithoutMeasurementCheckInsInput
   photos?: Prisma.ProgressPhotoCreateNestedManyWithoutCheckInInput
+  uploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutCheckInInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCheckInInput
 }
 
@@ -1164,11 +1221,13 @@ export type MeasurementCheckInUncheckedCreateWithoutWorkspaceInput = {
   thighUnit?: $Enums.LengthUnit | null
   notes?: string | null
   submitIdempotencyKey?: string | null
+  draftSlot?: string | null
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   photos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutCheckInInput
+  uploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutCheckInInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCheckInInput
 }
 
@@ -1198,6 +1257,146 @@ export type MeasurementCheckInUpdateManyWithWhereWithoutWorkspaceInput = {
   data: Prisma.XOR<Prisma.MeasurementCheckInUpdateManyMutationInput, Prisma.MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceInput>
 }
 
+export type MeasurementCheckInCreateWithoutUploadIntentsInput = {
+  id?: string
+  status?: $Enums.CheckInStatus
+  reviewStatus?: $Enums.ReviewStatus
+  weight?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  weightUnit?: $Enums.WeightUnit | null
+  bodyFat?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bodyFatUnit?: $Enums.PercentUnit | null
+  chest?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  chestUnit?: $Enums.LengthUnit | null
+  waist?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  waistUnit?: $Enums.LengthUnit | null
+  hips?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hipsUnit?: $Enums.LengthUnit | null
+  arm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  armUnit?: $Enums.LengthUnit | null
+  thigh?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  thighUnit?: $Enums.LengthUnit | null
+  notes?: string | null
+  submitIdempotencyKey?: string | null
+  draftSlot?: string | null
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutMeasurementCheckInsInput
+  student: Prisma.UserCreateNestedOneWithoutMeasurementCheckInsInput
+  photos?: Prisma.ProgressPhotoCreateNestedManyWithoutCheckInInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCheckInInput
+}
+
+export type MeasurementCheckInUncheckedCreateWithoutUploadIntentsInput = {
+  id?: string
+  workspaceId: string
+  studentId: string
+  status?: $Enums.CheckInStatus
+  reviewStatus?: $Enums.ReviewStatus
+  weight?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  weightUnit?: $Enums.WeightUnit | null
+  bodyFat?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bodyFatUnit?: $Enums.PercentUnit | null
+  chest?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  chestUnit?: $Enums.LengthUnit | null
+  waist?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  waistUnit?: $Enums.LengthUnit | null
+  hips?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hipsUnit?: $Enums.LengthUnit | null
+  arm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  armUnit?: $Enums.LengthUnit | null
+  thigh?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  thighUnit?: $Enums.LengthUnit | null
+  notes?: string | null
+  submitIdempotencyKey?: string | null
+  draftSlot?: string | null
+  submittedAt?: Date | string | null
+  reviewedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  photos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutCheckInInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCheckInInput
+}
+
+export type MeasurementCheckInCreateOrConnectWithoutUploadIntentsInput = {
+  where: Prisma.MeasurementCheckInWhereUniqueInput
+  create: Prisma.XOR<Prisma.MeasurementCheckInCreateWithoutUploadIntentsInput, Prisma.MeasurementCheckInUncheckedCreateWithoutUploadIntentsInput>
+}
+
+export type MeasurementCheckInUpsertWithoutUploadIntentsInput = {
+  update: Prisma.XOR<Prisma.MeasurementCheckInUpdateWithoutUploadIntentsInput, Prisma.MeasurementCheckInUncheckedUpdateWithoutUploadIntentsInput>
+  create: Prisma.XOR<Prisma.MeasurementCheckInCreateWithoutUploadIntentsInput, Prisma.MeasurementCheckInUncheckedCreateWithoutUploadIntentsInput>
+  where?: Prisma.MeasurementCheckInWhereInput
+}
+
+export type MeasurementCheckInUpdateToOneWithWhereWithoutUploadIntentsInput = {
+  where?: Prisma.MeasurementCheckInWhereInput
+  data: Prisma.XOR<Prisma.MeasurementCheckInUpdateWithoutUploadIntentsInput, Prisma.MeasurementCheckInUncheckedUpdateWithoutUploadIntentsInput>
+}
+
+export type MeasurementCheckInUpdateWithoutUploadIntentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCheckInStatusFieldUpdateOperationsInput | $Enums.CheckInStatus
+  reviewStatus?: Prisma.EnumReviewStatusFieldUpdateOperationsInput | $Enums.ReviewStatus
+  weight?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  weightUnit?: Prisma.NullableEnumWeightUnitFieldUpdateOperationsInput | $Enums.WeightUnit | null
+  bodyFat?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bodyFatUnit?: Prisma.NullableEnumPercentUnitFieldUpdateOperationsInput | $Enums.PercentUnit | null
+  chest?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  chestUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
+  waist?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  waistUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
+  hips?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hipsUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
+  arm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  armUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
+  thigh?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  thighUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submitIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutMeasurementCheckInsNestedInput
+  student?: Prisma.UserUpdateOneRequiredWithoutMeasurementCheckInsNestedInput
+  photos?: Prisma.ProgressPhotoUpdateManyWithoutCheckInNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCheckInNestedInput
+}
+
+export type MeasurementCheckInUncheckedUpdateWithoutUploadIntentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCheckInStatusFieldUpdateOperationsInput | $Enums.CheckInStatus
+  reviewStatus?: Prisma.EnumReviewStatusFieldUpdateOperationsInput | $Enums.ReviewStatus
+  weight?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  weightUnit?: Prisma.NullableEnumWeightUnitFieldUpdateOperationsInput | $Enums.WeightUnit | null
+  bodyFat?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  bodyFatUnit?: Prisma.NullableEnumPercentUnitFieldUpdateOperationsInput | $Enums.PercentUnit | null
+  chest?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  chestUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
+  waist?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  waistUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
+  hips?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hipsUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
+  arm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  armUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
+  thigh?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  thighUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submitIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  photos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutCheckInNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCheckInNestedInput
+}
+
 export type MeasurementCheckInCreateWithoutPhotosInput = {
   id?: string
   status?: $Enums.CheckInStatus
@@ -1218,12 +1417,14 @@ export type MeasurementCheckInCreateWithoutPhotosInput = {
   thighUnit?: $Enums.LengthUnit | null
   notes?: string | null
   submitIdempotencyKey?: string | null
+  draftSlot?: string | null
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutMeasurementCheckInsInput
   student: Prisma.UserCreateNestedOneWithoutMeasurementCheckInsInput
+  uploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutCheckInInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCheckInInput
 }
 
@@ -1249,10 +1450,12 @@ export type MeasurementCheckInUncheckedCreateWithoutPhotosInput = {
   thighUnit?: $Enums.LengthUnit | null
   notes?: string | null
   submitIdempotencyKey?: string | null
+  draftSlot?: string | null
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  uploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutCheckInInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCheckInInput
 }
 
@@ -1292,12 +1495,14 @@ export type MeasurementCheckInUpdateWithoutPhotosInput = {
   thighUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutMeasurementCheckInsNestedInput
   student?: Prisma.UserUpdateOneRequiredWithoutMeasurementCheckInsNestedInput
+  uploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutCheckInNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCheckInNestedInput
 }
 
@@ -1323,10 +1528,12 @@ export type MeasurementCheckInUncheckedUpdateWithoutPhotosInput = {
   thighUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  uploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutCheckInNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCheckInNestedInput
 }
 
@@ -1350,6 +1557,7 @@ export type MeasurementCheckInCreateWithoutReviewNotesInput = {
   thighUnit?: $Enums.LengthUnit | null
   notes?: string | null
   submitIdempotencyKey?: string | null
+  draftSlot?: string | null
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
@@ -1357,6 +1565,7 @@ export type MeasurementCheckInCreateWithoutReviewNotesInput = {
   workspace: Prisma.WorkspaceCreateNestedOneWithoutMeasurementCheckInsInput
   student: Prisma.UserCreateNestedOneWithoutMeasurementCheckInsInput
   photos?: Prisma.ProgressPhotoCreateNestedManyWithoutCheckInInput
+  uploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutCheckInInput
 }
 
 export type MeasurementCheckInUncheckedCreateWithoutReviewNotesInput = {
@@ -1381,11 +1590,13 @@ export type MeasurementCheckInUncheckedCreateWithoutReviewNotesInput = {
   thighUnit?: $Enums.LengthUnit | null
   notes?: string | null
   submitIdempotencyKey?: string | null
+  draftSlot?: string | null
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   photos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutCheckInInput
+  uploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutCheckInInput
 }
 
 export type MeasurementCheckInCreateOrConnectWithoutReviewNotesInput = {
@@ -1424,6 +1635,7 @@ export type MeasurementCheckInUpdateWithoutReviewNotesInput = {
   thighUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1431,6 +1643,7 @@ export type MeasurementCheckInUpdateWithoutReviewNotesInput = {
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutMeasurementCheckInsNestedInput
   student?: Prisma.UserUpdateOneRequiredWithoutMeasurementCheckInsNestedInput
   photos?: Prisma.ProgressPhotoUpdateManyWithoutCheckInNestedInput
+  uploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutCheckInNestedInput
 }
 
 export type MeasurementCheckInUncheckedUpdateWithoutReviewNotesInput = {
@@ -1455,11 +1668,13 @@ export type MeasurementCheckInUncheckedUpdateWithoutReviewNotesInput = {
   thighUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   photos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutCheckInNestedInput
+  uploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutCheckInNestedInput
 }
 
 export type MeasurementCheckInCreateManyStudentInput = {
@@ -1483,6 +1698,7 @@ export type MeasurementCheckInCreateManyStudentInput = {
   thighUnit?: $Enums.LengthUnit | null
   notes?: string | null
   submitIdempotencyKey?: string | null
+  draftSlot?: string | null
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
@@ -1509,12 +1725,14 @@ export type MeasurementCheckInUpdateWithoutStudentInput = {
   thighUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutMeasurementCheckInsNestedInput
   photos?: Prisma.ProgressPhotoUpdateManyWithoutCheckInNestedInput
+  uploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutCheckInNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCheckInNestedInput
 }
 
@@ -1539,11 +1757,13 @@ export type MeasurementCheckInUncheckedUpdateWithoutStudentInput = {
   thighUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   photos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutCheckInNestedInput
+  uploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutCheckInNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCheckInNestedInput
 }
 
@@ -1568,6 +1788,7 @@ export type MeasurementCheckInUncheckedUpdateManyWithoutStudentInput = {
   thighUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1595,6 +1816,7 @@ export type MeasurementCheckInCreateManyWorkspaceInput = {
   thighUnit?: $Enums.LengthUnit | null
   notes?: string | null
   submitIdempotencyKey?: string | null
+  draftSlot?: string | null
   submittedAt?: Date | string | null
   reviewedAt?: Date | string | null
   createdAt?: Date | string
@@ -1621,12 +1843,14 @@ export type MeasurementCheckInUpdateWithoutWorkspaceInput = {
   thighUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   student?: Prisma.UserUpdateOneRequiredWithoutMeasurementCheckInsNestedInput
   photos?: Prisma.ProgressPhotoUpdateManyWithoutCheckInNestedInput
+  uploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutCheckInNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCheckInNestedInput
 }
 
@@ -1651,11 +1875,13 @@ export type MeasurementCheckInUncheckedUpdateWithoutWorkspaceInput = {
   thighUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   photos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutCheckInNestedInput
+  uploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutCheckInNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCheckInNestedInput
 }
 
@@ -1680,6 +1906,7 @@ export type MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceInput = {
   thighUnit?: Prisma.NullableEnumLengthUnitFieldUpdateOperationsInput | $Enums.LengthUnit | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submitIdempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1693,11 +1920,13 @@ export type MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceInput = {
 
 export type MeasurementCheckInCountOutputType = {
   photos: number
+  uploadIntents: number
   reviewNotes: number
 }
 
 export type MeasurementCheckInCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   photos?: boolean | MeasurementCheckInCountOutputTypeCountPhotosArgs
+  uploadIntents?: boolean | MeasurementCheckInCountOutputTypeCountUploadIntentsArgs
   reviewNotes?: boolean | MeasurementCheckInCountOutputTypeCountReviewNotesArgs
 }
 
@@ -1716,6 +1945,13 @@ export type MeasurementCheckInCountOutputTypeDefaultArgs<ExtArgs extends runtime
  */
 export type MeasurementCheckInCountOutputTypeCountPhotosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProgressPhotoWhereInput
+}
+
+/**
+ * MeasurementCheckInCountOutputType without action
+ */
+export type MeasurementCheckInCountOutputTypeCountUploadIntentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PhotoUploadIntentWhereInput
 }
 
 /**
@@ -1748,6 +1984,7 @@ export type MeasurementCheckInSelect<ExtArgs extends runtime.Types.Extensions.In
   thighUnit?: boolean
   notes?: boolean
   submitIdempotencyKey?: boolean
+  draftSlot?: boolean
   submittedAt?: boolean
   reviewedAt?: boolean
   createdAt?: boolean
@@ -1755,6 +1992,7 @@ export type MeasurementCheckInSelect<ExtArgs extends runtime.Types.Extensions.In
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   photos?: boolean | Prisma.MeasurementCheckIn$photosArgs<ExtArgs>
+  uploadIntents?: boolean | Prisma.MeasurementCheckIn$uploadIntentsArgs<ExtArgs>
   reviewNotes?: boolean | Prisma.MeasurementCheckIn$reviewNotesArgs<ExtArgs>
   _count?: boolean | Prisma.MeasurementCheckInCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["measurementCheckIn"]>
@@ -1781,6 +2019,7 @@ export type MeasurementCheckInSelectCreateManyAndReturn<ExtArgs extends runtime.
   thighUnit?: boolean
   notes?: boolean
   submitIdempotencyKey?: boolean
+  draftSlot?: boolean
   submittedAt?: boolean
   reviewedAt?: boolean
   createdAt?: boolean
@@ -1811,6 +2050,7 @@ export type MeasurementCheckInSelectUpdateManyAndReturn<ExtArgs extends runtime.
   thighUnit?: boolean
   notes?: boolean
   submitIdempotencyKey?: boolean
+  draftSlot?: boolean
   submittedAt?: boolean
   reviewedAt?: boolean
   createdAt?: boolean
@@ -1841,17 +2081,19 @@ export type MeasurementCheckInSelectScalar = {
   thighUnit?: boolean
   notes?: boolean
   submitIdempotencyKey?: boolean
+  draftSlot?: boolean
   submittedAt?: boolean
   reviewedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type MeasurementCheckInOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "studentId" | "status" | "reviewStatus" | "weight" | "weightUnit" | "bodyFat" | "bodyFatUnit" | "chest" | "chestUnit" | "waist" | "waistUnit" | "hips" | "hipsUnit" | "arm" | "armUnit" | "thigh" | "thighUnit" | "notes" | "submitIdempotencyKey" | "submittedAt" | "reviewedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["measurementCheckIn"]>
+export type MeasurementCheckInOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "studentId" | "status" | "reviewStatus" | "weight" | "weightUnit" | "bodyFat" | "bodyFatUnit" | "chest" | "chestUnit" | "waist" | "waistUnit" | "hips" | "hipsUnit" | "arm" | "armUnit" | "thigh" | "thighUnit" | "notes" | "submitIdempotencyKey" | "draftSlot" | "submittedAt" | "reviewedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["measurementCheckIn"]>
 export type MeasurementCheckInInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   photos?: boolean | Prisma.MeasurementCheckIn$photosArgs<ExtArgs>
+  uploadIntents?: boolean | Prisma.MeasurementCheckIn$uploadIntentsArgs<ExtArgs>
   reviewNotes?: boolean | Prisma.MeasurementCheckIn$reviewNotesArgs<ExtArgs>
   _count?: boolean | Prisma.MeasurementCheckInCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1870,6 +2112,7 @@ export type $MeasurementCheckInPayload<ExtArgs extends runtime.Types.Extensions.
     workspace: Prisma.$WorkspacePayload<ExtArgs>
     student: Prisma.$UserPayload<ExtArgs>
     photos: Prisma.$ProgressPhotoPayload<ExtArgs>[]
+    uploadIntents: Prisma.$PhotoUploadIntentPayload<ExtArgs>[]
     reviewNotes: Prisma.$ReviewNotePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1894,6 +2137,7 @@ export type $MeasurementCheckInPayload<ExtArgs extends runtime.Types.Extensions.
     thighUnit: $Enums.LengthUnit | null
     notes: string | null
     submitIdempotencyKey: string | null
+    draftSlot: string | null
     submittedAt: Date | null
     reviewedAt: Date | null
     createdAt: Date
@@ -2295,6 +2539,7 @@ export interface Prisma__MeasurementCheckInClient<T, Null = never, ExtArgs exten
   workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   student<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   photos<T extends Prisma.MeasurementCheckIn$photosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MeasurementCheckIn$photosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProgressPhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  uploadIntents<T extends Prisma.MeasurementCheckIn$uploadIntentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MeasurementCheckIn$uploadIntentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PhotoUploadIntentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reviewNotes<T extends Prisma.MeasurementCheckIn$reviewNotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MeasurementCheckIn$reviewNotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReviewNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2346,6 +2591,7 @@ export interface MeasurementCheckInFieldRefs {
   readonly thighUnit: Prisma.FieldRef<"MeasurementCheckIn", 'LengthUnit'>
   readonly notes: Prisma.FieldRef<"MeasurementCheckIn", 'String'>
   readonly submitIdempotencyKey: Prisma.FieldRef<"MeasurementCheckIn", 'String'>
+  readonly draftSlot: Prisma.FieldRef<"MeasurementCheckIn", 'String'>
   readonly submittedAt: Prisma.FieldRef<"MeasurementCheckIn", 'DateTime'>
   readonly reviewedAt: Prisma.FieldRef<"MeasurementCheckIn", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"MeasurementCheckIn", 'DateTime'>
@@ -2772,6 +3018,30 @@ export type MeasurementCheckIn$photosArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.ProgressPhotoScalarFieldEnum | Prisma.ProgressPhotoScalarFieldEnum[]
+}
+
+/**
+ * MeasurementCheckIn.uploadIntents
+ */
+export type MeasurementCheckIn$uploadIntentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PhotoUploadIntent
+   */
+  select?: Prisma.PhotoUploadIntentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PhotoUploadIntent
+   */
+  omit?: Prisma.PhotoUploadIntentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PhotoUploadIntentInclude<ExtArgs> | null
+  where?: Prisma.PhotoUploadIntentWhereInput
+  orderBy?: Prisma.PhotoUploadIntentOrderByWithRelationInput | Prisma.PhotoUploadIntentOrderByWithRelationInput[]
+  cursor?: Prisma.PhotoUploadIntentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PhotoUploadIntentScalarFieldEnum | Prisma.PhotoUploadIntentScalarFieldEnum[]
 }
 
 /**

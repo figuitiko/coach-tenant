@@ -5,13 +5,15 @@ const student = { actorId: "student-a", workspaceId: "workspace-a", role: "STUDE
 const coach = { actorId: "coach-a", workspaceId: "workspace-a", role: "COACH" } satisfies ProgressActor;
 
 function repository(): ProgressRepository & { calls: Record<string, unknown[]> } {
-  const calls: Record<string, unknown[]> = { create: [], edit: [], submit: [], attach: [], review: [] };
+  const calls: Record<string, unknown[]> = { create: [], edit: [], submit: [], intent: [], attach: [], review: [] };
   return {
     calls,
     createDraft: async (input) => (calls.create.push(input), { id: "check-1", status: "DRAFT" }),
     editDraft: async (input) => (calls.edit.push(input), input.checkInId === "other" ? null : { id: input.checkInId, status: "DRAFT" }),
     submitDraft: async (input) => (calls.submit.push(input), input.checkInId === "other" ? null : { id: input.checkInId, status: "SUBMITTED" }),
-    attachPhoto: async (input) => (calls.attach.push(input), input.checkInId === "other" ? null : { id: "photo-1" }),
+    reserveUploadIntent: async (input) => (calls.intent.push(input), input.checkInId === "other" ? null : { id: "intent-1", objectKey: input.objectKey, mimeType: input.mimeType, sizeBytes: input.sizeBytes, expiresAt: input.expiresAt, status: "PENDING" }),
+    getUploadIntent: async (input) => input.uploadIntentId === "intent-1" ? { id: "intent-1", objectKey: "key", mimeType: "image/jpeg", sizeBytes: 42, expiresAt: new Date(Date.now() + 60_000), status: "PENDING" } : null,
+    attachPhoto: async (input) => (calls.attach.push(input), input.uploadIntentId === "forged" ? null : { id: "photo-1" }),
     listStudentHistory: async (input) => input.studentId === student.actorId ? [] : null,
     getStudentProgress: async (input) => input.studentId === student.actorId ? { draft: null, history: [] } : null,
     getStudentPhoto: async (input) => input.photoId === "mine" && input.studentId === student.actorId ? { objectKey: "workspace-a/student-a/photo.jpg", studentId: "student-a", mimeType: "image/jpeg", sizeBytes: 20 } : null,
@@ -61,5 +63,13 @@ describe("ProgressService", () => {
     expect(await service.getReviewQueue(coach)).toEqual([expect.objectContaining({ kind: "CHECK_IN", id: "check-1" })]);
     await service.completeReview(coach, { kind: "WORKOUT", itemId: "workout-1", note: "Buen control", idempotencyKey: "review-1" });
     expect(repo.calls.review).toEqual([expect.objectContaining({ workspaceId: "workspace-a", coachId: "coach-a", idempotencyKey: "review-1" })]);
+  });
+
+  it("reserves an idempotent upload intent and attaches only by its persisted identity", async () => {
+    const repo = repository(); const service = new ProgressService(repo);
+    await service.reserveUploadIntent(student, { checkInId: "check-1", idempotencyKey: "upload-1", objectKey: "workspaces/workspace-a/students/student-a/progress/a.jpg", mimeType: "image/jpeg", sizeBytes: 42, expiresAt: new Date(Date.now() + 60_000) });
+    await service.attachPhoto(student, { uploadIntentId: "intent-1" });
+    await expect(service.attachPhoto(student, { uploadIntentId: "forged" })).rejects.toBeInstanceOf(ProgressAccessDeniedError);
+    expect(repo.calls.attach).toEqual([{ workspaceId: "workspace-a", studentId: "student-a", uploadIntentId: "intent-1", attachedAt: expect.any(Date) }, { workspaceId: "workspace-a", studentId: "student-a", uploadIntentId: "forged", attachedAt: expect.any(Date) }]);
   });
 });

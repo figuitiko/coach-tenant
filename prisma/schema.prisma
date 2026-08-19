@@ -43,6 +43,12 @@ enum ReviewStatus {
   REVIEWED
 }
 
+enum UploadIntentStatus {
+  PENDING
+  CONSUMED
+  EXPIRED
+}
+
 model User {
   id               String                  @id @default(cuid())
   name             String
@@ -67,6 +73,7 @@ model User {
   measurementCheckIns MeasurementCheckIn[] @relation("CheckInStudent")
   progressPhotos   ProgressPhoto[]          @relation("PhotoStudent")
   reviewNotes      ReviewNote[]             @relation("ReviewCoach")
+  photoUploadIntents PhotoUploadIntent[]    @relation("UploadIntentStudent")
 }
 
 model Session {
@@ -135,6 +142,7 @@ model Workspace {
   measurementCheckIns MeasurementCheckIn[]
   progressPhotos   ProgressPhoto[]
   reviewNotes      ReviewNote[]
+  photoUploadIntents PhotoUploadIntent[]
 
   @@index([ownerId])
 }
@@ -388,6 +396,7 @@ model MeasurementCheckIn {
   thighUnit            LengthUnit?
   notes                String?
   submitIdempotencyKey String?
+  draftSlot            String?
   submittedAt          DateTime?
   reviewedAt           DateTime?
   createdAt            DateTime      @default(now())
@@ -395,11 +404,36 @@ model MeasurementCheckIn {
   workspace            Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   student              User          @relation("CheckInStudent", fields: [studentId], references: [id], onDelete: Restrict)
   photos               ProgressPhoto[]
+  uploadIntents        PhotoUploadIntent[]
   reviewNotes          ReviewNote[]
 
   @@index([workspaceId, studentId, createdAt])
   @@index([workspaceId, reviewStatus, submittedAt])
   @@unique([workspaceId, submitIdempotencyKey])
+  @@unique([workspaceId, studentId, draftSlot])
+}
+
+model PhotoUploadIntent {
+  id             String             @id @default(cuid())
+  workspaceId    String
+  studentId      String
+  checkInId      String
+  idempotencyKey String
+  objectKey      String             @unique
+  mimeType       String
+  sizeBytes      Int
+  expiresAt      DateTime
+  status         UploadIntentStatus @default(PENDING)
+  consumedAt     DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  workspace      Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  student        User               @relation("UploadIntentStudent", fields: [studentId], references: [id], onDelete: Restrict)
+  checkIn        MeasurementCheckIn @relation(fields: [checkInId], references: [id], onDelete: Cascade)
+  photo          ProgressPhoto?
+
+  @@index([workspaceId, studentId, status])
+  @@unique([workspaceId, idempotencyKey])
 }
 
 model ProgressPhoto {
@@ -411,10 +445,12 @@ model ProgressPhoto {
   mimeType       String
   sizeBytes      Int
   idempotencyKey String
+  uploadIntentId String             @unique
   createdAt      DateTime           @default(now())
   workspace      Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   student        User               @relation("PhotoStudent", fields: [studentId], references: [id], onDelete: Restrict)
   checkIn        MeasurementCheckIn @relation(fields: [checkInId], references: [id], onDelete: Cascade)
+  uploadIntent   PhotoUploadIntent  @relation(fields: [uploadIntentId], references: [id], onDelete: Restrict)
 
   @@index([workspaceId, studentId, createdAt])
   @@unique([workspaceId, idempotencyKey])

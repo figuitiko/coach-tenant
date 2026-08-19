@@ -43,6 +43,7 @@ export type ProgressPhotoMinAggregateOutputType = {
   mimeType: string | null
   sizeBytes: number | null
   idempotencyKey: string | null
+  uploadIntentId: string | null
   createdAt: Date | null
 }
 
@@ -55,6 +56,7 @@ export type ProgressPhotoMaxAggregateOutputType = {
   mimeType: string | null
   sizeBytes: number | null
   idempotencyKey: string | null
+  uploadIntentId: string | null
   createdAt: Date | null
 }
 
@@ -67,6 +69,7 @@ export type ProgressPhotoCountAggregateOutputType = {
   mimeType: number
   sizeBytes: number
   idempotencyKey: number
+  uploadIntentId: number
   createdAt: number
   _all: number
 }
@@ -89,6 +92,7 @@ export type ProgressPhotoMinAggregateInputType = {
   mimeType?: true
   sizeBytes?: true
   idempotencyKey?: true
+  uploadIntentId?: true
   createdAt?: true
 }
 
@@ -101,6 +105,7 @@ export type ProgressPhotoMaxAggregateInputType = {
   mimeType?: true
   sizeBytes?: true
   idempotencyKey?: true
+  uploadIntentId?: true
   createdAt?: true
 }
 
@@ -113,6 +118,7 @@ export type ProgressPhotoCountAggregateInputType = {
   mimeType?: true
   sizeBytes?: true
   idempotencyKey?: true
+  uploadIntentId?: true
   createdAt?: true
   _all?: true
 }
@@ -212,6 +218,7 @@ export type ProgressPhotoGroupByOutputType = {
   mimeType: string
   sizeBytes: number
   idempotencyKey: string
+  uploadIntentId: string
   createdAt: Date
   _count: ProgressPhotoCountAggregateOutputType | null
   _avg: ProgressPhotoAvgAggregateOutputType | null
@@ -247,10 +254,12 @@ export type ProgressPhotoWhereInput = {
   mimeType?: Prisma.StringFilter<"ProgressPhoto"> | string
   sizeBytes?: Prisma.IntFilter<"ProgressPhoto"> | number
   idempotencyKey?: Prisma.StringFilter<"ProgressPhoto"> | string
+  uploadIntentId?: Prisma.StringFilter<"ProgressPhoto"> | string
   createdAt?: Prisma.DateTimeFilter<"ProgressPhoto"> | Date | string
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   checkIn?: Prisma.XOR<Prisma.MeasurementCheckInScalarRelationFilter, Prisma.MeasurementCheckInWhereInput>
+  uploadIntent?: Prisma.XOR<Prisma.PhotoUploadIntentScalarRelationFilter, Prisma.PhotoUploadIntentWhereInput>
 }
 
 export type ProgressPhotoOrderByWithRelationInput = {
@@ -262,15 +271,18 @@ export type ProgressPhotoOrderByWithRelationInput = {
   mimeType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  uploadIntentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
   student?: Prisma.UserOrderByWithRelationInput
   checkIn?: Prisma.MeasurementCheckInOrderByWithRelationInput
+  uploadIntent?: Prisma.PhotoUploadIntentOrderByWithRelationInput
 }
 
 export type ProgressPhotoWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   objectKey?: string
+  uploadIntentId?: string
   workspaceId_idempotencyKey?: Prisma.ProgressPhotoWorkspaceIdIdempotencyKeyCompoundUniqueInput
   AND?: Prisma.ProgressPhotoWhereInput | Prisma.ProgressPhotoWhereInput[]
   OR?: Prisma.ProgressPhotoWhereInput[]
@@ -285,7 +297,8 @@ export type ProgressPhotoWhereUniqueInput = Prisma.AtLeast<{
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   checkIn?: Prisma.XOR<Prisma.MeasurementCheckInScalarRelationFilter, Prisma.MeasurementCheckInWhereInput>
-}, "id" | "objectKey" | "workspaceId_idempotencyKey">
+  uploadIntent?: Prisma.XOR<Prisma.PhotoUploadIntentScalarRelationFilter, Prisma.PhotoUploadIntentWhereInput>
+}, "id" | "objectKey" | "uploadIntentId" | "workspaceId_idempotencyKey">
 
 export type ProgressPhotoOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -296,6 +309,7 @@ export type ProgressPhotoOrderByWithAggregationInput = {
   mimeType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  uploadIntentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.ProgressPhotoCountOrderByAggregateInput
   _avg?: Prisma.ProgressPhotoAvgOrderByAggregateInput
@@ -316,6 +330,7 @@ export type ProgressPhotoScalarWhereWithAggregatesInput = {
   mimeType?: Prisma.StringWithAggregatesFilter<"ProgressPhoto"> | string
   sizeBytes?: Prisma.IntWithAggregatesFilter<"ProgressPhoto"> | number
   idempotencyKey?: Prisma.StringWithAggregatesFilter<"ProgressPhoto"> | string
+  uploadIntentId?: Prisma.StringWithAggregatesFilter<"ProgressPhoto"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProgressPhoto"> | Date | string
 }
 
@@ -329,6 +344,7 @@ export type ProgressPhotoCreateInput = {
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProgressPhotosInput
   student: Prisma.UserCreateNestedOneWithoutProgressPhotosInput
   checkIn: Prisma.MeasurementCheckInCreateNestedOneWithoutPhotosInput
+  uploadIntent: Prisma.PhotoUploadIntentCreateNestedOneWithoutPhotoInput
 }
 
 export type ProgressPhotoUncheckedCreateInput = {
@@ -340,6 +356,7 @@ export type ProgressPhotoUncheckedCreateInput = {
   mimeType: string
   sizeBytes: number
   idempotencyKey: string
+  uploadIntentId: string
   createdAt?: Date | string
 }
 
@@ -353,6 +370,7 @@ export type ProgressPhotoUpdateInput = {
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProgressPhotosNestedInput
   student?: Prisma.UserUpdateOneRequiredWithoutProgressPhotosNestedInput
   checkIn?: Prisma.MeasurementCheckInUpdateOneRequiredWithoutPhotosNestedInput
+  uploadIntent?: Prisma.PhotoUploadIntentUpdateOneRequiredWithoutPhotoNestedInput
 }
 
 export type ProgressPhotoUncheckedUpdateInput = {
@@ -364,6 +382,7 @@ export type ProgressPhotoUncheckedUpdateInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  uploadIntentId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -376,6 +395,7 @@ export type ProgressPhotoCreateManyInput = {
   mimeType: string
   sizeBytes: number
   idempotencyKey: string
+  uploadIntentId: string
   createdAt?: Date | string
 }
 
@@ -397,6 +417,7 @@ export type ProgressPhotoUncheckedUpdateManyInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  uploadIntentId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -408,6 +429,11 @@ export type ProgressPhotoListRelationFilter = {
 
 export type ProgressPhotoOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type ProgressPhotoNullableScalarRelationFilter = {
+  is?: Prisma.ProgressPhotoWhereInput | null
+  isNot?: Prisma.ProgressPhotoWhereInput | null
 }
 
 export type ProgressPhotoWorkspaceIdIdempotencyKeyCompoundUniqueInput = {
@@ -424,6 +450,7 @@ export type ProgressPhotoCountOrderByAggregateInput = {
   mimeType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  uploadIntentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -440,6 +467,7 @@ export type ProgressPhotoMaxOrderByAggregateInput = {
   mimeType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  uploadIntentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -452,6 +480,7 @@ export type ProgressPhotoMinOrderByAggregateInput = {
   mimeType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  uploadIntentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -585,6 +614,38 @@ export type ProgressPhotoUncheckedUpdateManyWithoutCheckInNestedInput = {
   deleteMany?: Prisma.ProgressPhotoScalarWhereInput | Prisma.ProgressPhotoScalarWhereInput[]
 }
 
+export type ProgressPhotoCreateNestedOneWithoutUploadIntentInput = {
+  create?: Prisma.XOR<Prisma.ProgressPhotoCreateWithoutUploadIntentInput, Prisma.ProgressPhotoUncheckedCreateWithoutUploadIntentInput>
+  connectOrCreate?: Prisma.ProgressPhotoCreateOrConnectWithoutUploadIntentInput
+  connect?: Prisma.ProgressPhotoWhereUniqueInput
+}
+
+export type ProgressPhotoUncheckedCreateNestedOneWithoutUploadIntentInput = {
+  create?: Prisma.XOR<Prisma.ProgressPhotoCreateWithoutUploadIntentInput, Prisma.ProgressPhotoUncheckedCreateWithoutUploadIntentInput>
+  connectOrCreate?: Prisma.ProgressPhotoCreateOrConnectWithoutUploadIntentInput
+  connect?: Prisma.ProgressPhotoWhereUniqueInput
+}
+
+export type ProgressPhotoUpdateOneWithoutUploadIntentNestedInput = {
+  create?: Prisma.XOR<Prisma.ProgressPhotoCreateWithoutUploadIntentInput, Prisma.ProgressPhotoUncheckedCreateWithoutUploadIntentInput>
+  connectOrCreate?: Prisma.ProgressPhotoCreateOrConnectWithoutUploadIntentInput
+  upsert?: Prisma.ProgressPhotoUpsertWithoutUploadIntentInput
+  disconnect?: Prisma.ProgressPhotoWhereInput | boolean
+  delete?: Prisma.ProgressPhotoWhereInput | boolean
+  connect?: Prisma.ProgressPhotoWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProgressPhotoUpdateToOneWithWhereWithoutUploadIntentInput, Prisma.ProgressPhotoUpdateWithoutUploadIntentInput>, Prisma.ProgressPhotoUncheckedUpdateWithoutUploadIntentInput>
+}
+
+export type ProgressPhotoUncheckedUpdateOneWithoutUploadIntentNestedInput = {
+  create?: Prisma.XOR<Prisma.ProgressPhotoCreateWithoutUploadIntentInput, Prisma.ProgressPhotoUncheckedCreateWithoutUploadIntentInput>
+  connectOrCreate?: Prisma.ProgressPhotoCreateOrConnectWithoutUploadIntentInput
+  upsert?: Prisma.ProgressPhotoUpsertWithoutUploadIntentInput
+  disconnect?: Prisma.ProgressPhotoWhereInput | boolean
+  delete?: Prisma.ProgressPhotoWhereInput | boolean
+  connect?: Prisma.ProgressPhotoWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProgressPhotoUpdateToOneWithWhereWithoutUploadIntentInput, Prisma.ProgressPhotoUpdateWithoutUploadIntentInput>, Prisma.ProgressPhotoUncheckedUpdateWithoutUploadIntentInput>
+}
+
 export type ProgressPhotoCreateWithoutStudentInput = {
   id?: string
   objectKey: string
@@ -594,6 +655,7 @@ export type ProgressPhotoCreateWithoutStudentInput = {
   createdAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProgressPhotosInput
   checkIn: Prisma.MeasurementCheckInCreateNestedOneWithoutPhotosInput
+  uploadIntent: Prisma.PhotoUploadIntentCreateNestedOneWithoutPhotoInput
 }
 
 export type ProgressPhotoUncheckedCreateWithoutStudentInput = {
@@ -604,6 +666,7 @@ export type ProgressPhotoUncheckedCreateWithoutStudentInput = {
   mimeType: string
   sizeBytes: number
   idempotencyKey: string
+  uploadIntentId: string
   createdAt?: Date | string
 }
 
@@ -645,6 +708,7 @@ export type ProgressPhotoScalarWhereInput = {
   mimeType?: Prisma.StringFilter<"ProgressPhoto"> | string
   sizeBytes?: Prisma.IntFilter<"ProgressPhoto"> | number
   idempotencyKey?: Prisma.StringFilter<"ProgressPhoto"> | string
+  uploadIntentId?: Prisma.StringFilter<"ProgressPhoto"> | string
   createdAt?: Prisma.DateTimeFilter<"ProgressPhoto"> | Date | string
 }
 
@@ -657,6 +721,7 @@ export type ProgressPhotoCreateWithoutWorkspaceInput = {
   createdAt?: Date | string
   student: Prisma.UserCreateNestedOneWithoutProgressPhotosInput
   checkIn: Prisma.MeasurementCheckInCreateNestedOneWithoutPhotosInput
+  uploadIntent: Prisma.PhotoUploadIntentCreateNestedOneWithoutPhotoInput
 }
 
 export type ProgressPhotoUncheckedCreateWithoutWorkspaceInput = {
@@ -667,6 +732,7 @@ export type ProgressPhotoUncheckedCreateWithoutWorkspaceInput = {
   mimeType: string
   sizeBytes: number
   idempotencyKey: string
+  uploadIntentId: string
   createdAt?: Date | string
 }
 
@@ -705,6 +771,7 @@ export type ProgressPhotoCreateWithoutCheckInInput = {
   createdAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProgressPhotosInput
   student: Prisma.UserCreateNestedOneWithoutProgressPhotosInput
+  uploadIntent: Prisma.PhotoUploadIntentCreateNestedOneWithoutPhotoInput
 }
 
 export type ProgressPhotoUncheckedCreateWithoutCheckInInput = {
@@ -715,6 +782,7 @@ export type ProgressPhotoUncheckedCreateWithoutCheckInInput = {
   mimeType: string
   sizeBytes: number
   idempotencyKey: string
+  uploadIntentId: string
   createdAt?: Date | string
 }
 
@@ -744,6 +812,70 @@ export type ProgressPhotoUpdateManyWithWhereWithoutCheckInInput = {
   data: Prisma.XOR<Prisma.ProgressPhotoUpdateManyMutationInput, Prisma.ProgressPhotoUncheckedUpdateManyWithoutCheckInInput>
 }
 
+export type ProgressPhotoCreateWithoutUploadIntentInput = {
+  id?: string
+  objectKey: string
+  mimeType: string
+  sizeBytes: number
+  idempotencyKey: string
+  createdAt?: Date | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutProgressPhotosInput
+  student: Prisma.UserCreateNestedOneWithoutProgressPhotosInput
+  checkIn: Prisma.MeasurementCheckInCreateNestedOneWithoutPhotosInput
+}
+
+export type ProgressPhotoUncheckedCreateWithoutUploadIntentInput = {
+  id?: string
+  workspaceId: string
+  studentId: string
+  checkInId: string
+  objectKey: string
+  mimeType: string
+  sizeBytes: number
+  idempotencyKey: string
+  createdAt?: Date | string
+}
+
+export type ProgressPhotoCreateOrConnectWithoutUploadIntentInput = {
+  where: Prisma.ProgressPhotoWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProgressPhotoCreateWithoutUploadIntentInput, Prisma.ProgressPhotoUncheckedCreateWithoutUploadIntentInput>
+}
+
+export type ProgressPhotoUpsertWithoutUploadIntentInput = {
+  update: Prisma.XOR<Prisma.ProgressPhotoUpdateWithoutUploadIntentInput, Prisma.ProgressPhotoUncheckedUpdateWithoutUploadIntentInput>
+  create: Prisma.XOR<Prisma.ProgressPhotoCreateWithoutUploadIntentInput, Prisma.ProgressPhotoUncheckedCreateWithoutUploadIntentInput>
+  where?: Prisma.ProgressPhotoWhereInput
+}
+
+export type ProgressPhotoUpdateToOneWithWhereWithoutUploadIntentInput = {
+  where?: Prisma.ProgressPhotoWhereInput
+  data: Prisma.XOR<Prisma.ProgressPhotoUpdateWithoutUploadIntentInput, Prisma.ProgressPhotoUncheckedUpdateWithoutUploadIntentInput>
+}
+
+export type ProgressPhotoUpdateWithoutUploadIntentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  objectKey?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProgressPhotosNestedInput
+  student?: Prisma.UserUpdateOneRequiredWithoutProgressPhotosNestedInput
+  checkIn?: Prisma.MeasurementCheckInUpdateOneRequiredWithoutPhotosNestedInput
+}
+
+export type ProgressPhotoUncheckedUpdateWithoutUploadIntentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  checkInId?: Prisma.StringFieldUpdateOperationsInput | string
+  objectKey?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type ProgressPhotoCreateManyStudentInput = {
   id?: string
   workspaceId: string
@@ -752,6 +884,7 @@ export type ProgressPhotoCreateManyStudentInput = {
   mimeType: string
   sizeBytes: number
   idempotencyKey: string
+  uploadIntentId: string
   createdAt?: Date | string
 }
 
@@ -764,6 +897,7 @@ export type ProgressPhotoUpdateWithoutStudentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProgressPhotosNestedInput
   checkIn?: Prisma.MeasurementCheckInUpdateOneRequiredWithoutPhotosNestedInput
+  uploadIntent?: Prisma.PhotoUploadIntentUpdateOneRequiredWithoutPhotoNestedInput
 }
 
 export type ProgressPhotoUncheckedUpdateWithoutStudentInput = {
@@ -774,6 +908,7 @@ export type ProgressPhotoUncheckedUpdateWithoutStudentInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  uploadIntentId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -785,6 +920,7 @@ export type ProgressPhotoUncheckedUpdateManyWithoutStudentInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  uploadIntentId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -796,6 +932,7 @@ export type ProgressPhotoCreateManyWorkspaceInput = {
   mimeType: string
   sizeBytes: number
   idempotencyKey: string
+  uploadIntentId: string
   createdAt?: Date | string
 }
 
@@ -808,6 +945,7 @@ export type ProgressPhotoUpdateWithoutWorkspaceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   student?: Prisma.UserUpdateOneRequiredWithoutProgressPhotosNestedInput
   checkIn?: Prisma.MeasurementCheckInUpdateOneRequiredWithoutPhotosNestedInput
+  uploadIntent?: Prisma.PhotoUploadIntentUpdateOneRequiredWithoutPhotoNestedInput
 }
 
 export type ProgressPhotoUncheckedUpdateWithoutWorkspaceInput = {
@@ -818,6 +956,7 @@ export type ProgressPhotoUncheckedUpdateWithoutWorkspaceInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  uploadIntentId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -829,6 +968,7 @@ export type ProgressPhotoUncheckedUpdateManyWithoutWorkspaceInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  uploadIntentId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -840,6 +980,7 @@ export type ProgressPhotoCreateManyCheckInInput = {
   mimeType: string
   sizeBytes: number
   idempotencyKey: string
+  uploadIntentId: string
   createdAt?: Date | string
 }
 
@@ -852,6 +993,7 @@ export type ProgressPhotoUpdateWithoutCheckInInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProgressPhotosNestedInput
   student?: Prisma.UserUpdateOneRequiredWithoutProgressPhotosNestedInput
+  uploadIntent?: Prisma.PhotoUploadIntentUpdateOneRequiredWithoutPhotoNestedInput
 }
 
 export type ProgressPhotoUncheckedUpdateWithoutCheckInInput = {
@@ -862,6 +1004,7 @@ export type ProgressPhotoUncheckedUpdateWithoutCheckInInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  uploadIntentId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -873,6 +1016,7 @@ export type ProgressPhotoUncheckedUpdateManyWithoutCheckInInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  uploadIntentId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -887,10 +1031,12 @@ export type ProgressPhotoSelect<ExtArgs extends runtime.Types.Extensions.Interna
   mimeType?: boolean
   sizeBytes?: boolean
   idempotencyKey?: boolean
+  uploadIntentId?: boolean
   createdAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   checkIn?: boolean | Prisma.MeasurementCheckInDefaultArgs<ExtArgs>
+  uploadIntent?: boolean | Prisma.PhotoUploadIntentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["progressPhoto"]>
 
 export type ProgressPhotoSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -902,10 +1048,12 @@ export type ProgressPhotoSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   mimeType?: boolean
   sizeBytes?: boolean
   idempotencyKey?: boolean
+  uploadIntentId?: boolean
   createdAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   checkIn?: boolean | Prisma.MeasurementCheckInDefaultArgs<ExtArgs>
+  uploadIntent?: boolean | Prisma.PhotoUploadIntentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["progressPhoto"]>
 
 export type ProgressPhotoSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -917,10 +1065,12 @@ export type ProgressPhotoSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   mimeType?: boolean
   sizeBytes?: boolean
   idempotencyKey?: boolean
+  uploadIntentId?: boolean
   createdAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   checkIn?: boolean | Prisma.MeasurementCheckInDefaultArgs<ExtArgs>
+  uploadIntent?: boolean | Prisma.PhotoUploadIntentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["progressPhoto"]>
 
 export type ProgressPhotoSelectScalar = {
@@ -932,24 +1082,28 @@ export type ProgressPhotoSelectScalar = {
   mimeType?: boolean
   sizeBytes?: boolean
   idempotencyKey?: boolean
+  uploadIntentId?: boolean
   createdAt?: boolean
 }
 
-export type ProgressPhotoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "studentId" | "checkInId" | "objectKey" | "mimeType" | "sizeBytes" | "idempotencyKey" | "createdAt", ExtArgs["result"]["progressPhoto"]>
+export type ProgressPhotoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "studentId" | "checkInId" | "objectKey" | "mimeType" | "sizeBytes" | "idempotencyKey" | "uploadIntentId" | "createdAt", ExtArgs["result"]["progressPhoto"]>
 export type ProgressPhotoInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   checkIn?: boolean | Prisma.MeasurementCheckInDefaultArgs<ExtArgs>
+  uploadIntent?: boolean | Prisma.PhotoUploadIntentDefaultArgs<ExtArgs>
 }
 export type ProgressPhotoIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   checkIn?: boolean | Prisma.MeasurementCheckInDefaultArgs<ExtArgs>
+  uploadIntent?: boolean | Prisma.PhotoUploadIntentDefaultArgs<ExtArgs>
 }
 export type ProgressPhotoIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   checkIn?: boolean | Prisma.MeasurementCheckInDefaultArgs<ExtArgs>
+  uploadIntent?: boolean | Prisma.PhotoUploadIntentDefaultArgs<ExtArgs>
 }
 
 export type $ProgressPhotoPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -958,6 +1112,7 @@ export type $ProgressPhotoPayload<ExtArgs extends runtime.Types.Extensions.Inter
     workspace: Prisma.$WorkspacePayload<ExtArgs>
     student: Prisma.$UserPayload<ExtArgs>
     checkIn: Prisma.$MeasurementCheckInPayload<ExtArgs>
+    uploadIntent: Prisma.$PhotoUploadIntentPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -968,6 +1123,7 @@ export type $ProgressPhotoPayload<ExtArgs extends runtime.Types.Extensions.Inter
     mimeType: string
     sizeBytes: number
     idempotencyKey: string
+    uploadIntentId: string
     createdAt: Date
   }, ExtArgs["result"]["progressPhoto"]>
   composites: {}
@@ -1366,6 +1522,7 @@ export interface Prisma__ProgressPhotoClient<T, Null = never, ExtArgs extends ru
   workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   student<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   checkIn<T extends Prisma.MeasurementCheckInDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MeasurementCheckInDefaultArgs<ExtArgs>>): Prisma.Prisma__MeasurementCheckInClient<runtime.Types.Result.GetResult<Prisma.$MeasurementCheckInPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  uploadIntent<T extends Prisma.PhotoUploadIntentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PhotoUploadIntentDefaultArgs<ExtArgs>>): Prisma.Prisma__PhotoUploadIntentClient<runtime.Types.Result.GetResult<Prisma.$PhotoUploadIntentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1403,6 +1560,7 @@ export interface ProgressPhotoFieldRefs {
   readonly mimeType: Prisma.FieldRef<"ProgressPhoto", 'String'>
   readonly sizeBytes: Prisma.FieldRef<"ProgressPhoto", 'Int'>
   readonly idempotencyKey: Prisma.FieldRef<"ProgressPhoto", 'String'>
+  readonly uploadIntentId: Prisma.FieldRef<"ProgressPhoto", 'String'>
   readonly createdAt: Prisma.FieldRef<"ProgressPhoto", 'DateTime'>
 }
     

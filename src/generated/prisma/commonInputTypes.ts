@@ -399,6 +399,23 @@ export type EnumLengthUnitNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumLengthUnitNullableFilter<$PrismaModel>
 }
 
+export type EnumUploadIntentStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.UploadIntentStatus | Prisma.EnumUploadIntentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.UploadIntentStatus[] | Prisma.ListEnumUploadIntentStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.UploadIntentStatus[] | Prisma.ListEnumUploadIntentStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumUploadIntentStatusFilter<$PrismaModel> | $Enums.UploadIntentStatus
+}
+
+export type EnumUploadIntentStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.UploadIntentStatus | Prisma.EnumUploadIntentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.UploadIntentStatus[] | Prisma.ListEnumUploadIntentStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.UploadIntentStatus[] | Prisma.ListEnumUploadIntentStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumUploadIntentStatusWithAggregatesFilter<$PrismaModel> | $Enums.UploadIntentStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumUploadIntentStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumUploadIntentStatusFilter<$PrismaModel>
+}
+
 export type DecimalFilter<$PrismaModel = never> = {
   equals?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
   in?: runtime.Decimal[] | runtime.DecimalJsLike[] | number[] | string[] | Prisma.ListDecimalFieldRefInput<$PrismaModel>
@@ -812,6 +829,23 @@ export type NestedEnumLengthUnitNullableWithAggregatesFilter<$PrismaModel = neve
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumLengthUnitNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumLengthUnitNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumUploadIntentStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.UploadIntentStatus | Prisma.EnumUploadIntentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.UploadIntentStatus[] | Prisma.ListEnumUploadIntentStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.UploadIntentStatus[] | Prisma.ListEnumUploadIntentStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumUploadIntentStatusFilter<$PrismaModel> | $Enums.UploadIntentStatus
+}
+
+export type NestedEnumUploadIntentStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.UploadIntentStatus | Prisma.EnumUploadIntentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.UploadIntentStatus[] | Prisma.ListEnumUploadIntentStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.UploadIntentStatus[] | Prisma.ListEnumUploadIntentStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumUploadIntentStatusWithAggregatesFilter<$PrismaModel> | $Enums.UploadIntentStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumUploadIntentStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumUploadIntentStatusFilter<$PrismaModel>
 }
 
 export type NestedDecimalFilter<$PrismaModel = never> = {

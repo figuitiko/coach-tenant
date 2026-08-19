@@ -70,6 +70,7 @@ export const ModelName = {
   AssignedExercise: 'AssignedExercise',
   WorkoutSession: 'WorkoutSession',
   MeasurementCheckIn: 'MeasurementCheckIn',
+  PhotoUploadIntent: 'PhotoUploadIntent',
   ProgressPhoto: 'ProgressPhoto',
   ReviewNote: 'ReviewNote',
   ExerciseLog: 'ExerciseLog',
@@ -370,6 +371,7 @@ export const MeasurementCheckInScalarFieldEnum = {
   thighUnit: 'thighUnit',
   notes: 'notes',
   submitIdempotencyKey: 'submitIdempotencyKey',
+  draftSlot: 'draftSlot',
   submittedAt: 'submittedAt',
   reviewedAt: 'reviewedAt',
   createdAt: 'createdAt',
@@ -377,6 +379,25 @@ export const MeasurementCheckInScalarFieldEnum = {
 } as const
 
 export type MeasurementCheckInScalarFieldEnum = (typeof MeasurementCheckInScalarFieldEnum)[keyof typeof MeasurementCheckInScalarFieldEnum]
+
+
+export const PhotoUploadIntentScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  studentId: 'studentId',
+  checkInId: 'checkInId',
+  idempotencyKey: 'idempotencyKey',
+  objectKey: 'objectKey',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  expiresAt: 'expiresAt',
+  status: 'status',
+  consumedAt: 'consumedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PhotoUploadIntentScalarFieldEnum = (typeof PhotoUploadIntentScalarFieldEnum)[keyof typeof PhotoUploadIntentScalarFieldEnum]
 
 
 export const ProgressPhotoScalarFieldEnum = {
@@ -388,6 +409,7 @@ export const ProgressPhotoScalarFieldEnum = {
   mimeType: 'mimeType',
   sizeBytes: 'sizeBytes',
   idempotencyKey: 'idempotencyKey',
+  uploadIntentId: 'uploadIntentId',
   createdAt: 'createdAt'
 } as const
 

@@ -7,9 +7,7 @@ export class PrismaProgressRepository implements ProgressRepository {
   async createDraft(input: { workspaceId: string; studentId: string; createdAt: Date }) {
     return this.db.$transaction(async (tx) => {
       await requireMember(tx, input.workspaceId, input.studentId, "STUDENT");
-      const existing = await tx.measurementCheckIn.findFirst({ where: { workspaceId: input.workspaceId, studentId: input.studentId, status: "DRAFT" }, orderBy: { createdAt: "desc" }, select: { id: true, status: true } });
-      if (existing) return { id: existing.id, status: "DRAFT" as const };
-      return tx.measurementCheckIn.create({ data: input, select: { id: true, status: true } }) as Promise<{ id: string; status: "DRAFT" }>;
+      return tx.measurementCheckIn.upsert({ where: { workspaceId_studentId_draftSlot: { workspaceId: input.workspaceId, studentId: input.studentId, draftSlot: "ACTIVE" } }, update: {}, create: { ...input, draftSlot: "ACTIVE" }, select: { id: true, status: true } }) as Promise<{ id: string; status: "DRAFT" }>;
     });
   }
 
@@ -33,25 +31,41 @@ export class PrismaProgressRepository implements ProgressRepository {
         if (checkIn.submitIdempotencyKey === input.idempotencyKey) return { id: checkIn.id, status: "SUBMITTED" as const };
         return null;
       }
-      await tx.measurementCheckIn.update({ where: { id: checkIn.id }, data: { status: "SUBMITTED", submittedAt: input.submittedAt, submitIdempotencyKey: input.idempotencyKey } });
+      await tx.measurementCheckIn.update({ where: { id: checkIn.id }, data: { status: "SUBMITTED", draftSlot: null, submittedAt: input.submittedAt, submitIdempotencyKey: input.idempotencyKey } });
       await eventPair(tx, input.workspaceId, input.studentId, "measurement_check_in.submitted", "measurement_check_in_submitted", "MeasurementCheckIn", checkIn.id, `checkin-submit:${checkIn.id}`);
       return { id: checkIn.id, status: "SUBMITTED" as const };
     });
   }
 
-  async attachPhoto(input: { workspaceId: string; studentId: string; checkInId: string; objectKey: string; mimeType: string; sizeBytes: number; idempotencyKey: string }) {
+  async reserveUploadIntent(input: { workspaceId: string; studentId: string; checkInId: string; idempotencyKey: string; objectKey: string; mimeType: string; sizeBytes: number; expiresAt: Date }) {
     return this.db.$transaction(async (tx) => {
       await requireMember(tx, input.workspaceId, input.studentId, "STUDENT");
       const scope = `workspaces/${safeSegment(input.workspaceId)}/students/${safeSegment(input.studentId)}/progress/`;
       if (!input.objectKey.startsWith(scope) || input.objectKey.includes("..")) throw new ProgressAccessDeniedError();
       const checkIn = await tx.measurementCheckIn.findFirst({ where: { id: input.checkInId, workspaceId: input.workspaceId, studentId: input.studentId, status: "DRAFT" }, select: { id: true } });
       if (!checkIn) return null;
-      const existing = await tx.progressPhoto.findUnique({ where: { workspaceId_idempotencyKey: { workspaceId: input.workspaceId, idempotencyKey: input.idempotencyKey } }, select: { id: true } });
+      const intent = await tx.photoUploadIntent.upsert({ where: { workspaceId_idempotencyKey: { workspaceId: input.workspaceId, idempotencyKey: input.idempotencyKey } }, update: {}, create: input });
+      if (intent.checkInId !== input.checkInId || intent.studentId !== input.studentId || intent.mimeType !== input.mimeType || intent.sizeBytes !== input.sizeBytes) throw new ProgressAccessDeniedError();
+      return { id: intent.id, objectKey: intent.objectKey, mimeType: intent.mimeType, sizeBytes: intent.sizeBytes, expiresAt: intent.expiresAt, status: intent.status };
+    });
+  }
+
+  async attachPhoto(input: { workspaceId: string; studentId: string; uploadIntentId: string; attachedAt: Date }) {
+    return this.db.$transaction(async (tx) => {
+      await requireMember(tx, input.workspaceId, input.studentId, "STUDENT");
+      const existing = await tx.progressPhoto.findUnique({ where: { uploadIntentId: input.uploadIntentId }, select: { id: true } });
       if (existing) return existing;
-      const photo = await tx.progressPhoto.create({ data: input, select: { id: true } });
+      const consumed = await tx.photoUploadIntent.updateMany({ where: { id: input.uploadIntentId, workspaceId: input.workspaceId, studentId: input.studentId, status: "PENDING", expiresAt: { gt: input.attachedAt }, checkIn: { status: "DRAFT" } }, data: { status: "CONSUMED", consumedAt: input.attachedAt } });
+      if (consumed.count !== 1) return tx.progressPhoto.findUnique({ where: { uploadIntentId: input.uploadIntentId }, select: { id: true } });
+      const intent = await tx.photoUploadIntent.findUniqueOrThrow({ where: { id: input.uploadIntentId } });
+      const photo = await tx.progressPhoto.create({ data: { workspaceId: intent.workspaceId, studentId: intent.studentId, checkInId: intent.checkInId, objectKey: intent.objectKey, mimeType: intent.mimeType, sizeBytes: intent.sizeBytes, idempotencyKey: intent.idempotencyKey, uploadIntentId: intent.id }, select: { id: true } });
       await eventPair(tx, input.workspaceId, input.studentId, "progress_photo.attached", "progress_photo_attached", "ProgressPhoto", photo.id, `photo-attach:${photo.id}`);
       return photo;
     });
+  }
+
+  async getUploadIntent(input: { workspaceId: string; studentId: string; uploadIntentId: string }) {
+    return this.db.photoUploadIntent.findFirst({ where: { id: input.uploadIntentId, workspaceId: input.workspaceId, studentId: input.studentId }, select: { id: true, objectKey: true, mimeType: true, sizeBytes: true, expiresAt: true, status: true } });
   }
 
   async listStudentHistory(input: { workspaceId: string; studentId: string }) {
@@ -110,8 +124,6 @@ export class PrismaProgressRepository implements ProgressRepository {
   async completeReview(input: { workspaceId: string; coachId: string; kind: ReviewKind; itemId: string; note: string; idempotencyKey: string; reviewedAt: Date }) {
     return this.db.$transaction(async (tx) => {
       await requireMember(tx, input.workspaceId, input.coachId, "COACH");
-      const existing = await tx.reviewNote.findUnique({ where: { workspaceId_idempotencyKey: { workspaceId: input.workspaceId, idempotencyKey: input.idempotencyKey } }, select: { id: true } });
-      if (existing) return { id: existing.id, reviewed: true };
       let studentId: string | null = null;
       if (input.kind === "CHECK_IN") {
         const target = await tx.measurementCheckIn.findFirst({ where: { id: input.itemId, workspaceId: input.workspaceId, status: { not: "DRAFT" } }, select: { id: true, studentId: true } });
@@ -124,7 +136,7 @@ export class PrismaProgressRepository implements ProgressRepository {
         studentId = target.studentId;
         await tx.workoutSession.update({ where: { id: target.id }, data: { reviewStatus: "REVIEWED", reviewedAt: input.reviewedAt } });
       }
-      const note = await tx.reviewNote.create({ data: { workspaceId: input.workspaceId, coachId: input.coachId, checkInId: input.kind === "CHECK_IN" ? input.itemId : null, workoutSessionId: input.kind === "WORKOUT" ? input.itemId : null, body: input.note, idempotencyKey: input.idempotencyKey }, select: { id: true } });
+      const note = await tx.reviewNote.upsert({ where: { workspaceId_idempotencyKey: { workspaceId: input.workspaceId, idempotencyKey: input.idempotencyKey } }, update: {}, create: { workspaceId: input.workspaceId, coachId: input.coachId, checkInId: input.kind === "CHECK_IN" ? input.itemId : null, workoutSessionId: input.kind === "WORKOUT" ? input.itemId : null, body: input.note, idempotencyKey: input.idempotencyKey }, select: { id: true } });
       await eventPair(tx, input.workspaceId, input.coachId, "review.completed", "review_completed", input.kind === "CHECK_IN" ? "MeasurementCheckIn" : "WorkoutSession", input.itemId, `review:${input.kind}:${input.itemId}`, { studentId });
       return { id: note.id, reviewed: true };
     });

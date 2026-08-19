@@ -6,9 +6,14 @@ const action = vi.fn(async () => ({ status: "success" as const, message: "Guarda
 
 describe("progress views", () => {
   it("renders a mobile-first labelled metrics form with announced state and repeat-submit protection", () => {
-    render(<StudentProgressView draft={{ id: "draft-1", status: "DRAFT", metrics: {}, notes: null, photos: [] }} history={[]} actions={{ saveDraft: action, submit: action, requestUpload: action, attachPhoto: action }} />);
+    render(<StudentProgressView draft={{ id: "draft-1", status: "DRAFT", metrics: { weight: { value: 82.5, unit: "LB" }, waist: { value: 91, unit: "IN" } }, notes: "Persisted note", photos: [] }} history={[]} actions={{ saveDraft: action, submit: action, requestUpload: action, attachPhoto: action }} />);
     expect(screen.getByRole("heading", { name: /tu progreso/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/^peso$/i)).toHaveAttribute("inputmode", "decimal");
+    expect(screen.getByLabelText(/^peso$/i)).toHaveValue(82.5);
+    expect(screen.getByLabelText(/unidad de peso/i)).toHaveValue("LB");
+    expect(screen.getByLabelText(/^cintura$/i)).toHaveValue(91);
+    expect(screen.getByLabelText(/unidad de cintura/i)).toHaveValue("IN");
+    expect(screen.getByLabelText(/^notas$/i)).toHaveValue("Persisted note");
     expect(screen.getAllByRole("status").every(node => node.getAttribute("aria-live") === "polite")).toBe(true);
     expect(screen.getByRole("button", { name: /enviar check-in/i })).toBeEnabled();
   });

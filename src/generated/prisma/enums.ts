@@ -64,3 +64,12 @@ export const ReviewStatus = {
 } as const
 
 export type ReviewStatus = (typeof ReviewStatus)[keyof typeof ReviewStatus]
+
+
+export const UploadIntentStatus = {
+  PENDING: 'PENDING',
+  CONSUMED: 'CONSUMED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type UploadIntentStatus = (typeof UploadIntentStatus)[keyof typeof UploadIntentStatus]

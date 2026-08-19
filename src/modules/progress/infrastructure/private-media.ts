@@ -1,7 +1,7 @@
 import { createHash, createHmac, randomUUID } from "node:crypto";
 
-export type SignInput = { method: "PUT" | "GET"; bucket: string; key: string; contentType?: string; expiresInSeconds: number };
-export interface PrivateObjectSigner { sign(input: SignInput): Promise<string> }
+export type SignInput = { method: "PUT" | "GET" | "HEAD"; bucket: string; key: string; contentType?: string; expiresInSeconds: number };
+export interface PrivateObjectSigner { sign(input: SignInput): Promise<string>; head?(input: { bucket: string; key: string }): Promise<{ mimeType: string; sizeBytes: number } | null> }
 
 export class PrivateMediaError extends Error {}
 
@@ -23,6 +23,18 @@ export class S3PrivateMedia {
     if (!input.objectKey.startsWith(prefix) || input.objectKey.includes("..")) throw new PrivateMediaError("Private object unavailable");
     const downloadUrl = await this.options.signer.sign({ method: "GET", bucket: this.options.bucket, key: input.objectKey, expiresInSeconds: this.expiresInSeconds });
     return { downloadUrl, expiresAt: this.expiry() };
+  }
+
+  async signUploadIntent(input: { objectKey: string; mimeType: string; expiresAt: Date }) {
+    const remaining = Math.floor((input.expiresAt.getTime() - (this.options.now?.() ?? new Date()).getTime()) / 1000);
+    if (remaining < 1) throw new PrivateMediaError("Upload intent expired");
+    return this.options.signer.sign({ method: "PUT", bucket: this.options.bucket, key: input.objectKey, contentType: input.mimeType, expiresInSeconds: Math.min(remaining, this.expiresInSeconds) });
+  }
+
+  async verifyUploadedObject(input: { objectKey: string; mimeType: string; sizeBytes: number }) {
+    if (!this.options.signer.head) return;
+    const actual = await this.options.signer.head({ bucket: this.options.bucket, key: input.objectKey });
+    if (!actual || actual.mimeType !== input.mimeType || actual.sizeBytes !== input.sizeBytes) throw new PrivateMediaError("Uploaded object metadata does not match intent");
   }
 
   private expiry() { return new Date((this.options.now?.() ?? new Date()).getTime() + this.expiresInSeconds * 1000); }
@@ -49,13 +61,21 @@ export class S3CompatibleSigner implements PrivateObjectSigner {
     const credentialScope = `${day}/${this.config.region}/s3/aws4_request`;
     const base = new URL(this.config.endpoint);
     const path = `/${encodeURIComponent(input.bucket)}/${input.key.split("/").map(encodeURIComponent).join("/")}`;
-    const params = new URLSearchParams({ "X-Amz-Algorithm": "AWS4-HMAC-SHA256", "X-Amz-Credential": `${this.config.accessKeyId}/${credentialScope}`, "X-Amz-Date": stamp, "X-Amz-Expires": String(input.expiresInSeconds), "X-Amz-SignedHeaders": "host" });
+    const signedHeaders = input.contentType ? "content-type;host" : "host";
+    const params = new URLSearchParams({ "X-Amz-Algorithm": "AWS4-HMAC-SHA256", "X-Amz-Credential": `${this.config.accessKeyId}/${credentialScope}`, "X-Amz-Date": stamp, "X-Amz-Expires": String(input.expiresInSeconds), "X-Amz-SignedHeaders": signedHeaders });
     params.sort();
-    const canonical = `${input.method}\n${path}\n${params.toString()}\nhost:${base.host}\n\nhost\nUNSIGNED-PAYLOAD`;
+    const canonicalHeaders = `${input.contentType ? `content-type:${input.contentType}\n` : ""}host:${base.host}\n`;
+    const canonical = `${input.method}\n${path}\n${params.toString()}\n${canonicalHeaders}\n${signedHeaders}\nUNSIGNED-PAYLOAD`;
     const toSign = `AWS4-HMAC-SHA256\n${stamp}\n${credentialScope}\n${sha256(canonical)}`;
     const signingKey = hmac(hmac(hmac(hmac(`AWS4${this.config.secretAccessKey}`, day), this.config.region), "s3"), "aws4_request");
     params.set("X-Amz-Signature", createHmac("sha256", signingKey).update(toSign).digest("hex"));
     return `${base.origin}${base.pathname.replace(/\/$/, "")}${path}?${params.toString()}`;
+  }
+  async head(input: { bucket: string; key: string }) {
+    const url = await this.sign({ method: "HEAD", bucket: input.bucket, key: input.key, expiresInSeconds: 60 });
+    const response = await fetch(url, { method: "HEAD", cache: "no-store" });
+    if (!response.ok) return null;
+    return { mimeType: response.headers.get("content-type")?.split(";")[0] ?? "", sizeBytes: Number(response.headers.get("content-length")) };
   }
 }
 

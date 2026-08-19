@@ -14,12 +14,15 @@ export type ReviewKind = "CHECK_IN" | "WORKOUT";
 export type ReviewQueueItem = { kind: ReviewKind; id: string; studentId: string; studentName: string; submittedAt: Date };
 export type ReviewDetail = { kind: ReviewKind; id: string; studentId: string; studentName: string; reviewStatus: "PENDING" | "REVIEWED"; details: Array<{ label: string; value: string }>; photos: Array<{ id: string; mimeType: string }>; notes: Array<{ id: string; body: string; createdAt: Date }> };
 export type StudentProgress = { draft: { id: string; status: string; metrics: Record<string, unknown>; notes: string | null; photos: Array<{ id: string; mimeType: string; sizeBytes: number }> } | null; history: Array<{ id: string; submittedAt: Date | null; notes: string | null }> };
+export type UploadIntent = { id: string; objectKey: string; mimeType: string; sizeBytes: number; expiresAt: Date; status: "PENDING" | "CONSUMED" | "EXPIRED" };
 
 export interface ProgressRepository {
   createDraft(input: { workspaceId: string; studentId: string; createdAt: Date }): Promise<{ id: string; status: "DRAFT" }>;
   editDraft(input: { workspaceId: string; studentId: string; checkInId: string; metrics: CheckInMetrics; notes: string | null }): Promise<{ id: string; status: "DRAFT" } | null>;
   submitDraft(input: { workspaceId: string; studentId: string; checkInId: string; idempotencyKey: string; submittedAt: Date }): Promise<{ id: string; status: "SUBMITTED" } | null>;
-  attachPhoto(input: { workspaceId: string; studentId: string; checkInId: string; objectKey: string; mimeType: string; sizeBytes: number; idempotencyKey: string }): Promise<{ id: string } | null>;
+  reserveUploadIntent(input: { workspaceId: string; studentId: string; checkInId: string; idempotencyKey: string; objectKey: string; mimeType: string; sizeBytes: number; expiresAt: Date }): Promise<UploadIntent | null>;
+  getUploadIntent(input: { workspaceId: string; studentId: string; uploadIntentId: string }): Promise<UploadIntent | null>;
+  attachPhoto(input: { workspaceId: string; studentId: string; uploadIntentId: string; attachedAt: Date }): Promise<{ id: string } | null>;
   listStudentHistory(input: { workspaceId: string; studentId: string }): Promise<unknown[] | null>;
   getStudentProgress(input: { workspaceId: string; studentId: string }): Promise<StudentProgress | null>;
   getStudentPhoto(input: { workspaceId: string; studentId: string; photoId: string }): Promise<{ objectKey: string; studentId: string; mimeType: string; sizeBytes: number } | null>;
@@ -56,9 +59,24 @@ export class ProgressService {
     return result;
   }
 
-  async attachPhoto(actor: ProgressActor, input: { checkInId: string; objectKey: string; mimeType: string; sizeBytes: number; idempotencyKey: string }) {
+  async reserveUploadIntent(actor: ProgressActor, input: { checkInId: string; idempotencyKey: string; objectKey: string; mimeType: string; sizeBytes: number; expiresAt: Date }) {
     requireRole(actor, "STUDENT");
-    const result = await this.repository.attachPhoto({ ...input, workspaceId: actor.workspaceId, studentId: actor.actorId });
+    if (input.expiresAt <= this.now()) throw new ProgressValidationError("Upload intent expired");
+    const result = await this.repository.reserveUploadIntent({ ...input, workspaceId: actor.workspaceId, studentId: actor.actorId });
+    if (!result) throw new ProgressAccessDeniedError();
+    return result;
+  }
+
+  async attachPhoto(actor: ProgressActor, input: { uploadIntentId: string }) {
+    requireRole(actor, "STUDENT");
+    const result = await this.repository.attachPhoto({ workspaceId: actor.workspaceId, studentId: actor.actorId, uploadIntentId: requiredId(input.uploadIntentId), attachedAt: this.now() });
+    if (!result) throw new ProgressAccessDeniedError();
+    return result;
+  }
+
+  async getUploadIntent(actor: ProgressActor, uploadIntentId: string) {
+    requireRole(actor, "STUDENT");
+    const result = await this.repository.getUploadIntent({ workspaceId: actor.workspaceId, studentId: actor.actorId, uploadIntentId: requiredId(uploadIntentId) });
     if (!result) throw new ProgressAccessDeniedError();
     return result;
   }
