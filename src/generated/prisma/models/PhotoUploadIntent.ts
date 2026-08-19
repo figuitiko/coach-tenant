@@ -43,6 +43,7 @@ export type PhotoUploadIntentMinAggregateOutputType = {
   objectKey: string | null
   mimeType: string | null
   sizeBytes: number | null
+  checksumSha256: string | null
   expiresAt: Date | null
   status: $Enums.UploadIntentStatus | null
   consumedAt: Date | null
@@ -59,6 +60,7 @@ export type PhotoUploadIntentMaxAggregateOutputType = {
   objectKey: string | null
   mimeType: string | null
   sizeBytes: number | null
+  checksumSha256: string | null
   expiresAt: Date | null
   status: $Enums.UploadIntentStatus | null
   consumedAt: Date | null
@@ -75,6 +77,7 @@ export type PhotoUploadIntentCountAggregateOutputType = {
   objectKey: number
   mimeType: number
   sizeBytes: number
+  checksumSha256: number
   expiresAt: number
   status: number
   consumedAt: number
@@ -101,6 +104,7 @@ export type PhotoUploadIntentMinAggregateInputType = {
   objectKey?: true
   mimeType?: true
   sizeBytes?: true
+  checksumSha256?: true
   expiresAt?: true
   status?: true
   consumedAt?: true
@@ -117,6 +121,7 @@ export type PhotoUploadIntentMaxAggregateInputType = {
   objectKey?: true
   mimeType?: true
   sizeBytes?: true
+  checksumSha256?: true
   expiresAt?: true
   status?: true
   consumedAt?: true
@@ -133,6 +138,7 @@ export type PhotoUploadIntentCountAggregateInputType = {
   objectKey?: true
   mimeType?: true
   sizeBytes?: true
+  checksumSha256?: true
   expiresAt?: true
   status?: true
   consumedAt?: true
@@ -236,6 +242,7 @@ export type PhotoUploadIntentGroupByOutputType = {
   objectKey: string
   mimeType: string
   sizeBytes: number
+  checksumSha256: string
   expiresAt: Date
   status: $Enums.UploadIntentStatus
   consumedAt: Date | null
@@ -275,6 +282,7 @@ export type PhotoUploadIntentWhereInput = {
   objectKey?: Prisma.StringFilter<"PhotoUploadIntent"> | string
   mimeType?: Prisma.StringFilter<"PhotoUploadIntent"> | string
   sizeBytes?: Prisma.IntFilter<"PhotoUploadIntent"> | number
+  checksumSha256?: Prisma.StringFilter<"PhotoUploadIntent"> | string
   expiresAt?: Prisma.DateTimeFilter<"PhotoUploadIntent"> | Date | string
   status?: Prisma.EnumUploadIntentStatusFilter<"PhotoUploadIntent"> | $Enums.UploadIntentStatus
   consumedAt?: Prisma.DateTimeNullableFilter<"PhotoUploadIntent"> | Date | string | null
@@ -295,6 +303,7 @@ export type PhotoUploadIntentOrderByWithRelationInput = {
   objectKey?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
+  checksumSha256?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   consumedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -319,6 +328,7 @@ export type PhotoUploadIntentWhereUniqueInput = Prisma.AtLeast<{
   idempotencyKey?: Prisma.StringFilter<"PhotoUploadIntent"> | string
   mimeType?: Prisma.StringFilter<"PhotoUploadIntent"> | string
   sizeBytes?: Prisma.IntFilter<"PhotoUploadIntent"> | number
+  checksumSha256?: Prisma.StringFilter<"PhotoUploadIntent"> | string
   expiresAt?: Prisma.DateTimeFilter<"PhotoUploadIntent"> | Date | string
   status?: Prisma.EnumUploadIntentStatusFilter<"PhotoUploadIntent"> | $Enums.UploadIntentStatus
   consumedAt?: Prisma.DateTimeNullableFilter<"PhotoUploadIntent"> | Date | string | null
@@ -339,6 +349,7 @@ export type PhotoUploadIntentOrderByWithAggregationInput = {
   objectKey?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
+  checksumSha256?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   consumedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -363,6 +374,7 @@ export type PhotoUploadIntentScalarWhereWithAggregatesInput = {
   objectKey?: Prisma.StringWithAggregatesFilter<"PhotoUploadIntent"> | string
   mimeType?: Prisma.StringWithAggregatesFilter<"PhotoUploadIntent"> | string
   sizeBytes?: Prisma.IntWithAggregatesFilter<"PhotoUploadIntent"> | number
+  checksumSha256?: Prisma.StringWithAggregatesFilter<"PhotoUploadIntent"> | string
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"PhotoUploadIntent"> | Date | string
   status?: Prisma.EnumUploadIntentStatusWithAggregatesFilter<"PhotoUploadIntent"> | $Enums.UploadIntentStatus
   consumedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PhotoUploadIntent"> | Date | string | null
@@ -376,6 +388,7 @@ export type PhotoUploadIntentCreateInput = {
   objectKey: string
   mimeType: string
   sizeBytes: number
+  checksumSha256: string
   expiresAt: Date | string
   status?: $Enums.UploadIntentStatus
   consumedAt?: Date | string | null
@@ -396,6 +409,7 @@ export type PhotoUploadIntentUncheckedCreateInput = {
   objectKey: string
   mimeType: string
   sizeBytes: number
+  checksumSha256: string
   expiresAt: Date | string
   status?: $Enums.UploadIntentStatus
   consumedAt?: Date | string | null
@@ -410,6 +424,7 @@ export type PhotoUploadIntentUpdateInput = {
   objectKey?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  checksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumUploadIntentStatusFieldUpdateOperationsInput | $Enums.UploadIntentStatus
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -430,6 +445,7 @@ export type PhotoUploadIntentUncheckedUpdateInput = {
   objectKey?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  checksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumUploadIntentStatusFieldUpdateOperationsInput | $Enums.UploadIntentStatus
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -447,6 +463,7 @@ export type PhotoUploadIntentCreateManyInput = {
   objectKey: string
   mimeType: string
   sizeBytes: number
+  checksumSha256: string
   expiresAt: Date | string
   status?: $Enums.UploadIntentStatus
   consumedAt?: Date | string | null
@@ -460,6 +477,7 @@ export type PhotoUploadIntentUpdateManyMutationInput = {
   objectKey?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  checksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumUploadIntentStatusFieldUpdateOperationsInput | $Enums.UploadIntentStatus
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -476,6 +494,7 @@ export type PhotoUploadIntentUncheckedUpdateManyInput = {
   objectKey?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  checksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumUploadIntentStatusFieldUpdateOperationsInput | $Enums.UploadIntentStatus
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -507,6 +526,7 @@ export type PhotoUploadIntentCountOrderByAggregateInput = {
   objectKey?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
+  checksumSha256?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   consumedAt?: Prisma.SortOrder
@@ -527,6 +547,7 @@ export type PhotoUploadIntentMaxOrderByAggregateInput = {
   objectKey?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
+  checksumSha256?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   consumedAt?: Prisma.SortOrder
@@ -543,6 +564,7 @@ export type PhotoUploadIntentMinOrderByAggregateInput = {
   objectKey?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
+  checksumSha256?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   consumedAt?: Prisma.SortOrder
@@ -709,6 +731,7 @@ export type PhotoUploadIntentCreateWithoutStudentInput = {
   objectKey: string
   mimeType: string
   sizeBytes: number
+  checksumSha256: string
   expiresAt: Date | string
   status?: $Enums.UploadIntentStatus
   consumedAt?: Date | string | null
@@ -727,6 +750,7 @@ export type PhotoUploadIntentUncheckedCreateWithoutStudentInput = {
   objectKey: string
   mimeType: string
   sizeBytes: number
+  checksumSha256: string
   expiresAt: Date | string
   status?: $Enums.UploadIntentStatus
   consumedAt?: Date | string | null
@@ -773,6 +797,7 @@ export type PhotoUploadIntentScalarWhereInput = {
   objectKey?: Prisma.StringFilter<"PhotoUploadIntent"> | string
   mimeType?: Prisma.StringFilter<"PhotoUploadIntent"> | string
   sizeBytes?: Prisma.IntFilter<"PhotoUploadIntent"> | number
+  checksumSha256?: Prisma.StringFilter<"PhotoUploadIntent"> | string
   expiresAt?: Prisma.DateTimeFilter<"PhotoUploadIntent"> | Date | string
   status?: Prisma.EnumUploadIntentStatusFilter<"PhotoUploadIntent"> | $Enums.UploadIntentStatus
   consumedAt?: Prisma.DateTimeNullableFilter<"PhotoUploadIntent"> | Date | string | null
@@ -786,6 +811,7 @@ export type PhotoUploadIntentCreateWithoutWorkspaceInput = {
   objectKey: string
   mimeType: string
   sizeBytes: number
+  checksumSha256: string
   expiresAt: Date | string
   status?: $Enums.UploadIntentStatus
   consumedAt?: Date | string | null
@@ -804,6 +830,7 @@ export type PhotoUploadIntentUncheckedCreateWithoutWorkspaceInput = {
   objectKey: string
   mimeType: string
   sizeBytes: number
+  checksumSha256: string
   expiresAt: Date | string
   status?: $Enums.UploadIntentStatus
   consumedAt?: Date | string | null
@@ -844,6 +871,7 @@ export type PhotoUploadIntentCreateWithoutCheckInInput = {
   objectKey: string
   mimeType: string
   sizeBytes: number
+  checksumSha256: string
   expiresAt: Date | string
   status?: $Enums.UploadIntentStatus
   consumedAt?: Date | string | null
@@ -862,6 +890,7 @@ export type PhotoUploadIntentUncheckedCreateWithoutCheckInInput = {
   objectKey: string
   mimeType: string
   sizeBytes: number
+  checksumSha256: string
   expiresAt: Date | string
   status?: $Enums.UploadIntentStatus
   consumedAt?: Date | string | null
@@ -902,6 +931,7 @@ export type PhotoUploadIntentCreateWithoutPhotoInput = {
   objectKey: string
   mimeType: string
   sizeBytes: number
+  checksumSha256: string
   expiresAt: Date | string
   status?: $Enums.UploadIntentStatus
   consumedAt?: Date | string | null
@@ -921,6 +951,7 @@ export type PhotoUploadIntentUncheckedCreateWithoutPhotoInput = {
   objectKey: string
   mimeType: string
   sizeBytes: number
+  checksumSha256: string
   expiresAt: Date | string
   status?: $Enums.UploadIntentStatus
   consumedAt?: Date | string | null
@@ -950,6 +981,7 @@ export type PhotoUploadIntentUpdateWithoutPhotoInput = {
   objectKey?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  checksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumUploadIntentStatusFieldUpdateOperationsInput | $Enums.UploadIntentStatus
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -969,6 +1001,7 @@ export type PhotoUploadIntentUncheckedUpdateWithoutPhotoInput = {
   objectKey?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  checksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumUploadIntentStatusFieldUpdateOperationsInput | $Enums.UploadIntentStatus
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -984,6 +1017,7 @@ export type PhotoUploadIntentCreateManyStudentInput = {
   objectKey: string
   mimeType: string
   sizeBytes: number
+  checksumSha256: string
   expiresAt: Date | string
   status?: $Enums.UploadIntentStatus
   consumedAt?: Date | string | null
@@ -997,6 +1031,7 @@ export type PhotoUploadIntentUpdateWithoutStudentInput = {
   objectKey?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  checksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumUploadIntentStatusFieldUpdateOperationsInput | $Enums.UploadIntentStatus
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1015,6 +1050,7 @@ export type PhotoUploadIntentUncheckedUpdateWithoutStudentInput = {
   objectKey?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  checksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumUploadIntentStatusFieldUpdateOperationsInput | $Enums.UploadIntentStatus
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1031,6 +1067,7 @@ export type PhotoUploadIntentUncheckedUpdateManyWithoutStudentInput = {
   objectKey?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  checksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumUploadIntentStatusFieldUpdateOperationsInput | $Enums.UploadIntentStatus
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1046,6 +1083,7 @@ export type PhotoUploadIntentCreateManyWorkspaceInput = {
   objectKey: string
   mimeType: string
   sizeBytes: number
+  checksumSha256: string
   expiresAt: Date | string
   status?: $Enums.UploadIntentStatus
   consumedAt?: Date | string | null
@@ -1059,6 +1097,7 @@ export type PhotoUploadIntentUpdateWithoutWorkspaceInput = {
   objectKey?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  checksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumUploadIntentStatusFieldUpdateOperationsInput | $Enums.UploadIntentStatus
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1077,6 +1116,7 @@ export type PhotoUploadIntentUncheckedUpdateWithoutWorkspaceInput = {
   objectKey?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  checksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumUploadIntentStatusFieldUpdateOperationsInput | $Enums.UploadIntentStatus
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1093,6 +1133,7 @@ export type PhotoUploadIntentUncheckedUpdateManyWithoutWorkspaceInput = {
   objectKey?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  checksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumUploadIntentStatusFieldUpdateOperationsInput | $Enums.UploadIntentStatus
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1108,6 +1149,7 @@ export type PhotoUploadIntentCreateManyCheckInInput = {
   objectKey: string
   mimeType: string
   sizeBytes: number
+  checksumSha256: string
   expiresAt: Date | string
   status?: $Enums.UploadIntentStatus
   consumedAt?: Date | string | null
@@ -1121,6 +1163,7 @@ export type PhotoUploadIntentUpdateWithoutCheckInInput = {
   objectKey?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  checksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumUploadIntentStatusFieldUpdateOperationsInput | $Enums.UploadIntentStatus
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1139,6 +1182,7 @@ export type PhotoUploadIntentUncheckedUpdateWithoutCheckInInput = {
   objectKey?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  checksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumUploadIntentStatusFieldUpdateOperationsInput | $Enums.UploadIntentStatus
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1155,6 +1199,7 @@ export type PhotoUploadIntentUncheckedUpdateManyWithoutCheckInInput = {
   objectKey?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  checksumSha256?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumUploadIntentStatusFieldUpdateOperationsInput | $Enums.UploadIntentStatus
   consumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1173,6 +1218,7 @@ export type PhotoUploadIntentSelect<ExtArgs extends runtime.Types.Extensions.Int
   objectKey?: boolean
   mimeType?: boolean
   sizeBytes?: boolean
+  checksumSha256?: boolean
   expiresAt?: boolean
   status?: boolean
   consumedAt?: boolean
@@ -1193,6 +1239,7 @@ export type PhotoUploadIntentSelectCreateManyAndReturn<ExtArgs extends runtime.T
   objectKey?: boolean
   mimeType?: boolean
   sizeBytes?: boolean
+  checksumSha256?: boolean
   expiresAt?: boolean
   status?: boolean
   consumedAt?: boolean
@@ -1212,6 +1259,7 @@ export type PhotoUploadIntentSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   objectKey?: boolean
   mimeType?: boolean
   sizeBytes?: boolean
+  checksumSha256?: boolean
   expiresAt?: boolean
   status?: boolean
   consumedAt?: boolean
@@ -1231,6 +1279,7 @@ export type PhotoUploadIntentSelectScalar = {
   objectKey?: boolean
   mimeType?: boolean
   sizeBytes?: boolean
+  checksumSha256?: boolean
   expiresAt?: boolean
   status?: boolean
   consumedAt?: boolean
@@ -1238,7 +1287,7 @@ export type PhotoUploadIntentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type PhotoUploadIntentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "studentId" | "checkInId" | "idempotencyKey" | "objectKey" | "mimeType" | "sizeBytes" | "expiresAt" | "status" | "consumedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["photoUploadIntent"]>
+export type PhotoUploadIntentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "studentId" | "checkInId" | "idempotencyKey" | "objectKey" | "mimeType" | "sizeBytes" | "checksumSha256" | "expiresAt" | "status" | "consumedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["photoUploadIntent"]>
 export type PhotoUploadIntentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1273,6 +1322,7 @@ export type $PhotoUploadIntentPayload<ExtArgs extends runtime.Types.Extensions.I
     objectKey: string
     mimeType: string
     sizeBytes: number
+    checksumSha256: string
     expiresAt: Date
     status: $Enums.UploadIntentStatus
     consumedAt: Date | null
@@ -1713,6 +1763,7 @@ export interface PhotoUploadIntentFieldRefs {
   readonly objectKey: Prisma.FieldRef<"PhotoUploadIntent", 'String'>
   readonly mimeType: Prisma.FieldRef<"PhotoUploadIntent", 'String'>
   readonly sizeBytes: Prisma.FieldRef<"PhotoUploadIntent", 'Int'>
+  readonly checksumSha256: Prisma.FieldRef<"PhotoUploadIntent", 'String'>
   readonly expiresAt: Prisma.FieldRef<"PhotoUploadIntent", 'DateTime'>
   readonly status: Prisma.FieldRef<"PhotoUploadIntent", 'UploadIntentStatus'>
   readonly consumedAt: Prisma.FieldRef<"PhotoUploadIntent", 'DateTime'>

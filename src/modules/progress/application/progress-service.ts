@@ -14,13 +14,13 @@ export type ReviewKind = "CHECK_IN" | "WORKOUT";
 export type ReviewQueueItem = { kind: ReviewKind; id: string; studentId: string; studentName: string; submittedAt: Date };
 export type ReviewDetail = { kind: ReviewKind; id: string; studentId: string; studentName: string; reviewStatus: "PENDING" | "REVIEWED"; details: Array<{ label: string; value: string }>; photos: Array<{ id: string; mimeType: string }>; notes: Array<{ id: string; body: string; createdAt: Date }> };
 export type StudentProgress = { draft: { id: string; status: string; metrics: Record<string, unknown>; notes: string | null; photos: Array<{ id: string; mimeType: string; sizeBytes: number }> } | null; history: Array<{ id: string; submittedAt: Date | null; notes: string | null }> };
-export type UploadIntent = { id: string; objectKey: string; mimeType: string; sizeBytes: number; expiresAt: Date; status: "PENDING" | "CONSUMED" | "EXPIRED" };
+export type UploadIntent = { id: string; objectKey: string; mimeType: string; sizeBytes: number; checksumSha256: string; expiresAt: Date; status: "PENDING" | "CONSUMED" | "EXPIRED" };
 
 export interface ProgressRepository {
   createDraft(input: { workspaceId: string; studentId: string; createdAt: Date }): Promise<{ id: string; status: "DRAFT" }>;
   editDraft(input: { workspaceId: string; studentId: string; checkInId: string; metrics: CheckInMetrics; notes: string | null }): Promise<{ id: string; status: "DRAFT" } | null>;
   submitDraft(input: { workspaceId: string; studentId: string; checkInId: string; idempotencyKey: string; submittedAt: Date }): Promise<{ id: string; status: "SUBMITTED" } | null>;
-  reserveUploadIntent(input: { workspaceId: string; studentId: string; checkInId: string; idempotencyKey: string; objectKey: string; mimeType: string; sizeBytes: number; expiresAt: Date }): Promise<UploadIntent | null>;
+  reserveUploadIntent(input: { workspaceId: string; studentId: string; checkInId: string; idempotencyKey: string; objectKey: string; mimeType: string; sizeBytes: number; checksumSha256: string; expiresAt: Date }): Promise<UploadIntent | null>;
   getUploadIntent(input: { workspaceId: string; studentId: string; uploadIntentId: string }): Promise<UploadIntent | null>;
   attachPhoto(input: { workspaceId: string; studentId: string; uploadIntentId: string; attachedAt: Date }): Promise<{ id: string } | null>;
   listStudentHistory(input: { workspaceId: string; studentId: string }): Promise<unknown[] | null>;
@@ -59,7 +59,7 @@ export class ProgressService {
     return result;
   }
 
-  async reserveUploadIntent(actor: ProgressActor, input: { checkInId: string; idempotencyKey: string; objectKey: string; mimeType: string; sizeBytes: number; expiresAt: Date }) {
+  async reserveUploadIntent(actor: ProgressActor, input: { checkInId: string; idempotencyKey: string; objectKey: string; mimeType: string; sizeBytes: number; checksumSha256: string; expiresAt: Date }) {
     requireRole(actor, "STUDENT");
     if (input.expiresAt <= this.now()) throw new ProgressValidationError("Upload intent expired");
     const result = await this.repository.reserveUploadIntent({ ...input, workspaceId: actor.workspaceId, studentId: actor.actorId });

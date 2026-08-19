@@ -7,37 +7,34 @@ export class PrismaProgressRepository implements ProgressRepository {
   async createDraft(input: { workspaceId: string; studentId: string; createdAt: Date }) {
     return this.db.$transaction(async (tx) => {
       await requireMember(tx, input.workspaceId, input.studentId, "STUDENT");
-      return tx.measurementCheckIn.upsert({ where: { workspaceId_studentId_draftSlot: { workspaceId: input.workspaceId, studentId: input.studentId, draftSlot: "ACTIVE" } }, update: {}, create: { ...input, draftSlot: "ACTIVE" }, select: { id: true, status: true } }) as Promise<{ id: string; status: "DRAFT" }>;
+      await tx.measurementCheckIn.createMany({ data: [{ ...input, draftSlot: "ACTIVE" }], skipDuplicates: true });
+      return tx.measurementCheckIn.findUniqueOrThrow({ where: { workspaceId_studentId_draftSlot: { workspaceId: input.workspaceId, studentId: input.studentId, draftSlot: "ACTIVE" } }, select: { id: true, status: true } }) as Promise<{ id: string; status: "DRAFT" }>;
     });
   }
 
   async editDraft(input: { workspaceId: string; studentId: string; checkInId: string; metrics: CheckInMetrics; notes: string | null }) {
     return this.db.$transaction(async (tx) => {
       await requireMember(tx, input.workspaceId, input.studentId, "STUDENT");
-      const draft = await tx.measurementCheckIn.findFirst({ where: { id: input.checkInId, workspaceId: input.workspaceId, studentId: input.studentId, status: "DRAFT" }, select: { id: true } });
-      if (!draft) return null;
       const values = metricData(input.metrics);
-      await tx.measurementCheckIn.update({ where: { id: draft.id }, data: { ...values, notes: input.notes } });
-      return { id: draft.id, status: "DRAFT" as const };
+      const edited = await tx.measurementCheckIn.updateMany({ where: { id: input.checkInId, workspaceId: input.workspaceId, studentId: input.studentId, status: "DRAFT" }, data: { ...values, notes: input.notes } });
+      return edited.count === 1 ? { id: input.checkInId, status: "DRAFT" as const } : null;
     });
   }
 
   async submitDraft(input: { workspaceId: string; studentId: string; checkInId: string; idempotencyKey: string; submittedAt: Date }) {
     return this.db.$transaction(async (tx) => {
       await requireMember(tx, input.workspaceId, input.studentId, "STUDENT");
-      const checkIn = await tx.measurementCheckIn.findFirst({ where: { id: input.checkInId, workspaceId: input.workspaceId, studentId: input.studentId }, select: { id: true, status: true, submitIdempotencyKey: true } });
-      if (!checkIn) return null;
-      if (checkIn.status !== "DRAFT") {
-        if (checkIn.submitIdempotencyKey === input.idempotencyKey) return { id: checkIn.id, status: "SUBMITTED" as const };
-        return null;
+      const submitted = await tx.measurementCheckIn.updateMany({ where: { id: input.checkInId, workspaceId: input.workspaceId, studentId: input.studentId, status: "DRAFT" }, data: { status: "SUBMITTED", draftSlot: null, submittedAt: input.submittedAt, submitIdempotencyKey: input.idempotencyKey } });
+      if (submitted.count === 1) {
+        await eventPair(tx, input.workspaceId, input.studentId, "measurement_check_in.submitted", "measurement_check_in_submitted", "MeasurementCheckIn", input.checkInId, `checkin-submit:${input.checkInId}`);
+        return { id: input.checkInId, status: "SUBMITTED" as const };
       }
-      await tx.measurementCheckIn.update({ where: { id: checkIn.id }, data: { status: "SUBMITTED", draftSlot: null, submittedAt: input.submittedAt, submitIdempotencyKey: input.idempotencyKey } });
-      await eventPair(tx, input.workspaceId, input.studentId, "measurement_check_in.submitted", "measurement_check_in_submitted", "MeasurementCheckIn", checkIn.id, `checkin-submit:${checkIn.id}`);
-      return { id: checkIn.id, status: "SUBMITTED" as const };
+      const existing = await tx.measurementCheckIn.findFirst({ where: { id: input.checkInId, workspaceId: input.workspaceId, studentId: input.studentId, status: { in: ["SUBMITTED", "REVIEWED"] }, submitIdempotencyKey: input.idempotencyKey }, select: { id: true } });
+      return existing ? { id: existing.id, status: "SUBMITTED" as const } : null;
     });
   }
 
-  async reserveUploadIntent(input: { workspaceId: string; studentId: string; checkInId: string; idempotencyKey: string; objectKey: string; mimeType: string; sizeBytes: number; expiresAt: Date }) {
+  async reserveUploadIntent(input: { workspaceId: string; studentId: string; checkInId: string; idempotencyKey: string; objectKey: string; mimeType: string; sizeBytes: number; checksumSha256: string; expiresAt: Date }) {
     return this.db.$transaction(async (tx) => {
       await requireMember(tx, input.workspaceId, input.studentId, "STUDENT");
       const scope = `workspaces/${safeSegment(input.workspaceId)}/students/${safeSegment(input.studentId)}/progress/`;
@@ -45,8 +42,8 @@ export class PrismaProgressRepository implements ProgressRepository {
       const checkIn = await tx.measurementCheckIn.findFirst({ where: { id: input.checkInId, workspaceId: input.workspaceId, studentId: input.studentId, status: "DRAFT" }, select: { id: true } });
       if (!checkIn) return null;
       const intent = await tx.photoUploadIntent.upsert({ where: { workspaceId_idempotencyKey: { workspaceId: input.workspaceId, idempotencyKey: input.idempotencyKey } }, update: {}, create: input });
-      if (intent.checkInId !== input.checkInId || intent.studentId !== input.studentId || intent.mimeType !== input.mimeType || intent.sizeBytes !== input.sizeBytes) throw new ProgressAccessDeniedError();
-      return { id: intent.id, objectKey: intent.objectKey, mimeType: intent.mimeType, sizeBytes: intent.sizeBytes, expiresAt: intent.expiresAt, status: intent.status };
+      if (intent.checkInId !== input.checkInId || intent.studentId !== input.studentId || intent.mimeType !== input.mimeType || intent.sizeBytes !== input.sizeBytes || intent.checksumSha256 !== input.checksumSha256) throw new ProgressAccessDeniedError();
+      return { id: intent.id, objectKey: intent.objectKey, mimeType: intent.mimeType, sizeBytes: intent.sizeBytes, checksumSha256: intent.checksumSha256, expiresAt: intent.expiresAt, status: intent.status };
     });
   }
 
@@ -59,14 +56,14 @@ export class PrismaProgressRepository implements ProgressRepository {
       const consumed = await tx.photoUploadIntent.updateMany({ where: { id: input.uploadIntentId, workspaceId: input.workspaceId, studentId: input.studentId, status: "PENDING", expiresAt: { gt: input.attachedAt }, checkIn: { status: "DRAFT" } }, data: { status: "CONSUMED", consumedAt: input.attachedAt } });
       if (consumed.count !== 1) return tx.progressPhoto.findFirst({ where: ownership, select: { id: true } });
       const intent = await tx.photoUploadIntent.findUniqueOrThrow({ where: { id: input.uploadIntentId } });
-      const photo = await tx.progressPhoto.create({ data: { workspaceId: intent.workspaceId, studentId: intent.studentId, checkInId: intent.checkInId, objectKey: intent.objectKey, mimeType: intent.mimeType, sizeBytes: intent.sizeBytes, idempotencyKey: intent.idempotencyKey, uploadIntentId: intent.id }, select: { id: true } });
+      const photo = await tx.progressPhoto.create({ data: { workspaceId: intent.workspaceId, studentId: intent.studentId, checkInId: intent.checkInId, objectKey: intent.objectKey, mimeType: intent.mimeType, sizeBytes: intent.sizeBytes, checksumSha256: intent.checksumSha256, idempotencyKey: intent.idempotencyKey, uploadIntentId: intent.id }, select: { id: true } });
       await eventPair(tx, input.workspaceId, input.studentId, "progress_photo.attached", "progress_photo_attached", "ProgressPhoto", photo.id, `photo-attach:${photo.id}`);
       return photo;
     });
   }
 
   async getUploadIntent(input: { workspaceId: string; studentId: string; uploadIntentId: string }) {
-    return this.db.photoUploadIntent.findFirst({ where: { id: input.uploadIntentId, workspaceId: input.workspaceId, studentId: input.studentId }, select: { id: true, objectKey: true, mimeType: true, sizeBytes: true, expiresAt: true, status: true } });
+    return this.db.photoUploadIntent.findFirst({ where: { id: input.uploadIntentId, workspaceId: input.workspaceId, studentId: input.studentId }, select: { id: true, objectKey: true, mimeType: true, sizeBytes: true, checksumSha256: true, expiresAt: true, status: true } });
   }
 
   async listStudentHistory(input: { workspaceId: string; studentId: string }) {
@@ -123,26 +120,37 @@ export class PrismaProgressRepository implements ProgressRepository {
   }
 
   async completeReview(input: { workspaceId: string; coachId: string; kind: ReviewKind; itemId: string; note: string; idempotencyKey: string; reviewedAt: Date }) {
-    return this.db.$transaction(async (tx) => {
+    try { return await this.db.$transaction(async (tx) => {
       await requireMember(tx, input.workspaceId, input.coachId, "COACH");
+      const retry = await tx.reviewNote.findUnique({ where: { workspaceId_idempotencyKey: { workspaceId: input.workspaceId, idempotencyKey: input.idempotencyKey } }, select: { id: true, coachId: true, checkInId: true, workoutSessionId: true, body: true } });
+      if (retry) return sameReview(retry, input) ? { id: retry.id, reviewed: true } : null;
       let studentId: string | null = null;
       if (input.kind === "CHECK_IN") {
-        const target = await tx.measurementCheckIn.findFirst({ where: { id: input.itemId, workspaceId: input.workspaceId, status: { not: "DRAFT" } }, select: { id: true, studentId: true } });
-        if (!target) return null;
+        const target = await tx.measurementCheckIn.findFirst({ where: { id: input.itemId, workspaceId: input.workspaceId, status: "SUBMITTED", reviewStatus: "PENDING" }, select: { id: true, studentId: true } });
+        if (!target) return retryReview(tx, input);
         studentId = target.studentId;
-        await tx.measurementCheckIn.update({ where: { id: target.id }, data: { reviewStatus: "REVIEWED", status: "REVIEWED", reviewedAt: input.reviewedAt } });
+        const changed = await tx.measurementCheckIn.updateMany({ where: { id: target.id, status: "SUBMITTED", reviewStatus: "PENDING" }, data: { reviewStatus: "REVIEWED", status: "REVIEWED", reviewedAt: input.reviewedAt } });
+        if (changed.count !== 1) return retryReview(tx, input);
       } else {
-        const target = await tx.workoutSession.findFirst({ where: { id: input.itemId, status: "COMPLETED", assignedWorkout: { workspaceId: input.workspaceId } }, select: { id: true, studentId: true } });
-        if (!target) return null;
+        const target = await tx.workoutSession.findFirst({ where: { id: input.itemId, status: "COMPLETED", reviewStatus: "PENDING", assignedWorkout: { workspaceId: input.workspaceId } }, select: { id: true, studentId: true } });
+        if (!target) return retryReview(tx, input);
         studentId = target.studentId;
-        await tx.workoutSession.update({ where: { id: target.id }, data: { reviewStatus: "REVIEWED", reviewedAt: input.reviewedAt } });
+        const changed = await tx.workoutSession.updateMany({ where: { id: target.id, status: "COMPLETED", reviewStatus: "PENDING" }, data: { reviewStatus: "REVIEWED", reviewedAt: input.reviewedAt } });
+        if (changed.count !== 1) return retryReview(tx, input);
       }
       const note = await tx.reviewNote.upsert({ where: { workspaceId_idempotencyKey: { workspaceId: input.workspaceId, idempotencyKey: input.idempotencyKey } }, update: {}, create: { workspaceId: input.workspaceId, coachId: input.coachId, checkInId: input.kind === "CHECK_IN" ? input.itemId : null, workoutSessionId: input.kind === "WORKOUT" ? input.itemId : null, body: input.note, idempotencyKey: input.idempotencyKey }, select: { id: true } });
+      const bound = await tx.reviewNote.findUniqueOrThrow({ where: { id: note.id }, select: { id: true, coachId: true, checkInId: true, workoutSessionId: true, body: true } });
+      if (!sameReview(bound, input)) throw new ReviewConflict();
       await eventPair(tx, input.workspaceId, input.coachId, "review.completed", "review_completed", input.kind === "CHECK_IN" ? "MeasurementCheckIn" : "WorkoutSession", input.itemId, `review:${input.kind}:${input.itemId}`, { studentId });
       return { id: note.id, reviewed: true };
-    });
+    }); } catch (error) { if (error instanceof ReviewConflict) return null; throw error; }
   }
 }
+
+class ReviewConflict extends Error {}
+type ReviewBinding = { coachId: string; checkInId: string | null; workoutSessionId: string | null; body: string };
+function sameReview(note: ReviewBinding, input: { coachId: string; kind: ReviewKind; itemId: string; note: string }) { return note.coachId === input.coachId && note.body === input.note && note.checkInId === (input.kind === "CHECK_IN" ? input.itemId : null) && note.workoutSessionId === (input.kind === "WORKOUT" ? input.itemId : null); }
+async function retryReview(tx: Parameters<Parameters<PrismaClient["$transaction"]>[0]>[0], input: { workspaceId: string; coachId: string; kind: ReviewKind; itemId: string; note: string; idempotencyKey: string }) { const note = await tx.reviewNote.findUnique({ where: { workspaceId_idempotencyKey: { workspaceId: input.workspaceId, idempotencyKey: input.idempotencyKey } }, select: { id: true, coachId: true, checkInId: true, workoutSessionId: true, body: true } }); return note && sameReview(note, input) ? { id: note.id, reviewed: true as const } : null; }
 
 type Db = Pick<PrismaClient, "membership">;
 async function requireMember(db: Db, workspaceId: string, userId: string, role: "COACH" | "STUDENT") { const member = await db.membership.findFirst({ where: { workspaceId, userId, role }, select: { id: true } }); if (!member) throw new ProgressAccessDeniedError(); }

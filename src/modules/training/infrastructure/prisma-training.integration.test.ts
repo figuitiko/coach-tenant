@@ -36,6 +36,17 @@ integration("PrismaTrainingRepository against PostgreSQL", () => {
   });
 
   afterAll(async () => {
+    await database.setLog.deleteMany();
+    await database.exerciseLog.deleteMany();
+    await database.workoutSession.deleteMany();
+    await database.assignedExercise.deleteMany();
+    await database.assignedWorkout.deleteMany();
+    await database.studentPlanAssignment.deleteMany();
+    await database.planWorkout.deleteMany();
+    await database.workoutPlan.deleteMany();
+    await database.templateExercise.deleteMany();
+    await database.workoutTemplate.deleteMany();
+    await database.exercise.deleteMany();
     if (workspaceId && otherWorkspaceId) await database.workspace.deleteMany({ where: { id: { in: [workspaceId, otherWorkspaceId] } } });
     if (coachId && studentId) await database.user.deleteMany({ where: { id: { in: [coachId, studentId] } } });
     await database.$disconnect();

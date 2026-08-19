@@ -1,7 +1,21 @@
-import { createHash, createHmac, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
+import { HeadObjectCommand, PutObjectCommand, GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-export type SignInput = { method: "PUT" | "GET" | "HEAD"; bucket: string; key: string; contentType?: string; expiresInSeconds: number };
-export interface PrivateObjectSigner { sign(input: SignInput): Promise<string>; head?(input: { bucket: string; key: string }): Promise<{ mimeType: string; sizeBytes: number } | null> }
+export type SignInput = {
+  method: "PUT" | "GET";
+  bucket: string;
+  key: string;
+  contentType?: string;
+  contentLength?: number;
+  checksumSha256?: string;
+  ifNoneMatch?: "*";
+  expiresInSeconds: number;
+};
+export interface PrivateObjectSigner {
+  sign(input: SignInput): Promise<string>;
+  head?(input: { bucket: string; key: string }): Promise<{ mimeType: string; sizeBytes: number; checksumSha256: string } | null>;
+}
 
 export class PrivateMediaError extends Error {}
 
@@ -9,13 +23,12 @@ export class S3PrivateMedia {
   private readonly expiresInSeconds = 300;
   constructor(private readonly options: { bucket: string; signer: PrivateObjectSigner; now?: () => Date }) {}
 
-  async createUploadIntent(input: { workspaceId: string; studentId: string; fileName: string; mimeType: string; sizeBytes: number }) {
-    if (!(["image/jpeg", "image/png", "image/webp"] as string[]).includes(input.mimeType)) throw new PrivateMediaError("Unsupported photo type");
-    if (!Number.isInteger(input.sizeBytes) || input.sizeBytes < 1 || input.sizeBytes > 5 * 1024 * 1024) throw new PrivateMediaError("Photo is too large");
+  async createUploadIntent(input: { workspaceId: string; studentId: string; fileName: string; mimeType: string; sizeBytes: number; checksumSha256: string }) {
+    validateUpload(input);
     const extension = input.mimeType === "image/jpeg" ? "jpg" : input.mimeType.split("/")[1];
     const objectKey = `workspaces/${segment(input.workspaceId)}/students/${segment(input.studentId)}/progress/${randomUUID()}.${extension}`;
-    const uploadUrl = await this.options.signer.sign({ method: "PUT", bucket: this.options.bucket, key: objectKey, contentType: input.mimeType, expiresInSeconds: this.expiresInSeconds });
-    return { objectKey, uploadUrl, expiresAt: this.expiry() };
+    const uploadUrl = await this.signPut({ ...input, objectKey, expiresInSeconds: this.expiresInSeconds });
+    return { objectKey, uploadUrl, uploadHeaders: uploadHeaders(input), expiresAt: this.expiry() };
   }
 
   async createDownloadUrl(input: { workspaceId: string; studentId: string; objectKey: string }) {
@@ -25,26 +38,33 @@ export class S3PrivateMedia {
     return { downloadUrl, expiresAt: this.expiry() };
   }
 
-  async signUploadIntent(input: { objectKey: string; mimeType: string; expiresAt: Date }) {
+  async signUploadIntent(input: { objectKey: string; mimeType: string; sizeBytes: number; checksumSha256: string; expiresAt: Date }) {
     const remaining = Math.floor((input.expiresAt.getTime() - (this.options.now?.() ?? new Date()).getTime()) / 1000);
     if (remaining < 1) throw new PrivateMediaError("Upload intent expired");
-    return this.options.signer.sign({ method: "PUT", bucket: this.options.bucket, key: input.objectKey, contentType: input.mimeType, expiresInSeconds: Math.min(remaining, this.expiresInSeconds) });
+    return this.signPut({ ...input, expiresInSeconds: Math.min(remaining, this.expiresInSeconds) });
   }
 
-  async verifyUploadedObject(input: { objectKey: string; mimeType: string; sizeBytes: number }) {
-    if (!this.options.signer.head) return;
+  async verifyUploadedObject(input: { objectKey: string; mimeType: string; sizeBytes: number; checksumSha256: string }) {
+    if (!this.options.signer.head) throw new PrivateMediaError("Object verification is unavailable");
     const actual = await this.options.signer.head({ bucket: this.options.bucket, key: input.objectKey });
-    if (!actual || actual.mimeType !== input.mimeType || actual.sizeBytes !== input.sizeBytes) throw new PrivateMediaError("Uploaded object metadata does not match intent");
+    if (!actual || actual.mimeType !== input.mimeType || actual.sizeBytes !== input.sizeBytes || actual.checksumSha256 !== input.checksumSha256) {
+      throw new PrivateMediaError("Uploaded object metadata does not match intent");
+    }
   }
 
+  private signPut(input: { objectKey: string; mimeType: string; sizeBytes: number; checksumSha256: string; expiresInSeconds: number }) {
+    return this.options.signer.sign({ method: "PUT", bucket: this.options.bucket, key: input.objectKey, contentType: input.mimeType, contentLength: input.sizeBytes, checksumSha256: input.checksumSha256, ifNoneMatch: "*", expiresInSeconds: input.expiresInSeconds });
+  }
   private expiry() { return new Date((this.options.now?.() ?? new Date()).getTime() + this.expiresInSeconds * 1000); }
 }
 
-function segment(value: string) {
-  const safe = value.trim().replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "");
-  if (!safe) throw new PrivateMediaError("Invalid object scope");
-  return safe;
+function validateUpload(input: { mimeType: string; sizeBytes: number; checksumSha256: string }) {
+  if (!( ["image/jpeg", "image/png", "image/webp"] as string[]).includes(input.mimeType)) throw new PrivateMediaError("Unsupported photo type");
+  if (!Number.isInteger(input.sizeBytes) || input.sizeBytes < 1 || input.sizeBytes > 5 * 1024 * 1024) throw new PrivateMediaError("Photo is too large");
+  if (!/^[A-Za-z0-9+/]{43}=$/.test(input.checksumSha256)) throw new PrivateMediaError("Invalid SHA-256 checksum");
 }
+function uploadHeaders(input: { mimeType: string; checksumSha256: string }) { return { "Content-Type": input.mimeType, "x-amz-checksum-sha256": input.checksumSha256, "If-None-Match": "*" } as const; }
+function segment(value: string) { const safe = value.trim().replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, ""); if (!safe) throw new PrivateMediaError("Invalid object scope"); return safe; }
 
 export function privateMediaFromEnvironment(signer: PrivateObjectSigner) {
   const bucket = process.env.S3_BUCKET;
@@ -53,29 +73,22 @@ export function privateMediaFromEnvironment(signer: PrivateObjectSigner) {
 }
 
 export class S3CompatibleSigner implements PrivateObjectSigner {
-  constructor(private readonly config: { endpoint: string; region: string; accessKeyId: string; secretAccessKey: string; now?: () => Date }) {}
+  private readonly client: S3Client;
+  constructor(config: { endpoint: string; region: string; accessKeyId: string; secretAccessKey: string }) {
+    this.client = new S3Client({ endpoint: config.endpoint, region: config.region, forcePathStyle: true, credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey } });
+  }
   async sign(input: SignInput) {
-    const now = this.config.now?.() ?? new Date();
-    const stamp = now.toISOString().replace(/[:-]|\.\d{3}/g, "");
-    const day = stamp.slice(0, 8);
-    const credentialScope = `${day}/${this.config.region}/s3/aws4_request`;
-    const base = new URL(this.config.endpoint);
-    const path = `/${encodeURIComponent(input.bucket)}/${input.key.split("/").map(encodeURIComponent).join("/")}`;
-    const signedHeaders = input.contentType ? "content-type;host" : "host";
-    const params = new URLSearchParams({ "X-Amz-Algorithm": "AWS4-HMAC-SHA256", "X-Amz-Credential": `${this.config.accessKeyId}/${credentialScope}`, "X-Amz-Date": stamp, "X-Amz-Expires": String(input.expiresInSeconds), "X-Amz-SignedHeaders": signedHeaders });
-    params.sort();
-    const canonicalHeaders = `${input.contentType ? `content-type:${input.contentType}\n` : ""}host:${base.host}\n`;
-    const canonical = `${input.method}\n${path}\n${params.toString()}\n${canonicalHeaders}\n${signedHeaders}\nUNSIGNED-PAYLOAD`;
-    const toSign = `AWS4-HMAC-SHA256\n${stamp}\n${credentialScope}\n${sha256(canonical)}`;
-    const signingKey = hmac(hmac(hmac(hmac(`AWS4${this.config.secretAccessKey}`, day), this.config.region), "s3"), "aws4_request");
-    params.set("X-Amz-Signature", createHmac("sha256", signingKey).update(toSign).digest("hex"));
-    return `${base.origin}${base.pathname.replace(/\/$/, "")}${path}?${params.toString()}`;
+    const command = input.method === "PUT"
+      ? new PutObjectCommand({ Bucket: input.bucket, Key: input.key, ContentType: input.contentType, ContentLength: input.contentLength, ChecksumSHA256: input.checksumSha256, IfNoneMatch: input.ifNoneMatch })
+      : new GetObjectCommand({ Bucket: input.bucket, Key: input.key });
+    return getSignedUrl(this.client, command, { expiresIn: input.expiresInSeconds, signableHeaders: new Set(["content-type"]) });
   }
   async head(input: { bucket: string; key: string }) {
-    const url = await this.sign({ method: "HEAD", bucket: input.bucket, key: input.key, expiresInSeconds: 60 });
-    const response = await fetch(url, { method: "HEAD", cache: "no-store" });
-    if (!response.ok) return null;
-    return { mimeType: response.headers.get("content-type")?.split(";")[0] ?? "", sizeBytes: Number(response.headers.get("content-length")) };
+    try {
+      const output = await this.client.send(new HeadObjectCommand({ Bucket: input.bucket, Key: input.key, ChecksumMode: "ENABLED" }));
+      if (!output.ChecksumSHA256 || output.ContentLength === undefined) return null;
+      return { mimeType: output.ContentType?.split(";")[0] ?? "", sizeBytes: output.ContentLength, checksumSha256: output.ChecksumSHA256 };
+    } catch { return null; }
   }
 }
 
@@ -84,5 +97,3 @@ export function s3SignerFromEnvironment() {
   if (!endpoint || !region || !accessKeyId || !secretAccessKey) throw new Error("S3 endpoint, region, and credentials are required");
   return new S3CompatibleSigner({ endpoint, region, accessKeyId, secretAccessKey });
 }
-function sha256(value: string) { return createHash("sha256").update(value).digest("hex"); }
-function hmac(key: string | Buffer, value: string) { return createHmac("sha256", key).update(value).digest(); }

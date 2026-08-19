@@ -11,8 +11,8 @@ function repository(): ProgressRepository & { calls: Record<string, unknown[]> }
     createDraft: async (input) => (calls.create.push(input), { id: "check-1", status: "DRAFT" }),
     editDraft: async (input) => (calls.edit.push(input), input.checkInId === "other" ? null : { id: input.checkInId, status: "DRAFT" }),
     submitDraft: async (input) => (calls.submit.push(input), input.checkInId === "other" ? null : { id: input.checkInId, status: "SUBMITTED" }),
-    reserveUploadIntent: async (input) => (calls.intent.push(input), input.checkInId === "other" ? null : { id: "intent-1", objectKey: input.objectKey, mimeType: input.mimeType, sizeBytes: input.sizeBytes, expiresAt: input.expiresAt, status: "PENDING" }),
-    getUploadIntent: async (input) => input.uploadIntentId === "intent-1" ? { id: "intent-1", objectKey: "key", mimeType: "image/jpeg", sizeBytes: 42, expiresAt: new Date(Date.now() + 60_000), status: "PENDING" } : null,
+    reserveUploadIntent: async (input) => (calls.intent.push(input), input.checkInId === "other" ? null : { id: "intent-1", objectKey: input.objectKey, mimeType: input.mimeType, sizeBytes: input.sizeBytes, checksumSha256: input.checksumSha256, expiresAt: input.expiresAt, status: "PENDING" }),
+    getUploadIntent: async (input) => input.uploadIntentId === "intent-1" ? { id: "intent-1", objectKey: "key", mimeType: "image/jpeg", sizeBytes: 42, checksumSha256: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", expiresAt: new Date(Date.now() + 60_000), status: "PENDING" } : null,
     attachPhoto: async (input) => (calls.attach.push(input), input.uploadIntentId === "forged" ? null : { id: "photo-1" }),
     listStudentHistory: async (input) => input.studentId === student.actorId ? [] : null,
     getStudentProgress: async (input) => input.studentId === student.actorId ? { draft: null, history: [] } : null,
@@ -67,7 +67,7 @@ describe("ProgressService", () => {
 
   it("reserves an idempotent upload intent and attaches only by its persisted identity", async () => {
     const repo = repository(); const service = new ProgressService(repo);
-    await service.reserveUploadIntent(student, { checkInId: "check-1", idempotencyKey: "upload-1", objectKey: "workspaces/workspace-a/students/student-a/progress/a.jpg", mimeType: "image/jpeg", sizeBytes: 42, expiresAt: new Date(Date.now() + 60_000) });
+    await service.reserveUploadIntent(student, { checkInId: "check-1", idempotencyKey: "upload-1", objectKey: "workspaces/workspace-a/students/student-a/progress/a.jpg", mimeType: "image/jpeg", sizeBytes: 42, checksumSha256: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", expiresAt: new Date(Date.now() + 60_000) });
     await service.attachPhoto(student, { uploadIntentId: "intent-1" });
     await expect(service.attachPhoto(student, { uploadIntentId: "forged" })).rejects.toBeInstanceOf(ProgressAccessDeniedError);
     expect(repo.calls.attach).toEqual([{ workspaceId: "workspace-a", studentId: "student-a", uploadIntentId: "intent-1", attachedAt: expect.any(Date) }, { workspaceId: "workspace-a", studentId: "student-a", uploadIntentId: "forged", attachedAt: expect.any(Date) }]);

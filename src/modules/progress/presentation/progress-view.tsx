@@ -5,7 +5,7 @@ import { useActionState, useRef, useState, useTransition, type ReactNode } from 
 import { useFormStatus } from "react-dom";
 import type { ReviewDetail, ReviewQueueItem } from "../application/progress-service";
 
-export type ProgressActionState = { status: "idle" | "success" | "error"; message: string; upload?: { url: string; intentId: string; expiresAt: string } };
+export type ProgressActionState = { status: "idle" | "success" | "error"; message: string; upload?: { url: string; headers: Record<string, string>; intentId: string; expiresAt: string } };
 type Action = (state: ProgressActionState, data: FormData) => Promise<ProgressActionState>;
 const initial: ProgressActionState = { status: "idle", message: "" };
 const input = "mt-1 min-h-12 w-full rounded-lg border border-[var(--line)] bg-white px-3 text-base";
@@ -43,10 +43,11 @@ function PrivatePhotoUploader({ checkInId, requestUpload, attachPhoto }: { check
     startTransition(async () => {
       try {
         idempotencyKey.current ??= crypto.randomUUID();
-        const request = new FormData(); request.set("checkInId", checkInId); request.set("fileName", selected.name); request.set("mimeType", selected.type); request.set("sizeBytes", String(selected.size)); request.set("idempotencyKey", idempotencyKey.current);
+        const checksumSha256 = await sha256Base64(selected);
+        const request = new FormData(); request.set("checkInId", checkInId); request.set("fileName", selected.name); request.set("mimeType", selected.type); request.set("sizeBytes", String(selected.size)); request.set("checksumSha256", checksumSha256); request.set("idempotencyKey", idempotencyKey.current);
         const intent = await requestUpload(initial, request);
         if (!intent.upload) throw new Error(intent.message);
-        const response = await fetch(intent.upload.url, { method: "PUT", headers: { "Content-Type": selected.type }, body: selected });
+        const response = await fetch(intent.upload.url, { method: "PUT", headers: intent.upload.headers, body: selected });
         if (!response.ok) throw new Error("upload failed");
         const metadata = new FormData(); metadata.set("uploadIntentId", intent.upload.intentId);
         const attached = await attachPhoto(initial, metadata); setIsError(attached.status === "error"); setMessage(attached.message);
@@ -55,3 +56,4 @@ function PrivatePhotoUploader({ checkInId, requestUpload, attachPhoto }: { check
   }
   return <div><label className={label}>Foto privada<input ref={file} accept="image/jpeg,image/png,image/webp" className={input} required type="file"/></label><button aria-disabled={pending} className="mt-4 min-h-12 w-full rounded-full border-2 border-[var(--ink)] px-5 text-sm font-extrabold disabled:opacity-50" disabled={pending} onClick={upload} type="button">{pending ? "Subiendo…" : "Subir foto privada"}</button><p aria-live="polite" className={isError ? "mt-3 text-sm font-bold text-red-700" : "sr-only"} role={isError ? "alert" : "status"}>{message}</p></div>;
 }
+async function sha256Base64(file: File) { const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer()); return btoa(String.fromCharCode(...new Uint8Array(digest))); }

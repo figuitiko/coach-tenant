@@ -34,7 +34,7 @@ describe("PrismaProgressRepository PostgreSQL boundaries", () => {
     const queue = await service.getReviewQueue({ actorId: a.coach.id, workspaceId: a.workspace.id, role: "COACH" });
     expect(queue).toHaveLength(1);
     await service.completeReview({ actorId: a.coach.id, workspaceId: a.workspace.id, role: "COACH" }, { kind: "CHECK_IN", itemId: draft.id, note: "Seguimos", idempotencyKey: "review-a" });
-    await service.completeReview({ actorId: a.coach.id, workspaceId: a.workspace.id, role: "COACH" }, { kind: "CHECK_IN", itemId: draft.id, note: "Duplicada", idempotencyKey: "review-a" });
+    await expect(service.completeReview({ actorId: a.coach.id, workspaceId: a.workspace.id, role: "COACH" }, { kind: "CHECK_IN", itemId: draft.id, note: "Duplicada", idempotencyKey: "review-a" })).rejects.toBeInstanceOf(ProgressAccessDeniedError);
     expect(await prisma.reviewNote.count()).toBe(1);
     await expect(service.getReviewDetail({ actorId: b.coach.id, workspaceId: b.workspace.id, role: "COACH" }, "CHECK_IN", draft.id)).rejects.toBeInstanceOf(ProgressAccessDeniedError);
   });
@@ -44,13 +44,51 @@ describe("PrismaProgressRepository PostgreSQL boundaries", () => {
     const drafts = await Promise.all(Array.from({ length: 4 }, () => service.createDraft(actor)));
     expect(new Set(drafts.map(item => item.id)).size).toBe(1);
     const draft = drafts[0];
-    const intent = await service.reserveUploadIntent(actor, { checkInId: draft.id, idempotencyKey: "concurrent-upload", objectKey: `workspaces/${a.workspace.id}/students/${a.student.id}/progress/a.jpg`, mimeType: "image/jpeg", sizeBytes: 42, expiresAt: new Date("2026-08-19T12:05:00Z") });
+    const intent = await service.reserveUploadIntent(actor, { checkInId: draft.id, idempotencyKey: "concurrent-upload", objectKey: `workspaces/${a.workspace.id}/students/${a.student.id}/progress/a.jpg`, mimeType: "image/jpeg", sizeBytes: 42, checksumSha256: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", expiresAt: new Date("2026-08-19T12:05:00Z") });
     await Promise.all(Array.from({ length: 4 }, () => service.attachPhoto(actor, { uploadIntentId: intent.id })));
     expect(await prisma.progressPhoto.count()).toBe(1);
     await service.submitDraft(actor, { checkInId: draft.id, idempotencyKey: "submit-concurrent" });
     const coachActor = { actorId: a.coach.id, workspaceId: a.workspace.id, role: "COACH" as const };
     await Promise.all(Array.from({ length: 4 }, () => service.completeReview(coachActor, { kind: "CHECK_IN", itemId: draft.id, note: "Bien", idempotencyKey: "review-concurrent" })));
     expect(await prisma.reviewNote.count()).toBe(1);
+  });
+
+  it("allows exactly one of two conflicting concurrent submit keys and preserves the winner", async () => {
+    const a = await fixture("submit-race"); const actor = { actorId: a.student.id, workspaceId: a.workspace.id, role: "STUDENT" as const };
+    const draft = await service.createDraft(actor);
+    const results = await Promise.allSettled(["submit-one", "submit-two"].map(idempotencyKey => service.submitDraft(actor, { checkInId: draft.id, idempotencyKey })));
+    expect(results.filter(result => result.status === "fulfilled")).toHaveLength(1);
+    expect(results.filter(result => result.status === "rejected")).toHaveLength(1);
+    const persisted = await prisma.measurementCheckIn.findUniqueOrThrow({ where: { id: draft.id } });
+    expect(["submit-one", "submit-two"]).toContain(persisted.submitIdempotencyKey);
+    const retry = await service.submitDraft(actor, { checkInId: draft.id, idempotencyKey: persisted.submitIdempotencyKey! });
+    expect(retry.id).toBe(draft.id);
+  });
+
+  it("never lets an edit overwrite a draft after a concurrent submit wins", async () => {
+    const a = await fixture("edit-submit-race"); const actor = { actorId: a.student.id, workspaceId: a.workspace.id, role: "STUDENT" as const };
+    const draft = await service.createDraft(actor);
+    const edit = () => service.editDraft(actor, { checkInId: draft.id, metrics: { weight: null, bodyFat: null, chest: null, waist: null, hips: null, arm: null, thigh: null }, notes: "late edit" });
+    await Promise.allSettled([service.submitDraft(actor, { checkInId: draft.id, idempotencyKey: "submit" }), edit()]);
+    await expect(edit()).rejects.toBeInstanceOf(ProgressAccessDeniedError);
+    const before = await prisma.measurementCheckIn.findUniqueOrThrow({ where: { id: draft.id } });
+    await expect(edit()).rejects.toBeInstanceOf(ProgressAccessDeniedError);
+    const after = await prisma.measurementCheckIn.findUniqueOrThrow({ where: { id: draft.id } });
+    expect(after.notes).toBe(before.notes);
+    expect(after.status).toBe("SUBMITTED");
+  });
+
+  it("rolls back the losing target when one review key races across two targets", async () => {
+    const a = await fixture("review-key-race"); const student = { actorId: a.student.id, workspaceId: a.workspace.id, role: "STUDENT" as const };
+    const first = await service.createDraft(student); await service.submitDraft(student, { checkInId: first.id, idempotencyKey: "submit-first" });
+    const second = await service.createDraft(student); await service.submitDraft(student, { checkInId: second.id, idempotencyKey: "submit-second" });
+    const coach = { actorId: a.coach.id, workspaceId: a.workspace.id, role: "COACH" as const };
+    const results = await Promise.allSettled([first.id, second.id].map(itemId => service.completeReview(coach, { kind: "CHECK_IN", itemId, note: "Same semantics", idempotencyKey: "shared-review-key" })));
+    expect(results.filter(result => result.status === "fulfilled")).toHaveLength(1);
+    expect(results.filter(result => result.status === "rejected")).toHaveLength(1);
+    expect(await prisma.reviewNote.count({ where: { workspaceId: a.workspace.id, idempotencyKey: "shared-review-key" } })).toBe(1);
+    expect(await prisma.measurementCheckIn.count({ where: { id: { in: [first.id, second.id] }, reviewStatus: "REVIEWED" } })).toBe(1);
+    expect(await prisma.measurementCheckIn.count({ where: { id: { in: [first.id, second.id] }, reviewStatus: "PENDING" } })).toBe(1);
   });
 });
 

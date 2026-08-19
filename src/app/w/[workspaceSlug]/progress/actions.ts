@@ -21,10 +21,11 @@ export async function requestUploadAction(slug: string, _state: ProgressActionSt
     const dashboard = await progressService.getStudentProgress(actor);
     if (dashboard.draft?.id !== checkInId) throw new ProgressAccessDeniedError();
     const media = privateMediaFromEnvironment(s3SignerFromEnvironment());
-    const proposed = await media.createUploadIntent({ workspaceId: actor.workspaceId, studentId: actor.actorId, fileName: text(data, "fileName"), mimeType: text(data, "mimeType"), sizeBytes: integer(data, "sizeBytes") });
-    const intent = await progressService.reserveUploadIntent(actor, { checkInId, idempotencyKey: text(data, "idempotencyKey"), objectKey: proposed.objectKey, mimeType: text(data, "mimeType"), sizeBytes: integer(data, "sizeBytes"), expiresAt: proposed.expiresAt });
+    const checksumSha256 = text(data, "checksumSha256");
+    const proposed = await media.createUploadIntent({ workspaceId: actor.workspaceId, studentId: actor.actorId, fileName: text(data, "fileName"), mimeType: text(data, "mimeType"), sizeBytes: integer(data, "sizeBytes"), checksumSha256 });
+    const intent = await progressService.reserveUploadIntent(actor, { checkInId, idempotencyKey: text(data, "idempotencyKey"), objectKey: proposed.objectKey, mimeType: text(data, "mimeType"), sizeBytes: integer(data, "sizeBytes"), checksumSha256, expiresAt: proposed.expiresAt });
     const url = await media.signUploadIntent(intent);
-    return { status: "success", message: "Subida privada preparada.", upload: { url, intentId: intent.id, expiresAt: intent.expiresAt.toISOString() } };
+    return { status: "success", message: "Subida privada preparada.", upload: { url, headers: proposed.uploadHeaders, intentId: intent.id, expiresAt: intent.expiresAt.toISOString() } };
   } catch (error) { return expected(error); }
 }
 

@@ -422,6 +422,7 @@ model PhotoUploadIntent {
   objectKey      String             @unique
   mimeType       String
   sizeBytes      Int
+  checksumSha256 String
   expiresAt      DateTime
   status         UploadIntentStatus @default(PENDING)
   consumedAt     DateTime?
@@ -444,6 +445,7 @@ model ProgressPhoto {
   objectKey      String             @unique
   mimeType       String
   sizeBytes      Int
+  checksumSha256 String
   idempotencyKey String
   uploadIntentId String             @unique
   createdAt      DateTime           @default(now())

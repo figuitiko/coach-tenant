@@ -390,6 +390,7 @@ export const PhotoUploadIntentScalarFieldEnum = {
   objectKey: 'objectKey',
   mimeType: 'mimeType',
   sizeBytes: 'sizeBytes',
+  checksumSha256: 'checksumSha256',
   expiresAt: 'expiresAt',
   status: 'status',
   consumedAt: 'consumedAt',
@@ -408,6 +409,7 @@ export const ProgressPhotoScalarFieldEnum = {
   objectKey: 'objectKey',
   mimeType: 'mimeType',
   sizeBytes: 'sizeBytes',
+  checksumSha256: 'checksumSha256',
   idempotencyKey: 'idempotencyKey',
   uploadIntentId: 'uploadIntentId',
   createdAt: 'createdAt'
