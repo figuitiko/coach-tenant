@@ -108,6 +108,21 @@ export type AssignedExercise = Prisma.AssignedExerciseModel
  */
 export type WorkoutSession = Prisma.WorkoutSessionModel
 /**
+ * Model MeasurementCheckIn
+ * 
+ */
+export type MeasurementCheckIn = Prisma.MeasurementCheckInModel
+/**
+ * Model ProgressPhoto
+ * 
+ */
+export type ProgressPhoto = Prisma.ProgressPhotoModel
+/**
+ * Model ReviewNote
+ * 
+ */
+export type ReviewNote = Prisma.ReviewNoteModel
+/**
  * Model ExerciseLog
  * 
  */

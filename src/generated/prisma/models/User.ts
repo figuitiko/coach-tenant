@@ -211,6 +211,9 @@ export type UserWhereInput = {
   plansCreated?: Prisma.WorkoutPlanListRelationFilter
   planAssignments?: Prisma.StudentPlanAssignmentListRelationFilter
   workoutSessions?: Prisma.WorkoutSessionListRelationFilter
+  measurementCheckIns?: Prisma.MeasurementCheckInListRelationFilter
+  progressPhotos?: Prisma.ProgressPhotoListRelationFilter
+  reviewNotes?: Prisma.ReviewNoteListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -234,6 +237,9 @@ export type UserOrderByWithRelationInput = {
   plansCreated?: Prisma.WorkoutPlanOrderByRelationAggregateInput
   planAssignments?: Prisma.StudentPlanAssignmentOrderByRelationAggregateInput
   workoutSessions?: Prisma.WorkoutSessionOrderByRelationAggregateInput
+  measurementCheckIns?: Prisma.MeasurementCheckInOrderByRelationAggregateInput
+  progressPhotos?: Prisma.ProgressPhotoOrderByRelationAggregateInput
+  reviewNotes?: Prisma.ReviewNoteOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -260,6 +266,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   plansCreated?: Prisma.WorkoutPlanListRelationFilter
   planAssignments?: Prisma.StudentPlanAssignmentListRelationFilter
   workoutSessions?: Prisma.WorkoutSessionListRelationFilter
+  measurementCheckIns?: Prisma.MeasurementCheckInListRelationFilter
+  progressPhotos?: Prisma.ProgressPhotoListRelationFilter
+  reviewNotes?: Prisma.ReviewNoteListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -309,6 +318,9 @@ export type UserCreateInput = {
   plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCoachInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -332,6 +344,9 @@ export type UserUncheckedCreateInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCoachInput
 }
 
 export type UserUpdateInput = {
@@ -355,6 +370,9 @@ export type UserUpdateInput = {
   plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCoachNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -378,6 +396,9 @@ export type UserUncheckedUpdateInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCoachNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -654,6 +675,48 @@ export type UserUpdateOneRequiredWithoutWorkoutSessionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutWorkoutSessionsInput, Prisma.UserUpdateWithoutWorkoutSessionsInput>, Prisma.UserUncheckedUpdateWithoutWorkoutSessionsInput>
 }
 
+export type UserCreateNestedOneWithoutMeasurementCheckInsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMeasurementCheckInsInput, Prisma.UserUncheckedCreateWithoutMeasurementCheckInsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMeasurementCheckInsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMeasurementCheckInsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMeasurementCheckInsInput, Prisma.UserUncheckedCreateWithoutMeasurementCheckInsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMeasurementCheckInsInput
+  upsert?: Prisma.UserUpsertWithoutMeasurementCheckInsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMeasurementCheckInsInput, Prisma.UserUpdateWithoutMeasurementCheckInsInput>, Prisma.UserUncheckedUpdateWithoutMeasurementCheckInsInput>
+}
+
+export type UserCreateNestedOneWithoutProgressPhotosInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutProgressPhotosInput, Prisma.UserUncheckedCreateWithoutProgressPhotosInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutProgressPhotosInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutProgressPhotosNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutProgressPhotosInput, Prisma.UserUncheckedCreateWithoutProgressPhotosInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutProgressPhotosInput
+  upsert?: Prisma.UserUpsertWithoutProgressPhotosInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutProgressPhotosInput, Prisma.UserUpdateWithoutProgressPhotosInput>, Prisma.UserUncheckedUpdateWithoutProgressPhotosInput>
+}
+
+export type UserCreateNestedOneWithoutReviewNotesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReviewNotesInput, Prisma.UserUncheckedCreateWithoutReviewNotesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReviewNotesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutReviewNotesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReviewNotesInput, Prisma.UserUncheckedCreateWithoutReviewNotesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReviewNotesInput
+  upsert?: Prisma.UserUpsertWithoutReviewNotesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReviewNotesInput, Prisma.UserUpdateWithoutReviewNotesInput>, Prisma.UserUncheckedUpdateWithoutReviewNotesInput>
+}
+
 export type UserCreateWithoutSessionsInput = {
   id?: string
   name: string
@@ -674,6 +737,9 @@ export type UserCreateWithoutSessionsInput = {
   plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCoachInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -696,6 +762,9 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCoachInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -734,6 +803,9 @@ export type UserUpdateWithoutSessionsInput = {
   plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCoachNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -756,6 +828,9 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCoachNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -778,6 +853,9 @@ export type UserCreateWithoutAccountsInput = {
   plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCoachInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -800,6 +878,9 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCoachInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -838,6 +919,9 @@ export type UserUpdateWithoutAccountsInput = {
   plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCoachNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -860,6 +944,9 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCoachNestedInput
 }
 
 export type UserCreateWithoutOwnedWorkspacesInput = {
@@ -882,6 +969,9 @@ export type UserCreateWithoutOwnedWorkspacesInput = {
   plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCoachInput
 }
 
 export type UserUncheckedCreateWithoutOwnedWorkspacesInput = {
@@ -904,6 +994,9 @@ export type UserUncheckedCreateWithoutOwnedWorkspacesInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCoachInput
 }
 
 export type UserCreateOrConnectWithoutOwnedWorkspacesInput = {
@@ -942,6 +1035,9 @@ export type UserUpdateWithoutOwnedWorkspacesInput = {
   plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCoachNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOwnedWorkspacesInput = {
@@ -964,6 +1060,9 @@ export type UserUncheckedUpdateWithoutOwnedWorkspacesInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCoachNestedInput
 }
 
 export type UserCreateWithoutMembershipsInput = {
@@ -986,6 +1085,9 @@ export type UserCreateWithoutMembershipsInput = {
   plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCoachInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -1008,6 +1110,9 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCoachInput
 }
 
 export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -1046,6 +1151,9 @@ export type UserUpdateWithoutMembershipsInput = {
   plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCoachNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -1068,6 +1176,9 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCoachNestedInput
 }
 
 export type UserCreateWithoutInvitationsSentInput = {
@@ -1090,6 +1201,9 @@ export type UserCreateWithoutInvitationsSentInput = {
   plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCoachInput
 }
 
 export type UserUncheckedCreateWithoutInvitationsSentInput = {
@@ -1112,6 +1226,9 @@ export type UserUncheckedCreateWithoutInvitationsSentInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCoachInput
 }
 
 export type UserCreateOrConnectWithoutInvitationsSentInput = {
@@ -1139,6 +1256,9 @@ export type UserCreateWithoutInvitationsUsedInput = {
   plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCoachInput
 }
 
 export type UserUncheckedCreateWithoutInvitationsUsedInput = {
@@ -1161,6 +1281,9 @@ export type UserUncheckedCreateWithoutInvitationsUsedInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCoachInput
 }
 
 export type UserCreateOrConnectWithoutInvitationsUsedInput = {
@@ -1199,6 +1322,9 @@ export type UserUpdateWithoutInvitationsSentInput = {
   plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCoachNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInvitationsSentInput = {
@@ -1221,6 +1347,9 @@ export type UserUncheckedUpdateWithoutInvitationsSentInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCoachNestedInput
 }
 
 export type UserUpsertWithoutInvitationsUsedInput = {
@@ -1254,6 +1383,9 @@ export type UserUpdateWithoutInvitationsUsedInput = {
   plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCoachNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInvitationsUsedInput = {
@@ -1276,6 +1408,9 @@ export type UserUncheckedUpdateWithoutInvitationsUsedInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCoachNestedInput
 }
 
 export type UserCreateWithoutAuditEventsInput = {
@@ -1298,6 +1433,9 @@ export type UserCreateWithoutAuditEventsInput = {
   plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCoachInput
 }
 
 export type UserUncheckedCreateWithoutAuditEventsInput = {
@@ -1320,6 +1458,9 @@ export type UserUncheckedCreateWithoutAuditEventsInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCoachInput
 }
 
 export type UserCreateOrConnectWithoutAuditEventsInput = {
@@ -1358,6 +1499,9 @@ export type UserUpdateWithoutAuditEventsInput = {
   plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCoachNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditEventsInput = {
@@ -1380,6 +1524,9 @@ export type UserUncheckedUpdateWithoutAuditEventsInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCoachNestedInput
 }
 
 export type UserCreateWithoutProductEventsInput = {
@@ -1402,6 +1549,9 @@ export type UserCreateWithoutProductEventsInput = {
   plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCoachInput
 }
 
 export type UserUncheckedCreateWithoutProductEventsInput = {
@@ -1424,6 +1574,9 @@ export type UserUncheckedCreateWithoutProductEventsInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCoachInput
 }
 
 export type UserCreateOrConnectWithoutProductEventsInput = {
@@ -1462,6 +1615,9 @@ export type UserUpdateWithoutProductEventsInput = {
   plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCoachNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProductEventsInput = {
@@ -1484,6 +1640,9 @@ export type UserUncheckedUpdateWithoutProductEventsInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCoachNestedInput
 }
 
 export type UserCreateWithoutExercisesCreatedInput = {
@@ -1506,6 +1665,9 @@ export type UserCreateWithoutExercisesCreatedInput = {
   plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCoachInput
 }
 
 export type UserUncheckedCreateWithoutExercisesCreatedInput = {
@@ -1528,6 +1690,9 @@ export type UserUncheckedCreateWithoutExercisesCreatedInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCoachInput
 }
 
 export type UserCreateOrConnectWithoutExercisesCreatedInput = {
@@ -1566,6 +1731,9 @@ export type UserUpdateWithoutExercisesCreatedInput = {
   plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCoachNestedInput
 }
 
 export type UserUncheckedUpdateWithoutExercisesCreatedInput = {
@@ -1588,6 +1756,9 @@ export type UserUncheckedUpdateWithoutExercisesCreatedInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCoachNestedInput
 }
 
 export type UserCreateWithoutTemplatesCreatedInput = {
@@ -1610,6 +1781,9 @@ export type UserCreateWithoutTemplatesCreatedInput = {
   plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCoachInput
 }
 
 export type UserUncheckedCreateWithoutTemplatesCreatedInput = {
@@ -1632,6 +1806,9 @@ export type UserUncheckedCreateWithoutTemplatesCreatedInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCoachInput
 }
 
 export type UserCreateOrConnectWithoutTemplatesCreatedInput = {
@@ -1670,6 +1847,9 @@ export type UserUpdateWithoutTemplatesCreatedInput = {
   plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCoachNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTemplatesCreatedInput = {
@@ -1692,6 +1872,9 @@ export type UserUncheckedUpdateWithoutTemplatesCreatedInput = {
   plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCoachNestedInput
 }
 
 export type UserCreateWithoutPlansCreatedInput = {
@@ -1714,6 +1897,9 @@ export type UserCreateWithoutPlansCreatedInput = {
   templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCoachInput
 }
 
 export type UserUncheckedCreateWithoutPlansCreatedInput = {
@@ -1736,6 +1922,9 @@ export type UserUncheckedCreateWithoutPlansCreatedInput = {
   templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCoachInput
 }
 
 export type UserCreateOrConnectWithoutPlansCreatedInput = {
@@ -1774,6 +1963,9 @@ export type UserUpdateWithoutPlansCreatedInput = {
   templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCoachNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPlansCreatedInput = {
@@ -1796,6 +1988,9 @@ export type UserUncheckedUpdateWithoutPlansCreatedInput = {
   templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCoachNestedInput
 }
 
 export type UserCreateWithoutPlanAssignmentsInput = {
@@ -1818,6 +2013,9 @@ export type UserCreateWithoutPlanAssignmentsInput = {
   templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
   plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
   workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCoachInput
 }
 
 export type UserUncheckedCreateWithoutPlanAssignmentsInput = {
@@ -1840,6 +2038,9 @@ export type UserUncheckedCreateWithoutPlanAssignmentsInput = {
   templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
   plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCoachInput
 }
 
 export type UserCreateOrConnectWithoutPlanAssignmentsInput = {
@@ -1878,6 +2079,9 @@ export type UserUpdateWithoutPlanAssignmentsInput = {
   templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
   plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCoachNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPlanAssignmentsInput = {
@@ -1900,6 +2104,9 @@ export type UserUncheckedUpdateWithoutPlanAssignmentsInput = {
   templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
   plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCoachNestedInput
 }
 
 export type UserCreateWithoutWorkoutSessionsInput = {
@@ -1922,6 +2129,9 @@ export type UserCreateWithoutWorkoutSessionsInput = {
   templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
   plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCoachInput
 }
 
 export type UserUncheckedCreateWithoutWorkoutSessionsInput = {
@@ -1944,6 +2154,9 @@ export type UserUncheckedCreateWithoutWorkoutSessionsInput = {
   templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
   plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCoachInput
 }
 
 export type UserCreateOrConnectWithoutWorkoutSessionsInput = {
@@ -1982,6 +2195,9 @@ export type UserUpdateWithoutWorkoutSessionsInput = {
   templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
   plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCoachNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWorkoutSessionsInput = {
@@ -2004,6 +2220,357 @@ export type UserUncheckedUpdateWithoutWorkoutSessionsInput = {
   templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
   plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCoachNestedInput
+}
+
+export type UserCreateWithoutMeasurementCheckInsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  invitationsSent?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  invitationsUsed?: Prisma.InvitationCreateNestedManyWithoutAcceptedByInput
+  auditEvents?: Prisma.AuditEventCreateNestedManyWithoutActorInput
+  productEvents?: Prisma.ProductEventCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCoachInput
+}
+
+export type UserUncheckedCreateWithoutMeasurementCheckInsInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  invitationsSent?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  invitationsUsed?: Prisma.InvitationUncheckedCreateNestedManyWithoutAcceptedByInput
+  auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutActorInput
+  productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseUncheckedCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCoachInput
+}
+
+export type UserCreateOrConnectWithoutMeasurementCheckInsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMeasurementCheckInsInput, Prisma.UserUncheckedCreateWithoutMeasurementCheckInsInput>
+}
+
+export type UserUpsertWithoutMeasurementCheckInsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMeasurementCheckInsInput, Prisma.UserUncheckedUpdateWithoutMeasurementCheckInsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMeasurementCheckInsInput, Prisma.UserUncheckedCreateWithoutMeasurementCheckInsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMeasurementCheckInsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMeasurementCheckInsInput, Prisma.UserUncheckedUpdateWithoutMeasurementCheckInsInput>
+}
+
+export type UserUpdateWithoutMeasurementCheckInsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  invitationsSent?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  invitationsUsed?: Prisma.InvitationUpdateManyWithoutAcceptedByNestedInput
+  auditEvents?: Prisma.AuditEventUpdateManyWithoutActorNestedInput
+  productEvents?: Prisma.ProductEventUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCoachNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMeasurementCheckInsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  invitationsSent?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  invitationsUsed?: Prisma.InvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
+  auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutActorNestedInput
+  productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUncheckedUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCoachNestedInput
+}
+
+export type UserCreateWithoutProgressPhotosInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  invitationsSent?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  invitationsUsed?: Prisma.InvitationCreateNestedManyWithoutAcceptedByInput
+  auditEvents?: Prisma.AuditEventCreateNestedManyWithoutActorInput
+  productEvents?: Prisma.ProductEventCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutCoachInput
+}
+
+export type UserUncheckedCreateWithoutProgressPhotosInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  invitationsSent?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  invitationsUsed?: Prisma.InvitationUncheckedCreateNestedManyWithoutAcceptedByInput
+  auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutActorInput
+  productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseUncheckedCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutStudentInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutCoachInput
+}
+
+export type UserCreateOrConnectWithoutProgressPhotosInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutProgressPhotosInput, Prisma.UserUncheckedCreateWithoutProgressPhotosInput>
+}
+
+export type UserUpsertWithoutProgressPhotosInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutProgressPhotosInput, Prisma.UserUncheckedUpdateWithoutProgressPhotosInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutProgressPhotosInput, Prisma.UserUncheckedCreateWithoutProgressPhotosInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutProgressPhotosInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutProgressPhotosInput, Prisma.UserUncheckedUpdateWithoutProgressPhotosInput>
+}
+
+export type UserUpdateWithoutProgressPhotosInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  invitationsSent?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  invitationsUsed?: Prisma.InvitationUpdateManyWithoutAcceptedByNestedInput
+  auditEvents?: Prisma.AuditEventUpdateManyWithoutActorNestedInput
+  productEvents?: Prisma.ProductEventUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutCoachNestedInput
+}
+
+export type UserUncheckedUpdateWithoutProgressPhotosInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  invitationsSent?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  invitationsUsed?: Prisma.InvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
+  auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutActorNestedInput
+  productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUncheckedUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutStudentNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutCoachNestedInput
+}
+
+export type UserCreateWithoutReviewNotesInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  ownedWorkspaces?: Prisma.WorkspaceCreateNestedManyWithoutOwnerInput
+  invitationsSent?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  invitationsUsed?: Prisma.InvitationCreateNestedManyWithoutAcceptedByInput
+  auditEvents?: Prisma.AuditEventCreateNestedManyWithoutActorInput
+  productEvents?: Prisma.ProductEventCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutStudentInput
+}
+
+export type UserUncheckedCreateWithoutReviewNotesInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+  invitationsSent?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  invitationsUsed?: Prisma.InvitationUncheckedCreateNestedManyWithoutAcceptedByInput
+  auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutActorInput
+  productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutUserInput
+  exercisesCreated?: Prisma.ExerciseUncheckedCreateNestedManyWithoutCreatedByInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedCreateNestedManyWithoutStudentInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutStudentInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutStudentInput
+}
+
+export type UserCreateOrConnectWithoutReviewNotesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutReviewNotesInput, Prisma.UserUncheckedCreateWithoutReviewNotesInput>
+}
+
+export type UserUpsertWithoutReviewNotesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutReviewNotesInput, Prisma.UserUncheckedUpdateWithoutReviewNotesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutReviewNotesInput, Prisma.UserUncheckedCreateWithoutReviewNotesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutReviewNotesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutReviewNotesInput, Prisma.UserUncheckedUpdateWithoutReviewNotesInput>
+}
+
+export type UserUpdateWithoutReviewNotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUpdateManyWithoutOwnerNestedInput
+  invitationsSent?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  invitationsUsed?: Prisma.InvitationUpdateManyWithoutAcceptedByNestedInput
+  auditEvents?: Prisma.AuditEventUpdateManyWithoutActorNestedInput
+  productEvents?: Prisma.ProductEventUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutStudentNestedInput
+}
+
+export type UserUncheckedUpdateWithoutReviewNotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  ownedWorkspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+  invitationsSent?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  invitationsUsed?: Prisma.InvitationUncheckedUpdateManyWithoutAcceptedByNestedInput
+  auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutActorNestedInput
+  productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutUserNestedInput
+  exercisesCreated?: Prisma.ExerciseUncheckedUpdateManyWithoutCreatedByNestedInput
+  templatesCreated?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  plansCreated?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  workoutSessions?: Prisma.WorkoutSessionUncheckedUpdateManyWithoutStudentNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutStudentNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 
@@ -2025,6 +2592,9 @@ export type UserCountOutputType = {
   plansCreated: number
   planAssignments: number
   workoutSessions: number
+  measurementCheckIns: number
+  progressPhotos: number
+  reviewNotes: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2041,6 +2611,9 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   plansCreated?: boolean | UserCountOutputTypeCountPlansCreatedArgs
   planAssignments?: boolean | UserCountOutputTypeCountPlanAssignmentsArgs
   workoutSessions?: boolean | UserCountOutputTypeCountWorkoutSessionsArgs
+  measurementCheckIns?: boolean | UserCountOutputTypeCountMeasurementCheckInsArgs
+  progressPhotos?: boolean | UserCountOutputTypeCountProgressPhotosArgs
+  reviewNotes?: boolean | UserCountOutputTypeCountReviewNotesArgs
 }
 
 /**
@@ -2144,6 +2717,27 @@ export type UserCountOutputTypeCountWorkoutSessionsArgs<ExtArgs extends runtime.
   where?: Prisma.WorkoutSessionWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMeasurementCheckInsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MeasurementCheckInWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountProgressPhotosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProgressPhotoWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountReviewNotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReviewNoteWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2166,6 +2760,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   plansCreated?: boolean | Prisma.User$plansCreatedArgs<ExtArgs>
   planAssignments?: boolean | Prisma.User$planAssignmentsArgs<ExtArgs>
   workoutSessions?: boolean | Prisma.User$workoutSessionsArgs<ExtArgs>
+  measurementCheckIns?: boolean | Prisma.User$measurementCheckInsArgs<ExtArgs>
+  progressPhotos?: boolean | Prisma.User$progressPhotosArgs<ExtArgs>
+  reviewNotes?: boolean | Prisma.User$reviewNotesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2214,6 +2811,9 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   plansCreated?: boolean | Prisma.User$plansCreatedArgs<ExtArgs>
   planAssignments?: boolean | Prisma.User$planAssignmentsArgs<ExtArgs>
   workoutSessions?: boolean | Prisma.User$workoutSessionsArgs<ExtArgs>
+  measurementCheckIns?: boolean | Prisma.User$measurementCheckInsArgs<ExtArgs>
+  progressPhotos?: boolean | Prisma.User$progressPhotosArgs<ExtArgs>
+  reviewNotes?: boolean | Prisma.User$reviewNotesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2235,6 +2835,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     plansCreated: Prisma.$WorkoutPlanPayload<ExtArgs>[]
     planAssignments: Prisma.$StudentPlanAssignmentPayload<ExtArgs>[]
     workoutSessions: Prisma.$WorkoutSessionPayload<ExtArgs>[]
+    measurementCheckIns: Prisma.$MeasurementCheckInPayload<ExtArgs>[]
+    progressPhotos: Prisma.$ProgressPhotoPayload<ExtArgs>[]
+    reviewNotes: Prisma.$ReviewNotePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2651,6 +3254,9 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   plansCreated<T extends Prisma.User$plansCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$plansCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkoutPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   planAssignments<T extends Prisma.User$planAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$planAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StudentPlanAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   workoutSessions<T extends Prisma.User$workoutSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$workoutSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkoutSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  measurementCheckIns<T extends Prisma.User$measurementCheckInsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$measurementCheckInsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MeasurementCheckInPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  progressPhotos<T extends Prisma.User$progressPhotosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$progressPhotosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProgressPhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reviewNotes<T extends Prisma.User$reviewNotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reviewNotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReviewNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3389,6 +3995,78 @@ export type User$workoutSessionsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.WorkoutSessionScalarFieldEnum | Prisma.WorkoutSessionScalarFieldEnum[]
+}
+
+/**
+ * User.measurementCheckIns
+ */
+export type User$measurementCheckInsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MeasurementCheckIn
+   */
+  select?: Prisma.MeasurementCheckInSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MeasurementCheckIn
+   */
+  omit?: Prisma.MeasurementCheckInOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MeasurementCheckInInclude<ExtArgs> | null
+  where?: Prisma.MeasurementCheckInWhereInput
+  orderBy?: Prisma.MeasurementCheckInOrderByWithRelationInput | Prisma.MeasurementCheckInOrderByWithRelationInput[]
+  cursor?: Prisma.MeasurementCheckInWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MeasurementCheckInScalarFieldEnum | Prisma.MeasurementCheckInScalarFieldEnum[]
+}
+
+/**
+ * User.progressPhotos
+ */
+export type User$progressPhotosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProgressPhoto
+   */
+  select?: Prisma.ProgressPhotoSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProgressPhoto
+   */
+  omit?: Prisma.ProgressPhotoOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProgressPhotoInclude<ExtArgs> | null
+  where?: Prisma.ProgressPhotoWhereInput
+  orderBy?: Prisma.ProgressPhotoOrderByWithRelationInput | Prisma.ProgressPhotoOrderByWithRelationInput[]
+  cursor?: Prisma.ProgressPhotoWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProgressPhotoScalarFieldEnum | Prisma.ProgressPhotoScalarFieldEnum[]
+}
+
+/**
+ * User.reviewNotes
+ */
+export type User$reviewNotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ReviewNote
+   */
+  select?: Prisma.ReviewNoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ReviewNote
+   */
+  omit?: Prisma.ReviewNoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReviewNoteInclude<ExtArgs> | null
+  where?: Prisma.ReviewNoteWhereInput
+  orderBy?: Prisma.ReviewNoteOrderByWithRelationInput | Prisma.ReviewNoteOrderByWithRelationInput[]
+  cursor?: Prisma.ReviewNoteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReviewNoteScalarFieldEnum | Prisma.ReviewNoteScalarFieldEnum[]
 }
 
 /**

@@ -32,3 +32,35 @@ export const WeightUnit = {
 } as const
 
 export type WeightUnit = (typeof WeightUnit)[keyof typeof WeightUnit]
+
+
+export const LengthUnit = {
+  CM: 'CM',
+  IN: 'IN'
+} as const
+
+export type LengthUnit = (typeof LengthUnit)[keyof typeof LengthUnit]
+
+
+export const PercentUnit = {
+  PERCENT: 'PERCENT'
+} as const
+
+export type PercentUnit = (typeof PercentUnit)[keyof typeof PercentUnit]
+
+
+export const CheckInStatus = {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  REVIEWED: 'REVIEWED'
+} as const
+
+export type CheckInStatus = (typeof CheckInStatus)[keyof typeof CheckInStatus]
+
+
+export const ReviewStatus = {
+  PENDING: 'PENDING',
+  REVIEWED: 'REVIEWED'
+} as const
+
+export type ReviewStatus = (typeof ReviewStatus)[keyof typeof ReviewStatus]

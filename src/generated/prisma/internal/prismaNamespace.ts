@@ -415,6 +415,9 @@ export const ModelName = {
   AssignedWorkout: 'AssignedWorkout',
   AssignedExercise: 'AssignedExercise',
   WorkoutSession: 'WorkoutSession',
+  MeasurementCheckIn: 'MeasurementCheckIn',
+  ProgressPhoto: 'ProgressPhoto',
+  ReviewNote: 'ReviewNote',
   ExerciseLog: 'ExerciseLog',
   SetLog: 'SetLog'
 } as const
@@ -432,7 +435,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "workspace" | "membership" | "invitation" | "auditEvent" | "productEvent" | "exercise" | "workoutTemplate" | "templateExercise" | "workoutPlan" | "planWorkout" | "studentPlanAssignment" | "assignedWorkout" | "assignedExercise" | "workoutSession" | "exerciseLog" | "setLog"
+    modelProps: "user" | "session" | "account" | "verification" | "workspace" | "membership" | "invitation" | "auditEvent" | "productEvent" | "exercise" | "workoutTemplate" | "templateExercise" | "workoutPlan" | "planWorkout" | "studentPlanAssignment" | "assignedWorkout" | "assignedExercise" | "workoutSession" | "measurementCheckIn" | "progressPhoto" | "reviewNote" | "exerciseLog" | "setLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1768,6 +1771,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MeasurementCheckIn: {
+      payload: Prisma.$MeasurementCheckInPayload<ExtArgs>
+      fields: Prisma.MeasurementCheckInFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MeasurementCheckInFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeasurementCheckInPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MeasurementCheckInFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeasurementCheckInPayload>
+        }
+        findFirst: {
+          args: Prisma.MeasurementCheckInFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeasurementCheckInPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MeasurementCheckInFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeasurementCheckInPayload>
+        }
+        findMany: {
+          args: Prisma.MeasurementCheckInFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeasurementCheckInPayload>[]
+        }
+        create: {
+          args: Prisma.MeasurementCheckInCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeasurementCheckInPayload>
+        }
+        createMany: {
+          args: Prisma.MeasurementCheckInCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MeasurementCheckInCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeasurementCheckInPayload>[]
+        }
+        delete: {
+          args: Prisma.MeasurementCheckInDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeasurementCheckInPayload>
+        }
+        update: {
+          args: Prisma.MeasurementCheckInUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeasurementCheckInPayload>
+        }
+        deleteMany: {
+          args: Prisma.MeasurementCheckInDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MeasurementCheckInUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MeasurementCheckInUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeasurementCheckInPayload>[]
+        }
+        upsert: {
+          args: Prisma.MeasurementCheckInUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeasurementCheckInPayload>
+        }
+        aggregate: {
+          args: Prisma.MeasurementCheckInAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMeasurementCheckIn>
+        }
+        groupBy: {
+          args: Prisma.MeasurementCheckInGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MeasurementCheckInGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MeasurementCheckInCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MeasurementCheckInCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProgressPhoto: {
+      payload: Prisma.$ProgressPhotoPayload<ExtArgs>
+      fields: Prisma.ProgressPhotoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProgressPhotoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressPhotoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProgressPhotoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressPhotoPayload>
+        }
+        findFirst: {
+          args: Prisma.ProgressPhotoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressPhotoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProgressPhotoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressPhotoPayload>
+        }
+        findMany: {
+          args: Prisma.ProgressPhotoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressPhotoPayload>[]
+        }
+        create: {
+          args: Prisma.ProgressPhotoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressPhotoPayload>
+        }
+        createMany: {
+          args: Prisma.ProgressPhotoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProgressPhotoCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressPhotoPayload>[]
+        }
+        delete: {
+          args: Prisma.ProgressPhotoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressPhotoPayload>
+        }
+        update: {
+          args: Prisma.ProgressPhotoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressPhotoPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProgressPhotoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProgressPhotoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProgressPhotoUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressPhotoPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProgressPhotoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressPhotoPayload>
+        }
+        aggregate: {
+          args: Prisma.ProgressPhotoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProgressPhoto>
+        }
+        groupBy: {
+          args: Prisma.ProgressPhotoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProgressPhotoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProgressPhotoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProgressPhotoCountAggregateOutputType> | number
+        }
+      }
+    }
+    ReviewNote: {
+      payload: Prisma.$ReviewNotePayload<ExtArgs>
+      fields: Prisma.ReviewNoteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ReviewNoteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewNotePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ReviewNoteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewNotePayload>
+        }
+        findFirst: {
+          args: Prisma.ReviewNoteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewNotePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ReviewNoteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewNotePayload>
+        }
+        findMany: {
+          args: Prisma.ReviewNoteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewNotePayload>[]
+        }
+        create: {
+          args: Prisma.ReviewNoteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewNotePayload>
+        }
+        createMany: {
+          args: Prisma.ReviewNoteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ReviewNoteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewNotePayload>[]
+        }
+        delete: {
+          args: Prisma.ReviewNoteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewNotePayload>
+        }
+        update: {
+          args: Prisma.ReviewNoteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewNotePayload>
+        }
+        deleteMany: {
+          args: Prisma.ReviewNoteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ReviewNoteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ReviewNoteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewNotePayload>[]
+        }
+        upsert: {
+          args: Prisma.ReviewNoteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReviewNotePayload>
+        }
+        aggregate: {
+          args: Prisma.ReviewNoteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateReviewNote>
+        }
+        groupBy: {
+          args: Prisma.ReviewNoteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReviewNoteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ReviewNoteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReviewNoteCountAggregateOutputType> | number
+        }
+      }
+    }
     ExerciseLog: {
       payload: Prisma.$ExerciseLogPayload<ExtArgs>
       fields: Prisma.ExerciseLogFieldRefs
@@ -2063,7 +2288,8 @@ export const AuditEventScalarFieldEnum = {
   entityType: 'entityType',
   entityId: 'entityId',
   metadata: 'metadata',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  dedupeKey: 'dedupeKey'
 } as const
 
 export type AuditEventScalarFieldEnum = (typeof AuditEventScalarFieldEnum)[keyof typeof AuditEventScalarFieldEnum]
@@ -2075,7 +2301,8 @@ export const ProductEventScalarFieldEnum = {
   userId: 'userId',
   name: 'name',
   properties: 'properties',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  dedupeKey: 'dedupeKey'
 } as const
 
 export type ProductEventScalarFieldEnum = (typeof ProductEventScalarFieldEnum)[keyof typeof ProductEventScalarFieldEnum]
@@ -2201,10 +2428,72 @@ export const WorkoutSessionScalarFieldEnum = {
   status: 'status',
   startedAt: 'startedAt',
   completedAt: 'completedAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  reviewStatus: 'reviewStatus',
+  reviewedAt: 'reviewedAt'
 } as const
 
 export type WorkoutSessionScalarFieldEnum = (typeof WorkoutSessionScalarFieldEnum)[keyof typeof WorkoutSessionScalarFieldEnum]
+
+
+export const MeasurementCheckInScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  studentId: 'studentId',
+  status: 'status',
+  reviewStatus: 'reviewStatus',
+  weight: 'weight',
+  weightUnit: 'weightUnit',
+  bodyFat: 'bodyFat',
+  bodyFatUnit: 'bodyFatUnit',
+  chest: 'chest',
+  chestUnit: 'chestUnit',
+  waist: 'waist',
+  waistUnit: 'waistUnit',
+  hips: 'hips',
+  hipsUnit: 'hipsUnit',
+  arm: 'arm',
+  armUnit: 'armUnit',
+  thigh: 'thigh',
+  thighUnit: 'thighUnit',
+  notes: 'notes',
+  submitIdempotencyKey: 'submitIdempotencyKey',
+  submittedAt: 'submittedAt',
+  reviewedAt: 'reviewedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MeasurementCheckInScalarFieldEnum = (typeof MeasurementCheckInScalarFieldEnum)[keyof typeof MeasurementCheckInScalarFieldEnum]
+
+
+export const ProgressPhotoScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  studentId: 'studentId',
+  checkInId: 'checkInId',
+  objectKey: 'objectKey',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  idempotencyKey: 'idempotencyKey',
+  createdAt: 'createdAt'
+} as const
+
+export type ProgressPhotoScalarFieldEnum = (typeof ProgressPhotoScalarFieldEnum)[keyof typeof ProgressPhotoScalarFieldEnum]
+
+
+export const ReviewNoteScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  coachId: 'coachId',
+  checkInId: 'checkInId',
+  workoutSessionId: 'workoutSessionId',
+  body: 'body',
+  idempotencyKey: 'idempotencyKey',
+  createdAt: 'createdAt'
+} as const
+
+export type ReviewNoteScalarFieldEnum = (typeof ReviewNoteScalarFieldEnum)[keyof typeof ReviewNoteScalarFieldEnum]
 
 
 export const ExerciseLogScalarFieldEnum = {
@@ -2389,6 +2678,34 @@ export type ListEnumWorkoutStatusFieldRefInput<$PrismaModel> = FieldRefInputType
 
 
 /**
+ * Reference to a field of type 'ReviewStatus'
+ */
+export type EnumReviewStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReviewStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ReviewStatus[]'
+ */
+export type ListEnumReviewStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReviewStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CheckInStatus'
+ */
+export type EnumCheckInStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CheckInStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'CheckInStatus[]'
+ */
+export type ListEnumCheckInStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CheckInStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'WeightUnit'
  */
 export type EnumWeightUnitFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WeightUnit'>
@@ -2399,6 +2716,34 @@ export type EnumWeightUnitFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
  * Reference to a field of type 'WeightUnit[]'
  */
 export type ListEnumWeightUnitFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WeightUnit[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PercentUnit'
+ */
+export type EnumPercentUnitFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PercentUnit'>
+    
+
+
+/**
+ * Reference to a field of type 'PercentUnit[]'
+ */
+export type ListEnumPercentUnitFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PercentUnit[]'>
+    
+
+
+/**
+ * Reference to a field of type 'LengthUnit'
+ */
+export type EnumLengthUnitFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LengthUnit'>
+    
+
+
+/**
+ * Reference to a field of type 'LengthUnit[]'
+ */
+export type ListEnumLengthUnitFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LengthUnit[]'>
     
 
 
@@ -2584,6 +2929,9 @@ export type GlobalOmitConfig = {
   assignedWorkout?: Prisma.AssignedWorkoutOmit
   assignedExercise?: Prisma.AssignedExerciseOmit
   workoutSession?: Prisma.WorkoutSessionOmit
+  measurementCheckIn?: Prisma.MeasurementCheckInOmit
+  progressPhoto?: Prisma.ProgressPhotoOmit
+  reviewNote?: Prisma.ReviewNoteOmit
   exerciseLog?: Prisma.ExerciseLogOmit
   setLog?: Prisma.SetLogOmit
 }

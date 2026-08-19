@@ -69,6 +69,9 @@ export const ModelName = {
   AssignedWorkout: 'AssignedWorkout',
   AssignedExercise: 'AssignedExercise',
   WorkoutSession: 'WorkoutSession',
+  MeasurementCheckIn: 'MeasurementCheckIn',
+  ProgressPhoto: 'ProgressPhoto',
+  ReviewNote: 'ReviewNote',
   ExerciseLog: 'ExerciseLog',
   SetLog: 'SetLog'
 } as const
@@ -197,7 +200,8 @@ export const AuditEventScalarFieldEnum = {
   entityType: 'entityType',
   entityId: 'entityId',
   metadata: 'metadata',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  dedupeKey: 'dedupeKey'
 } as const
 
 export type AuditEventScalarFieldEnum = (typeof AuditEventScalarFieldEnum)[keyof typeof AuditEventScalarFieldEnum]
@@ -209,7 +213,8 @@ export const ProductEventScalarFieldEnum = {
   userId: 'userId',
   name: 'name',
   properties: 'properties',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  dedupeKey: 'dedupeKey'
 } as const
 
 export type ProductEventScalarFieldEnum = (typeof ProductEventScalarFieldEnum)[keyof typeof ProductEventScalarFieldEnum]
@@ -335,10 +340,72 @@ export const WorkoutSessionScalarFieldEnum = {
   status: 'status',
   startedAt: 'startedAt',
   completedAt: 'completedAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  reviewStatus: 'reviewStatus',
+  reviewedAt: 'reviewedAt'
 } as const
 
 export type WorkoutSessionScalarFieldEnum = (typeof WorkoutSessionScalarFieldEnum)[keyof typeof WorkoutSessionScalarFieldEnum]
+
+
+export const MeasurementCheckInScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  studentId: 'studentId',
+  status: 'status',
+  reviewStatus: 'reviewStatus',
+  weight: 'weight',
+  weightUnit: 'weightUnit',
+  bodyFat: 'bodyFat',
+  bodyFatUnit: 'bodyFatUnit',
+  chest: 'chest',
+  chestUnit: 'chestUnit',
+  waist: 'waist',
+  waistUnit: 'waistUnit',
+  hips: 'hips',
+  hipsUnit: 'hipsUnit',
+  arm: 'arm',
+  armUnit: 'armUnit',
+  thigh: 'thigh',
+  thighUnit: 'thighUnit',
+  notes: 'notes',
+  submitIdempotencyKey: 'submitIdempotencyKey',
+  submittedAt: 'submittedAt',
+  reviewedAt: 'reviewedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MeasurementCheckInScalarFieldEnum = (typeof MeasurementCheckInScalarFieldEnum)[keyof typeof MeasurementCheckInScalarFieldEnum]
+
+
+export const ProgressPhotoScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  studentId: 'studentId',
+  checkInId: 'checkInId',
+  objectKey: 'objectKey',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  idempotencyKey: 'idempotencyKey',
+  createdAt: 'createdAt'
+} as const
+
+export type ProgressPhotoScalarFieldEnum = (typeof ProgressPhotoScalarFieldEnum)[keyof typeof ProgressPhotoScalarFieldEnum]
+
+
+export const ReviewNoteScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  coachId: 'coachId',
+  checkInId: 'checkInId',
+  workoutSessionId: 'workoutSessionId',
+  body: 'body',
+  idempotencyKey: 'idempotencyKey',
+  createdAt: 'createdAt'
+} as const
+
+export type ReviewNoteScalarFieldEnum = (typeof ReviewNoteScalarFieldEnum)[keyof typeof ReviewNoteScalarFieldEnum]
 
 
 export const ExerciseLogScalarFieldEnum = {

@@ -23,6 +23,26 @@ enum WeightUnit {
   LB
 }
 
+enum LengthUnit {
+  CM
+  IN
+}
+
+enum PercentUnit {
+  PERCENT
+}
+
+enum CheckInStatus {
+  DRAFT
+  SUBMITTED
+  REVIEWED
+}
+
+enum ReviewStatus {
+  PENDING
+  REVIEWED
+}
+
 model User {
   id               String                  @id @default(cuid())
   name             String
@@ -44,6 +64,9 @@ model User {
   plansCreated     WorkoutPlan[]           @relation("PlanCreator")
   planAssignments  StudentPlanAssignment[] @relation("PlanAssigner")
   workoutSessions  WorkoutSession[]
+  measurementCheckIns MeasurementCheckIn[] @relation("CheckInStudent")
+  progressPhotos   ProgressPhoto[]          @relation("PhotoStudent")
+  reviewNotes      ReviewNote[]             @relation("ReviewCoach")
 }
 
 model Session {
@@ -109,6 +132,9 @@ model Workspace {
   workoutPlans     WorkoutPlan[]
   planAssignments  StudentPlanAssignment[]
   assignedWorkouts AssignedWorkout[]
+  measurementCheckIns MeasurementCheckIn[]
+  progressPhotos   ProgressPhoto[]
+  reviewNotes      ReviewNote[]
 
   @@index([ownerId])
 }
@@ -157,10 +183,12 @@ model AuditEvent {
   entityId    String?
   metadata    Json?
   createdAt   DateTime  @default(now())
+  dedupeKey   String?
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   actor       User?     @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
 
   @@index([workspaceId, createdAt])
+  @@unique([workspaceId, dedupeKey])
 }
 
 model ProductEvent {
@@ -170,11 +198,13 @@ model ProductEvent {
   name        String
   properties  Json?
   createdAt   DateTime  @default(now())
+  dedupeKey   String?
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([workspaceId, createdAt])
   @@index([userId, createdAt])
+  @@unique([workspaceId, dedupeKey])
 }
 
 model Exercise {
@@ -326,11 +356,88 @@ model WorkoutSession {
   startedAt         DateTime        @default(now())
   completedAt       DateTime?
   updatedAt         DateTime        @updatedAt
+  reviewStatus      ReviewStatus    @default(PENDING)
+  reviewedAt        DateTime?
   assignedWorkout   AssignedWorkout @relation(fields: [assignedWorkoutId], references: [id], onDelete: Cascade)
   student           User            @relation(fields: [studentId], references: [id], onDelete: Restrict)
   exerciseLogs      ExerciseLog[]
+  reviewNotes       ReviewNote[]
 
   @@index([studentId, startedAt])
+}
+
+model MeasurementCheckIn {
+  id                   String        @id @default(cuid())
+  workspaceId          String
+  studentId            String
+  status               CheckInStatus @default(DRAFT)
+  reviewStatus         ReviewStatus  @default(PENDING)
+  weight               Decimal?      @db.Decimal(8, 2)
+  weightUnit           WeightUnit?
+  bodyFat              Decimal?      @db.Decimal(5, 2)
+  bodyFatUnit          PercentUnit?
+  chest                Decimal?      @db.Decimal(8, 2)
+  chestUnit            LengthUnit?
+  waist                Decimal?      @db.Decimal(8, 2)
+  waistUnit            LengthUnit?
+  hips                 Decimal?      @db.Decimal(8, 2)
+  hipsUnit             LengthUnit?
+  arm                  Decimal?      @db.Decimal(8, 2)
+  armUnit              LengthUnit?
+  thigh                Decimal?      @db.Decimal(8, 2)
+  thighUnit            LengthUnit?
+  notes                String?
+  submitIdempotencyKey String?
+  submittedAt          DateTime?
+  reviewedAt           DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  workspace            Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  student              User          @relation("CheckInStudent", fields: [studentId], references: [id], onDelete: Restrict)
+  photos               ProgressPhoto[]
+  reviewNotes          ReviewNote[]
+
+  @@index([workspaceId, studentId, createdAt])
+  @@index([workspaceId, reviewStatus, submittedAt])
+  @@unique([workspaceId, submitIdempotencyKey])
+}
+
+model ProgressPhoto {
+  id             String             @id @default(cuid())
+  workspaceId    String
+  studentId      String
+  checkInId      String
+  objectKey      String             @unique
+  mimeType       String
+  sizeBytes      Int
+  idempotencyKey String
+  createdAt      DateTime           @default(now())
+  workspace      Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  student        User               @relation("PhotoStudent", fields: [studentId], references: [id], onDelete: Restrict)
+  checkIn        MeasurementCheckIn @relation(fields: [checkInId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, studentId, createdAt])
+  @@unique([workspaceId, idempotencyKey])
+}
+
+model ReviewNote {
+  id             String              @id @default(cuid())
+  workspaceId    String
+  coachId        String
+  checkInId      String?
+  workoutSessionId String?
+  body           String
+  idempotencyKey String
+  createdAt      DateTime            @default(now())
+  workspace      Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  coach          User                @relation("ReviewCoach", fields: [coachId], references: [id], onDelete: Restrict)
+  checkIn        MeasurementCheckIn? @relation(fields: [checkInId], references: [id], onDelete: Cascade)
+  workoutSession WorkoutSession?     @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+  @@index([checkInId])
+  @@index([workoutSessionId])
+  @@unique([workspaceId, idempotencyKey])
 }
 
 model ExerciseLog {

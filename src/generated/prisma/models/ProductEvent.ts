@@ -30,6 +30,7 @@ export type ProductEventMinAggregateOutputType = {
   userId: string | null
   name: string | null
   createdAt: Date | null
+  dedupeKey: string | null
 }
 
 export type ProductEventMaxAggregateOutputType = {
@@ -38,6 +39,7 @@ export type ProductEventMaxAggregateOutputType = {
   userId: string | null
   name: string | null
   createdAt: Date | null
+  dedupeKey: string | null
 }
 
 export type ProductEventCountAggregateOutputType = {
@@ -47,6 +49,7 @@ export type ProductEventCountAggregateOutputType = {
   name: number
   properties: number
   createdAt: number
+  dedupeKey: number
   _all: number
 }
 
@@ -57,6 +60,7 @@ export type ProductEventMinAggregateInputType = {
   userId?: true
   name?: true
   createdAt?: true
+  dedupeKey?: true
 }
 
 export type ProductEventMaxAggregateInputType = {
@@ -65,6 +69,7 @@ export type ProductEventMaxAggregateInputType = {
   userId?: true
   name?: true
   createdAt?: true
+  dedupeKey?: true
 }
 
 export type ProductEventCountAggregateInputType = {
@@ -74,6 +79,7 @@ export type ProductEventCountAggregateInputType = {
   name?: true
   properties?: true
   createdAt?: true
+  dedupeKey?: true
   _all?: true
 }
 
@@ -156,6 +162,7 @@ export type ProductEventGroupByOutputType = {
   name: string
   properties: runtime.JsonValue | null
   createdAt: Date
+  dedupeKey: string | null
   _count: ProductEventCountAggregateOutputType | null
   _min: ProductEventMinAggregateOutputType | null
   _max: ProductEventMaxAggregateOutputType | null
@@ -186,6 +193,7 @@ export type ProductEventWhereInput = {
   name?: Prisma.StringFilter<"ProductEvent"> | string
   properties?: Prisma.JsonNullableFilter<"ProductEvent">
   createdAt?: Prisma.DateTimeFilter<"ProductEvent"> | Date | string
+  dedupeKey?: Prisma.StringNullableFilter<"ProductEvent"> | string | null
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
@@ -197,12 +205,14 @@ export type ProductEventOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   properties?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type ProductEventWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  workspaceId_dedupeKey?: Prisma.ProductEventWorkspaceIdDedupeKeyCompoundUniqueInput
   AND?: Prisma.ProductEventWhereInput | Prisma.ProductEventWhereInput[]
   OR?: Prisma.ProductEventWhereInput[]
   NOT?: Prisma.ProductEventWhereInput | Prisma.ProductEventWhereInput[]
@@ -211,9 +221,10 @@ export type ProductEventWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"ProductEvent"> | string
   properties?: Prisma.JsonNullableFilter<"ProductEvent">
   createdAt?: Prisma.DateTimeFilter<"ProductEvent"> | Date | string
+  dedupeKey?: Prisma.StringNullableFilter<"ProductEvent"> | string | null
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-}, "id">
+}, "id" | "workspaceId_dedupeKey">
 
 export type ProductEventOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -222,6 +233,7 @@ export type ProductEventOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   properties?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ProductEventCountOrderByAggregateInput
   _max?: Prisma.ProductEventMaxOrderByAggregateInput
   _min?: Prisma.ProductEventMinOrderByAggregateInput
@@ -237,6 +249,7 @@ export type ProductEventScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"ProductEvent"> | string
   properties?: Prisma.JsonNullableWithAggregatesFilter<"ProductEvent">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductEvent"> | Date | string
+  dedupeKey?: Prisma.StringNullableWithAggregatesFilter<"ProductEvent"> | string | null
 }
 
 export type ProductEventCreateInput = {
@@ -244,6 +257,7 @@ export type ProductEventCreateInput = {
   name: string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  dedupeKey?: string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProductEventsInput
   user?: Prisma.UserCreateNestedOneWithoutProductEventsInput
 }
@@ -255,6 +269,7 @@ export type ProductEventUncheckedCreateInput = {
   name: string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  dedupeKey?: string | null
 }
 
 export type ProductEventUpdateInput = {
@@ -262,6 +277,7 @@ export type ProductEventUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProductEventsNestedInput
   user?: Prisma.UserUpdateOneWithoutProductEventsNestedInput
 }
@@ -273,6 +289,7 @@ export type ProductEventUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProductEventCreateManyInput = {
@@ -282,6 +299,7 @@ export type ProductEventCreateManyInput = {
   name: string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  dedupeKey?: string | null
 }
 
 export type ProductEventUpdateManyMutationInput = {
@@ -289,6 +307,7 @@ export type ProductEventUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProductEventUncheckedUpdateManyInput = {
@@ -298,6 +317,7 @@ export type ProductEventUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProductEventListRelationFilter = {
@@ -310,6 +330,11 @@ export type ProductEventOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type ProductEventWorkspaceIdDedupeKeyCompoundUniqueInput = {
+  workspaceId: string
+  dedupeKey: string
+}
+
 export type ProductEventCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
@@ -317,6 +342,7 @@ export type ProductEventCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   properties?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
 }
 
 export type ProductEventMaxOrderByAggregateInput = {
@@ -325,6 +351,7 @@ export type ProductEventMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
 }
 
 export type ProductEventMinOrderByAggregateInput = {
@@ -333,6 +360,7 @@ export type ProductEventMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
 }
 
 export type ProductEventCreateNestedManyWithoutUserInput = {
@@ -424,6 +452,7 @@ export type ProductEventCreateWithoutUserInput = {
   name: string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  dedupeKey?: string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProductEventsInput
 }
 
@@ -433,6 +462,7 @@ export type ProductEventUncheckedCreateWithoutUserInput = {
   name: string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  dedupeKey?: string | null
 }
 
 export type ProductEventCreateOrConnectWithoutUserInput = {
@@ -471,6 +501,7 @@ export type ProductEventScalarWhereInput = {
   name?: Prisma.StringFilter<"ProductEvent"> | string
   properties?: Prisma.JsonNullableFilter<"ProductEvent">
   createdAt?: Prisma.DateTimeFilter<"ProductEvent"> | Date | string
+  dedupeKey?: Prisma.StringNullableFilter<"ProductEvent"> | string | null
 }
 
 export type ProductEventCreateWithoutWorkspaceInput = {
@@ -478,6 +509,7 @@ export type ProductEventCreateWithoutWorkspaceInput = {
   name: string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  dedupeKey?: string | null
   user?: Prisma.UserCreateNestedOneWithoutProductEventsInput
 }
 
@@ -487,6 +519,7 @@ export type ProductEventUncheckedCreateWithoutWorkspaceInput = {
   name: string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  dedupeKey?: string | null
 }
 
 export type ProductEventCreateOrConnectWithoutWorkspaceInput = {
@@ -521,6 +554,7 @@ export type ProductEventCreateManyUserInput = {
   name: string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  dedupeKey?: string | null
 }
 
 export type ProductEventUpdateWithoutUserInput = {
@@ -528,6 +562,7 @@ export type ProductEventUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProductEventsNestedInput
 }
 
@@ -537,6 +572,7 @@ export type ProductEventUncheckedUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProductEventUncheckedUpdateManyWithoutUserInput = {
@@ -545,6 +581,7 @@ export type ProductEventUncheckedUpdateManyWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProductEventCreateManyWorkspaceInput = {
@@ -553,6 +590,7 @@ export type ProductEventCreateManyWorkspaceInput = {
   name: string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  dedupeKey?: string | null
 }
 
 export type ProductEventUpdateWithoutWorkspaceInput = {
@@ -560,6 +598,7 @@ export type ProductEventUpdateWithoutWorkspaceInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneWithoutProductEventsNestedInput
 }
 
@@ -569,6 +608,7 @@ export type ProductEventUncheckedUpdateWithoutWorkspaceInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProductEventUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -577,6 +617,7 @@ export type ProductEventUncheckedUpdateManyWithoutWorkspaceInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   properties?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -588,6 +629,7 @@ export type ProductEventSelect<ExtArgs extends runtime.Types.Extensions.Internal
   name?: boolean
   properties?: boolean
   createdAt?: boolean
+  dedupeKey?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   user?: boolean | Prisma.ProductEvent$userArgs<ExtArgs>
 }, ExtArgs["result"]["productEvent"]>
@@ -599,6 +641,7 @@ export type ProductEventSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   name?: boolean
   properties?: boolean
   createdAt?: boolean
+  dedupeKey?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   user?: boolean | Prisma.ProductEvent$userArgs<ExtArgs>
 }, ExtArgs["result"]["productEvent"]>
@@ -610,6 +653,7 @@ export type ProductEventSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   name?: boolean
   properties?: boolean
   createdAt?: boolean
+  dedupeKey?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   user?: boolean | Prisma.ProductEvent$userArgs<ExtArgs>
 }, ExtArgs["result"]["productEvent"]>
@@ -621,9 +665,10 @@ export type ProductEventSelectScalar = {
   name?: boolean
   properties?: boolean
   createdAt?: boolean
+  dedupeKey?: boolean
 }
 
-export type ProductEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "userId" | "name" | "properties" | "createdAt", ExtArgs["result"]["productEvent"]>
+export type ProductEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "userId" | "name" | "properties" | "createdAt" | "dedupeKey", ExtArgs["result"]["productEvent"]>
 export type ProductEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   user?: boolean | Prisma.ProductEvent$userArgs<ExtArgs>
@@ -650,6 +695,7 @@ export type $ProductEventPayload<ExtArgs extends runtime.Types.Extensions.Intern
     name: string
     properties: runtime.JsonValue | null
     createdAt: Date
+    dedupeKey: string | null
   }, ExtArgs["result"]["productEvent"]>
   composites: {}
 }
@@ -1081,6 +1127,7 @@ export interface ProductEventFieldRefs {
   readonly name: Prisma.FieldRef<"ProductEvent", 'String'>
   readonly properties: Prisma.FieldRef<"ProductEvent", 'Json'>
   readonly createdAt: Prisma.FieldRef<"ProductEvent", 'DateTime'>
+  readonly dedupeKey: Prisma.FieldRef<"ProductEvent", 'String'>
 }
     
 
