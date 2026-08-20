@@ -1,7 +1,8 @@
-import { expect, test } from "@playwright/test";
+import { devices, expect, test } from "@playwright/test";
 
 const enabled = Boolean(process.env.TEST_DATABASE_URL);
 const password = process.env.PILOT_SEED_PASSWORD ?? "TenandPilot!2026";
+const pixel7 = devices["Pixel 7"];
 
 async function signIn(page: import("@playwright/test").Page, email: string) {
   await page.goto("/sign-in");
@@ -13,7 +14,7 @@ async function signIn(page: import("@playwright/test").Page, email: string) {
 
 test("authenticated mobile roles can navigate, log training, and submit progress", async ({ browser }) => {
   test.skip(!enabled, "TEST_DATABASE_URL is mandatory for authenticated mobile E2E");
-  const coachContext = await browser.newContext();
+  const coachContext = await browser.newContext(pixel7);
   const coach = await coachContext.newPage();
   await signIn(coach, "pilot.coach@tenand.local");
   await coach.goto("/w/fuerza-norte-pilot");
@@ -22,7 +23,7 @@ test("authenticated mobile roles can navigate, log training, and submit progress
   await expect(coachNavigation.getByRole("link", { name: "Revisiones" })).toBeVisible();
   await coachContext.close();
 
-  const studentContext = await browser.newContext();
+  const studentContext = await browser.newContext(pixel7);
   const student = await studentContext.newPage();
   await signIn(student, "pilot.student1@tenand.local");
   await student.goto("/w/fuerza-norte-pilot");

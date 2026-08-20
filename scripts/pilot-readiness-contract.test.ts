@@ -49,6 +49,9 @@ describe("pilot readiness contract", () => {
     expect(workflow).toContain("TEST_DATABASE_URL");
     expect(read("playwright.config.ts")).toContain('name: "pilot-postgres"');
     expect(read("playwright.config.ts")).toContain('name: "pilot-mobile-postgres"');
+    const mobilePilot = read("e2e/pilot-mobile.spec.ts");
+    expect(mobilePilot).toContain('devices["Pixel 7"]');
+    expect(mobilePilot.match(/newContext\(pixel7\)/g)).toHaveLength(2);
   });
 
   it("fails fast on invalid production environment at server startup", () => {
