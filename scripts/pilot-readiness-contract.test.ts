@@ -16,7 +16,9 @@ describe("pilot readiness contract", () => {
     expect(seed).toContain("pilot-active-invitation-token");
     expect(seed).toContain("pilot.invited@tenand.local");
     expect(seed).toContain("pilot-review-note-completed");
-    expect(seed).toContain("ProgressPhoto");
+    expect(seed).not.toContain("prisma.progressPhoto.create");
+    expect(seed).not.toContain("prisma.photoUploadIntent.create");
+    expect(read("docs/operations.md")).toMatch(/optional media seed/i);
     expect(seed).not.toMatch(/https?:\/\/.*photo/i);
   });
 

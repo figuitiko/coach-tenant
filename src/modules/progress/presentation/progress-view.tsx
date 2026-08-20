@@ -32,29 +32,30 @@ function metricFrom(value: unknown) { if (!value || typeof value !== "object" ||
 function ActionForm({ action, className, children }: { action: Action; className?: string; children: ReactNode }) { const [state, formAction] = useActionState(action, initial); return <form action={formAction} className={className}>{children}<p aria-live="polite" className={state.status === "idle" ? "sr-only" : state.status === "error" ? "mt-3 text-sm font-bold text-red-700" : "mt-3 text-sm font-bold text-[var(--signal-dark)]"} role={state.status === "error" ? "alert" : "status"}>{state.message}</p></form> }
 function PendingButton({ children, disabled = false }: { children: ReactNode; disabled?: boolean }) { const { pending } = useFormStatus(); return <button aria-disabled={pending || disabled} className="mt-4 min-h-12 w-full rounded-full bg-[var(--signal)] px-5 text-sm font-extrabold text-white disabled:opacity-50" disabled={pending || disabled}>{pending ? "Guardando…" : children}</button> }
 
-function PrivatePhotoUploader({ checkInId, requestUpload, attachPhoto }: { checkInId: string; requestUpload: Action; attachPhoto: Action }) {
+export function PrivatePhotoUploader({ checkInId, requestUpload, attachPhoto }: { checkInId: string; requestUpload: Action; attachPhoto: Action }) {
   const file = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
-  const idempotencyKey = useRef<string | null>(null);
+  const attempt = useRef<{ fingerprint: string; key: string } | null>(null);
   const [pending, startTransition] = useTransition();
   function upload() {
     const selected = file.current?.files?.[0];
     if (!selected) return;
     startTransition(async () => {
       try {
-        idempotencyKey.current ??= crypto.randomUUID();
         const checksumSha256 = await sha256Base64(selected);
-        const request = new FormData(); request.set("checkInId", checkInId); request.set("fileName", selected.name); request.set("mimeType", selected.type); request.set("sizeBytes", String(selected.size)); request.set("checksumSha256", checksumSha256); request.set("idempotencyKey", idempotencyKey.current);
+        const fingerprint = `${selected.name}:${selected.type}:${selected.size}:${selected.lastModified}:${checksumSha256}`;
+        if (attempt.current?.fingerprint !== fingerprint) attempt.current = { fingerprint, key: crypto.randomUUID() };
+        const request = new FormData(); request.set("checkInId", checkInId); request.set("fileName", selected.name); request.set("mimeType", selected.type); request.set("sizeBytes", String(selected.size)); request.set("checksumSha256", checksumSha256); request.set("idempotencyKey", attempt.current.key);
         const intent = await requestUpload(initial, request);
         if (!intent.upload) throw new Error(intent.message);
         const response = await fetch(intent.upload.url, { method: "PUT", headers: intent.upload.headers, body: selected });
         if (!response.ok) throw new Error("upload failed");
         const metadata = new FormData(); metadata.set("uploadIntentId", intent.upload.intentId);
-        const attached = await attachPhoto(initial, metadata); setIsError(attached.status === "error"); setMessage(attached.message);
+        const attached = await attachPhoto(initial, metadata); setIsError(attached.status === "error"); setMessage(attached.message); if (attached.status === "success") attempt.current = null;
       } catch { setIsError(true); setMessage("No pudimos completar la subida privada."); }
     });
   }
-  return <div><label className={label}>Foto privada<input ref={file} accept="image/jpeg,image/png,image/webp" className={input} required type="file"/></label><button aria-disabled={pending} className="mt-4 min-h-12 w-full rounded-full border-2 border-[var(--ink)] px-5 text-sm font-extrabold disabled:opacity-50" disabled={pending} onClick={upload} type="button">{pending ? "Subiendo…" : "Subir foto privada"}</button><p aria-live="polite" className={isError ? "mt-3 text-sm font-bold text-red-700" : "sr-only"} role={isError ? "alert" : "status"}>{message}</p></div>;
+  return <div><label className={label}>Foto privada<input ref={file} accept="image/jpeg,image/png,image/webp" className={input} required type="file"/></label><button aria-disabled={pending} className="mt-4 min-h-12 w-full rounded-full border-2 border-[var(--ink)] px-5 text-sm font-extrabold disabled:opacity-50" disabled={pending} onClick={upload} type="button">{pending ? "Subiendo…" : "Subir foto privada"}</button><p aria-live="polite" className={!message ? "sr-only" : isError ? "mt-3 text-sm font-bold text-red-700" : "mt-3 text-sm font-bold text-[var(--signal-dark)]"} role={isError ? "alert" : "status"}>{message}</p></div>;
 }
 async function sha256Base64(file: File) { const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer()); return btoa(String.fromCharCode(...new Uint8Array(digest))); }

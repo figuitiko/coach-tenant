@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { PrismaClient } from "@/generated/prisma/client";
 import { InvitationService } from "@/modules/tenancy/application/invitation-service";
 import { InvitationUnavailableError } from "@/modules/tenancy/domain/invitation";
+import { CrossTenantAccessError } from "@/modules/tenancy/application/workspace-access";
 import { PrismaInvitationRepository } from "./prisma-invitation-repository";
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL;
@@ -57,5 +58,13 @@ integration("PrismaInvitationRepository against PostgreSQL", () => {
       expiresAt: new Date(Date.now() - 1_000),
     } });
     await expect(repository.acceptStudentInvitation({ userId: studentId, tokenHash, acceptedAt: new Date() })).rejects.toBeInstanceOf(InvitationUnavailableError);
+  });
+
+  it("lists invitations only for the owning coach and never returns hashes", async () => {
+    await service.create({ actorId: coachId, workspaceSlug, expiresAt: new Date(Date.now() + 60_000) });
+    const listed = await service.list({ actorId: coachId, workspaceSlug });
+    expect(listed.length).toBeGreaterThan(0);
+    expect(JSON.stringify(listed)).not.toMatch(/token|hash/i);
+    await expect(service.list({ actorId: studentId, workspaceSlug })).rejects.toBeInstanceOf(CrossTenantAccessError);
   });
 });

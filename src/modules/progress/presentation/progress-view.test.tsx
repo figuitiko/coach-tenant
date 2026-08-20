@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { CoachReviewView, StudentProgressView } from "./progress-view";
+import { CoachReviewView, PrivatePhotoUploader, StudentProgressView } from "./progress-view";
 
 const action = vi.fn(async () => ({ status: "success" as const, message: "Guardado" }));
 
@@ -23,5 +24,36 @@ describe("progress views", () => {
     expect(screen.getByRole("heading", { name: /cola de revisión/i })).toBeInTheDocument();
     expect(screen.getByRole("list", { name: /pendientes/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /revisar entrenamiento de ana/i })).toBeInTheDocument();
+  });
+
+  it("reuses an upload key for retry, rotates it for a distinct file, and shows success", async () => {
+    const keys: string[] = [];
+    let requestCount = 0;
+    const requestUpload = vi.fn(async (_state: unknown, data: FormData) => {
+      keys.push(String(data.get("idempotencyKey")));
+      requestCount += 1;
+      if (requestCount === 1) return { status: "error" as const, message: "Reintentá" };
+      return { status: "success" as const, message: "Preparada", upload: { url: "https://upload.test", headers: {}, intentId: `intent-${requestCount}`, expiresAt: "2026-08-20T12:00:00Z" } };
+    });
+    const attachPhoto = vi.fn(async () => ({ status: "success" as const, message: "Foto privada guardada." }));
+    const randomUUID = vi.fn().mockReturnValueOnce("attempt-one").mockReturnValueOnce("attempt-two");
+    vi.stubGlobal("crypto", { randomUUID, subtle: { digest: vi.fn(async () => new Uint8Array(32).buffer) } });
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true })));
+    const user = userEvent.setup();
+    render(<PrivatePhotoUploader checkInId="draft-1" requestUpload={requestUpload} attachPhoto={attachPhoto} />);
+    const input = screen.getByLabelText(/foto privada/i);
+    const first = new File(["one"], "one.webp", { type: "image/webp", lastModified: 1 });
+    Object.defineProperty(first, "arrayBuffer", { value: async () => new TextEncoder().encode("one").buffer });
+    await user.upload(input, first);
+    await user.click(screen.getByRole("button", { name: /subir foto privada/i }));
+    await screen.findByRole("alert");
+    await user.click(screen.getByRole("button", { name: /subir foto privada/i }));
+    expect(await screen.findByRole("status")).toHaveTextContent("Foto privada guardada.");
+
+    const second = new File(["two"], "two.webp", { type: "image/webp", lastModified: 2 });
+    Object.defineProperty(second, "arrayBuffer", { value: async () => new TextEncoder().encode("two").buffer });
+    await user.upload(input, second);
+    await user.click(screen.getByRole("button", { name: /subir foto privada/i }));
+    expect(keys).toEqual(["attempt-one", "attempt-one", "attempt-two"]);
   });
 });

@@ -108,4 +108,17 @@ export class PrismaInvitationRepository implements InvitationRepository {
       } });
     });
   }
+
+  async listStudentInvitations(input: { actorId: string; workspaceSlug: string }) {
+    const workspace = await this.database.workspace.findFirst({
+      where: { slug: input.workspaceSlug, ownerId: input.actorId, memberships: { some: { userId: input.actorId, role: "COACH" } } },
+      select: { id: true },
+    });
+    if (!workspace) throw new CrossTenantAccessError("Workspace access denied");
+    return this.database.invitation.findMany({
+      where: { workspaceId: workspace.id, role: "STUDENT" },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, createdAt: true, expiresAt: true, acceptedAt: true, revokedAt: true },
+    });
+  }
 }

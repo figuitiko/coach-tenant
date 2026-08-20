@@ -26,7 +26,7 @@ export function WorkspaceShell({
   const navigationItems = coach
     ? [
         { href: root, label: "Inicio" },
-        { href: `${root}#alumnos`, label: "Alumnos" },
+        { href: `${root}/students`, label: "Alumnos" },
         { href: `${root}/training`, label: "Entrenamiento" },
         { href: `${root}/progress`, label: "Revisiones" },
       ]

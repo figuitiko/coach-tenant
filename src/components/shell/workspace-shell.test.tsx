@@ -12,7 +12,7 @@ describe("WorkspaceShell", () => {
       "aria-current",
       "page",
     );
-    expect(within(navigation).getByRole("link", { name: "Alumnos" })).toHaveAttribute("href", "/w/fuerza-norte#alumnos");
+    expect(within(navigation).getByRole("link", { name: "Alumnos" })).toHaveAttribute("href", "/w/fuerza-norte/students");
     expect(within(navigation).getByRole("link", { name: "Entrenamiento" })).toHaveAttribute("href", "/w/fuerza-norte/training");
     expect(within(navigation).getByRole("link", { name: "Revisiones" })).toHaveAttribute("href", "/w/fuerza-norte/progress");
   });

@@ -24,6 +24,10 @@ Use an HTTPS `BETTER_AUTH_URL` in production and a high-entropy secret. Configur
 
 The bucket MUST be private: block public ACLs/policies and do not serve object URLs. The app persists opaque object keys and reads through an authenticated, tenant-scoped route. Allow CORS `PUT` only from the deployed app origin and allow the exact signed headers. Current uploads accept JPEG, PNG and WebP up to **5 MiB**. The client sends a SHA-256 checksum; storage metadata and the final attachment must match MIME type, size and checksum. Presigned intents expire and are single-use.
 
+### Optional media seed
+
+The default pilot seed intentionally creates check-in and review records **without** photo metadata because a database row without a matching private object is broken data. If an optional media seed is added later, provision the object first in the configured private bucket, use the exact `workspaces/{workspaceId}/students/{studentId}/progress/{object}` scope, then persist matching MIME type, byte size, and SHA-256 checksum metadata. Never seed a public URL.
+
 ## Verification (agents never build)
 
 Agents MUST NOT run `next build` or `pnpm build`. Required checks are:

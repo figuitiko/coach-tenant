@@ -9,10 +9,26 @@ export type CreateInvitationRecordInput = {
   createdAt: Date;
 };
 
+export type InvitationRecordSummary = {
+  id: string;
+  createdAt: Date;
+  expiresAt: Date;
+  acceptedAt: Date | null;
+  revokedAt: Date | null;
+};
+
+export type InvitationSummary = {
+  id: string;
+  createdAt: Date;
+  expiresAt: Date;
+  status: "ACTIVE" | "USED" | "REVOKED" | "EXPIRED";
+};
+
 export interface InvitationRepository {
   createStudentInvitation(input: CreateInvitationRecordInput): Promise<{ id: string; expiresAt: Date }>;
   acceptStudentInvitation(input: { userId: string; tokenHash: string; acceptedAt: Date }): Promise<{ workspaceSlug: string }>;
   revokeInvitation(input: { actorId: string; invitationId: string; revokedAt: Date }): Promise<void>;
+  listStudentInvitations(input: { actorId: string; workspaceSlug: string }): Promise<InvitationRecordSummary[]>;
 }
 
 export class InvitationService {
@@ -53,5 +69,14 @@ export class InvitationService {
 
   revoke(input: { actorId: string; invitationId: string }) {
     return this.repository.revokeInvitation({ ...input, revokedAt: this.dependencies.now() });
+  }
+
+  async list(input: { actorId: string; workspaceSlug: string }): Promise<InvitationSummary[]> {
+    const now = this.dependencies.now();
+    const invitations = await this.repository.listStudentInvitations(input);
+    return invitations.map(({ id, createdAt, expiresAt, acceptedAt, revokedAt }) => ({
+      id, createdAt, expiresAt,
+      status: acceptedAt ? "USED" : revokedAt ? "REVOKED" : expiresAt <= now ? "EXPIRED" : "ACTIVE",
+    }));
   }
 }
