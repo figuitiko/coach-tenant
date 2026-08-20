@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es">
+    <html data-scroll-behavior="smooth" lang="es">
       <body className={`${bodyFont.variable} ${displayFont.variable}`}>{children}</body>
     </html>
   );

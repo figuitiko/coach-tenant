@@ -35,3 +35,7 @@ pnpm test:integration:pg
 
 CI provisions PostgreSQL, applies every migration, and runs both `pnpm test` and
 `pnpm test:integration:pg` before lint and type checking.
+
+## Pilot runbook
+
+See [operations](docs/operations.md), [architecture and security](docs/architecture-security.md), and the [pilot acceptance checklist](docs/pilot-acceptance.md).

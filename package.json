@@ -12,7 +12,9 @@
     "test:integration:pg": "node scripts/run-pg-integration-tests.mjs",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:e2e:public": "playwright test --project=chromium --project=mobile-chrome",
+    "test:e2e:pilot": "node scripts/run-pilot-e2e.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1113.0",
@@ -45,6 +47,7 @@
     "jsdom": "^30.0.1",
     "prisma": "^7.9.1",
     "tailwindcss": "^4",
+    "tsx": "^4.23.12",
     "typescript": "^5",
     "vitest": "^4.1.10"
   },

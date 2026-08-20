@@ -25,3 +25,20 @@ export async function requireWorkspaceAccess(workspaceSlug: string) {
     current?.memberships ?? [],
   );
 }
+
+export async function listCoachRoster(workspaceId: string) {
+  const memberships = await prisma.membership.findMany({
+    where: { workspaceId, role: "STUDENT" },
+    orderBy: { user: { name: "asc" } },
+    select: {
+      id: true,
+      user: { select: { name: true } },
+      planAssignments: { select: { id: true }, take: 1, orderBy: { assignedAt: "desc" } },
+    },
+  });
+  return memberships.map((membership) => ({
+    id: membership.id,
+    name: membership.user.name,
+    status: membership.planAssignments.length ? "Plan asignado" : "Sin plan activo",
+  }));
+}

@@ -34,9 +34,9 @@ export function CoachTrainingView({
             <label className={labelClass}>Notas técnicas<textarea className={`${fieldClass} min-h-24 py-3`} name="notes" /></label>
             <SubmitButton className={buttonClass}>Guardar ejercicio</SubmitButton>
           </ActionForm>
-          <ul className="mt-6 divide-y divide-[var(--line)] border-y border-[var(--line)]">
+          {dashboard.exercises.length ? <ul className="mt-6 divide-y divide-[var(--line)] border-y border-[var(--line)]">
             {dashboard.exercises.map((exercise) => <li className="py-3 font-bold" key={exercise.id}>{exercise.name}</li>)}
-          </ul>
+          </ul> : <p className="mt-6 border border-dashed border-[var(--line)] bg-white/50 p-4 text-sm text-[var(--ink-muted)]">Tu biblioteca está vacía. Guardá el primer ejercicio para empezar una plantilla.</p>}
         </article>
 
         <article className="border border-[var(--line)] bg-white/60 p-5 sm:p-7">
@@ -175,7 +175,7 @@ function ActionForm({ action, ariaLabel, className, children }: { action: FormAc
   return (
     <form action={formAction} aria-label={ariaLabel} className={className}>
       {children}
-      <p aria-live="polite" className={state.status === "error" ? "text-sm font-bold text-red-700" : "sr-only"} role={state.status === "error" ? "alert" : "status"}>
+      <p aria-live="polite" className={state.status === "idle" ? "sr-only" : state.status === "error" ? "text-sm font-bold text-red-700" : "text-sm font-bold text-[var(--signal-dark)]"} role={state.status === "error" ? "alert" : "status"}>
         {state.message}
       </p>
     </form>
