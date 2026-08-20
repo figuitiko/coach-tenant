@@ -13,6 +13,9 @@ describe("pilot readiness contract", () => {
     expect(seed.match(/pilot\.student\d@tenand\.local/g)?.length).toBeGreaterThanOrEqual(5);
     expect(seed).toContain('status: "IN_PROGRESS"');
     expect(seed).toContain('status: "COMPLETED"');
+    expect(seed).toContain("pilot-active-invitation-token");
+    expect(seed).toContain("pilot.invited@tenand.local");
+    expect(seed).toContain("pilot-review-note-completed");
     expect(seed).toContain("ProgressPhoto");
     expect(seed).not.toMatch(/https?:\/\/.*photo/i);
   });
@@ -41,8 +44,14 @@ describe("pilot readiness contract", () => {
 
   it("keeps authenticated PostgreSQL E2E mandatory in CI", () => {
     const workflow = read(".github/workflows/quality.yml");
+    expect(workflow).toContain("pnpm test:e2e:public");
     expect(workflow).toContain("pnpm test:e2e:pilot");
     expect(workflow).toContain("TEST_DATABASE_URL");
     expect(read("playwright.config.ts")).toContain('name: "pilot-postgres"');
+    expect(read("playwright.config.ts")).toContain('name: "pilot-mobile-postgres"');
+  });
+
+  it("fails fast on invalid production environment at server startup", () => {
+    expect(read("src/instrumentation.ts")).toContain("validateProductionEnvironment");
   });
 });

@@ -15,11 +15,24 @@ test.describe("pilot PostgreSQL journeys", () => {
   test.skip(!enabled, "TEST_DATABASE_URL is mandatory for authenticated pilot E2E");
   test.describe.configure({ mode: "serial" });
 
-  test("public entry keeps an invite-aware sign-up and sign-in path", async ({ page }) => {
-    await page.goto("/sign-in?callbackURL=%2Finvite%2Fpilot-invite-token");
+  test("new user accepts an active invitation exactly once", async ({ page }) => {
+    const invitePath = "/invite/pilot-active-invitation-token-0001";
+    await page.goto(`/sign-in?callbackURL=${encodeURIComponent(invitePath)}`);
     await expect(page.getByRole("heading", { name: /volvé al trabajo/i })).toBeVisible();
     await expect(page.getByRole("heading", { name: /creá tu cuenta/i })).toBeVisible();
-    await expect(page.getByLabel("Email").first()).toBeVisible();
+    await page.getByLabel("Nombre").fill("Invitada Piloto");
+    await page.getByLabel("Email").nth(1).fill("pilot.invited@tenand.local");
+    await page.getByLabel("Contraseña").nth(1).fill(password);
+    await page.getByRole("button", { name: /crear cuenta/i }).click();
+    await expect(page).toHaveURL(new RegExp(`${invitePath}$`));
+    await page.getByRole("button", { name: /aceptar invitación/i }).click();
+    await expect(page).toHaveURL(/\/w\/fuerza-norte-pilot$/);
+
+    await page.context().clearCookies();
+    await signIn(page, "pilot.coach@tenand.local");
+    await page.goto(invitePath);
+    await page.getByRole("button", { name: /aceptar invitación/i }).click();
+    await expect(page).toHaveURL(/\/workspace\?invite=unavailable$/);
   });
 
   test("coach can author training data and assign a saved plan", async ({ page }) => {
@@ -30,10 +43,25 @@ test.describe("pilot PostgreSQL journeys", () => {
     await exercise.getByLabel("Nombre").fill("Zancada piloto E2E");
     await exercise.getByRole("button", { name: /guardar ejercicio/i }).click();
     await expect(exercise.getByRole("status")).toContainText(/guardad/i);
-    await expect(page.getByRole("form", { name: /crear plantilla/i })).toBeVisible();
-    await expect(page.getByRole("form", { name: /programar plan/i })).toBeVisible();
+    const template = page.getByRole("form", { name: /crear plantilla/i });
+    await template.getByLabel(/nombre de plantilla/i).fill("Plantilla E2E");
+    await template.getByLabel("Ejercicio").first().selectOption({ label: "Zancada piloto E2E" });
+    await template.getByLabel("Series").first().fill("3");
+    await template.getByLabel(/reps mín/i).first().fill("8");
+    await template.getByLabel(/reps máx/i).first().fill("10");
+    await template.getByRole("button", { name: /crear plantilla/i }).click();
+    await expect(template.getByRole("status")).toContainText(/guardad/i);
+
+    const plan = page.getByRole("form", { name: /programar plan/i });
+    await plan.getByLabel(/nombre del bloque/i).fill("Plan E2E");
+    await plan.getByLabel("Inicio").fill("2026-08-24");
+    await plan.getByLabel("Fin").fill("2026-08-30");
+    await plan.getByLabel("Plantilla").first().selectOption({ label: "Plantilla E2E" });
+    await plan.getByLabel("Fecha").first().fill("2026-08-24");
+    await plan.getByRole("button", { name: /programar plan/i }).click();
+    await expect(plan.getByRole("status")).toContainText(/guardad/i);
     const assignment = page.getByRole("form", { name: /asignar plan/i });
-    await assignment.getByLabel("Plan").selectOption({ label: "Bloque piloto · Agosto" });
+    await assignment.getByLabel("Plan").selectOption({ label: "Plan E2E" });
     await assignment.getByLabel("Alumno").selectOption({ label: "Martina López" });
     await assignment.getByRole("button", { name: /asignar plan/i }).click();
     await expect(assignment.getByRole("status")).toContainText(/guardad/i);

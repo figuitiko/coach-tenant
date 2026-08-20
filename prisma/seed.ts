@@ -2,6 +2,7 @@ import "dotenv/config";
 import { hashPassword } from "better-auth/crypto";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
+import { hashInvitationToken } from "../src/modules/tenancy/domain/invitation";
 
 if (process.env.NODE_ENV === "production" && process.env.ALLOW_PRODUCTION_SEED !== "true") {
   throw new Error("Pilot seed is disabled in production. Set ALLOW_PRODUCTION_SEED=true only for an intentional reset.");
@@ -24,9 +25,11 @@ const students = [
 
 async function main() {
   const passwordHash = await hashPassword(password);
+  const priorInvitedUsers = await prisma.user.findMany({ where: { email: "pilot.invited@tenand.local" }, select: { id: true } });
+  const resetUserIds = [coach.id, ...students.map(({ id }) => id), ...priorInvitedUsers.map(({ id }) => id)];
   await prisma.workspace.deleteMany({ where: { slug: { in: ["fuerza-norte-pilot", "movimiento-sur-pilot"] } } });
-  await prisma.account.deleteMany({ where: { userId: { in: [coach.id, ...students.map(({ id }) => id)] } } });
-  await prisma.user.deleteMany({ where: { id: { in: [coach.id, ...students.map(({ id }) => id)] } } });
+  await prisma.account.deleteMany({ where: { userId: { in: resetUserIds } } });
+  await prisma.user.deleteMany({ where: { id: { in: resetUserIds } } });
 
   for (const user of [coach, ...students]) {
     await prisma.user.create({ data: { ...user, emailVerified: true, createdAt: fixedDate, updatedAt: fixedDate } });
@@ -41,6 +44,8 @@ async function main() {
       ...students.map((student, index) => ({ id: `pilot-membership-student-${index + 1}`, userId: student.id, role: "STUDENT" as const, createdAt: fixedDate, updatedAt: fixedDate })),
     ] },
   } });
+  const activeInvitationToken = "pilot-active-invitation-token-0001";
+  await prisma.invitation.create({ data: { id: "pilot-active-invitation", workspaceId: workspace.id, invitedById: coach.id, tokenHash: hashInvitationToken(activeInvitationToken), role: "STUDENT", expiresAt: new Date("2099-08-19T15:00:00Z"), createdAt: fixedDate, updatedAt: fixedDate } });
   await prisma.workspace.create({ data: {
     id: "pilot-workspace-south", slug: "movimiento-sur-pilot", name: "Movimiento Sur · Piloto", ownerId: coach.id,
     timeZone: "America/Argentina/Buenos_Aires", createdAt: fixedDate, updatedAt: fixedDate,
@@ -88,6 +93,8 @@ async function main() {
   await prisma.workoutSession.create({ data: { id: "pilot-session-in-progress", assignedWorkoutId: inProgress.id, studentId: students[0].id, status: "IN_PROGRESS", reviewStatus: "PENDING", startedAt: fixedDate, updatedAt: fixedDate, exerciseLogs: { create: { id: "pilot-log-bench", assignedExerciseId: "pilot-assigned-bench", createdAt: fixedDate, updatedAt: fixedDate, sets: { create: { id: "pilot-set-bench-incomplete", setNumber: 1, reps: 8, weight: 40, unit: "KG", rpe: 7, completed: false, createdAt: fixedDate, updatedAt: fixedDate } } } } } });
 
   const checkIn = await prisma.measurementCheckIn.create({ data: { id: "pilot-checkin-submitted", workspaceId: workspace.id, studentId: students[0].id, status: "SUBMITTED", reviewStatus: "PENDING", weight: 68.4, weightUnit: "KG", waist: 76.5, waistUnit: "CM", notes: "Buena energía; sueño más regular.", submitIdempotencyKey: "pilot-submit-checkin", submittedAt: fixedDate, createdAt: fixedDate, updatedAt: fixedDate } });
+  const reviewedCheckIn = await prisma.measurementCheckIn.create({ data: { id: "pilot-checkin-reviewed", workspaceId: workspace.id, studentId: students[1].id, status: "REVIEWED", reviewStatus: "REVIEWED", weight: 81.2, weightUnit: "KG", notes: "Semana sostenida.", submitIdempotencyKey: "pilot-submit-reviewed", submittedAt: new Date("2026-08-12T15:00:00Z"), reviewedAt: fixedDate, createdAt: fixedDate, updatedAt: fixedDate } });
+  await prisma.reviewNote.create({ data: { id: "pilot-review-note-completed", workspaceId: workspace.id, coachId: coach.id, checkInId: reviewedCheckIn.id, body: "Buen ritmo. Sostenemos cargas y priorizamos descanso.", idempotencyKey: "pilot-completed-review", createdAt: fixedDate } });
   const intent = await prisma.photoUploadIntent.create({ data: { id: "pilot-photo-intent", workspaceId: workspace.id, studentId: students[0].id, checkInId: checkIn.id, idempotencyKey: "pilot-photo-intent-key", objectKey: `workspaces/${workspace.id}/students/${students[0].id}/pilot-progress.webp`, mimeType: "image/webp", sizeBytes: 128000, checksumSha256: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", expiresAt: new Date("2026-08-19T16:00:00Z"), status: "CONSUMED", consumedAt: fixedDate, createdAt: fixedDate, updatedAt: fixedDate } });
   // ProgressPhoto stores only private object metadata; no public URL is seeded.
   await prisma.progressPhoto.create({ data: { id: "pilot-progress-photo", workspaceId: workspace.id, studentId: students[0].id, checkInId: checkIn.id, objectKey: intent.objectKey, mimeType: intent.mimeType, sizeBytes: intent.sizeBytes, checksumSha256: intent.checksumSha256, idempotencyKey: "pilot-progress-photo-key", uploadIntentId: intent.id, createdAt: fixedDate } });

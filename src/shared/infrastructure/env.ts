@@ -11,8 +11,27 @@ const schema = z.object({
   S3_MAX_UPLOAD_BYTES: z.coerce.number().int().min(1).max(10_485_760).default(5_242_880),
 });
 
+const productionSchema = schema.extend({
+  BETTER_AUTH_SECRET: z.string().min(32),
+  SMTP_HOST: z.string().min(1),
+  SMTP_FROM: z.string().min(3),
+  SMTP_USER: z.string().min(1),
+  SMTP_PASSWORD: z.string().min(1),
+  S3_ENDPOINT: httpUrl,
+  S3_REGION: z.string().min(1),
+  S3_BUCKET: z.string().min(3),
+  S3_ACCESS_KEY_ID: z.string().min(1),
+  S3_SECRET_ACCESS_KEY: z.string().min(1),
+});
+
 export function validateServerEnvironment(environment: Record<string, string | undefined>) {
   const parsed = schema.safeParse(environment);
   if (!parsed.success) throw new Error("Invalid server environment configuration.");
+  return parsed.data;
+}
+
+export function validateProductionEnvironment(environment: Record<string, string | undefined>) {
+  const parsed = productionSchema.safeParse(environment);
+  if (!parsed.success) throw new Error("Invalid production environment configuration.");
   return parsed.data;
 }
