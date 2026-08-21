@@ -2,6 +2,7 @@ import { CrossTenantAccessError } from "@/modules/tenancy/application/workspace-
 import type { CreateInvitationRecordInput, InvitationRepository } from "@/modules/tenancy/application/invitation-service";
 import { InvitationUnavailableError } from "@/modules/tenancy/domain/invitation";
 import type { PrismaClient } from "@/generated/prisma/client";
+import { isWorkspaceRoleAuthorized } from "./workspace-role-authorization";
 
 export class PrismaInvitationRepository implements InvitationRepository {
   constructor(private readonly database: PrismaClient) {}
@@ -9,14 +10,10 @@ export class PrismaInvitationRepository implements InvitationRepository {
   async createStudentInvitation(input: CreateInvitationRecordInput) {
     return this.database.$transaction(async (transaction) => {
       const workspace = await transaction.workspace.findFirst({
-        where: {
-          slug: input.workspaceSlug,
-          ownerId: input.actorId,
-          memberships: { some: { userId: input.actorId, role: "COACH" } },
-        },
+        where: { slug: input.workspaceSlug },
         select: { id: true },
       });
-      if (!workspace) throw new CrossTenantAccessError("Workspace access denied");
+      if (!workspace || !await isWorkspaceRoleAuthorized(transaction, workspace.id, input.actorId, "COACH")) throw new CrossTenantAccessError("Workspace access denied");
 
       const invitation = await transaction.invitation.create({
         data: {
@@ -90,10 +87,10 @@ export class PrismaInvitationRepository implements InvitationRepository {
   async revokeInvitation(input: { actorId: string; invitationId: string; revokedAt: Date }) {
     await this.database.$transaction(async (transaction) => {
       const invitation = await transaction.invitation.findFirst({
-        where: { id: input.invitationId, workspace: { ownerId: input.actorId } },
+        where: { id: input.invitationId },
         select: { id: true, workspaceId: true },
       });
-      if (!invitation) throw new CrossTenantAccessError("Workspace access denied");
+      if (!invitation || !await isWorkspaceRoleAuthorized(transaction, invitation.workspaceId, input.actorId, "COACH")) throw new CrossTenantAccessError("Workspace access denied");
       const revoked = await transaction.invitation.updateMany({
         where: { id: invitation.id, acceptedAt: null, revokedAt: null },
         data: { revokedAt: input.revokedAt },
@@ -111,10 +108,10 @@ export class PrismaInvitationRepository implements InvitationRepository {
 
   async listStudentInvitations(input: { actorId: string; workspaceSlug: string }) {
     const workspace = await this.database.workspace.findFirst({
-      where: { slug: input.workspaceSlug, ownerId: input.actorId, memberships: { some: { userId: input.actorId, role: "COACH" } } },
+      where: { slug: input.workspaceSlug },
       select: { id: true },
     });
-    if (!workspace) throw new CrossTenantAccessError("Workspace access denied");
+    if (!workspace || !await isWorkspaceRoleAuthorized(this.database, workspace.id, input.actorId, "COACH")) throw new CrossTenantAccessError("Workspace access denied");
     return this.database.invitation.findMany({
       where: { workspaceId: workspace.id, role: "STUDENT" },
       orderBy: { createdAt: "desc" },

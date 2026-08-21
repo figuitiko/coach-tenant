@@ -10,6 +10,7 @@ const defaultMembership: WorkspaceMembershipDto = {
   workspaceName: "Fuerza Norte",
   timeZone: "America/Mexico_City",
   role: "COACH",
+  accessMode: "MEMBERSHIP",
 };
 
 export function WorkspaceShell({
@@ -23,6 +24,8 @@ export function WorkspaceShell({
 }) {
   const root = `/w/${currentMembership.workspaceSlug}`;
   const coach = currentMembership.role === "COACH";
+  const superAdmin = currentMembership.accessMode === "SUPER_ADMIN";
+  const panelLabel = superAdmin ? "Panel de super admin" : coach ? "Panel del coach" : "Panel del alumno";
   const navigationItems = coach
     ? [
         { href: root, label: "Inicio" },
@@ -43,7 +46,7 @@ export function WorkspaceShell({
         <Navigation items={navigationItems} mobile={false} />
         <div className="mt-auto border-t border-[var(--line)] pt-5 text-sm">
           <strong>{currentMembership.workspaceName}</strong>
-          <p className="mt-1 text-xs text-[var(--ink-muted)]">{coach ? "Panel del coach" : "Panel del alumno"}</p>
+          <p className="mt-1 text-xs text-[var(--ink-muted)]">{panelLabel}</p>
           {memberships.filter((membership) => membership.workspaceId !== currentMembership.workspaceId).map((membership) => (
             <a className="mt-3 block text-xs font-bold text-[var(--signal-dark)] underline underline-offset-4" href={`/w/${membership.workspaceSlug}`} key={membership.workspaceId}>
               Cambiar a {membership.workspaceName}
@@ -54,7 +57,7 @@ export function WorkspaceShell({
       <main className="pb-24 lg:pb-0" id="inicio">
         <header className="flex items-center justify-between border-b border-[var(--line)] px-5 py-4 sm:px-8 lg:px-10">
           <div className="lg:hidden"><BrandMark /></div>
-          <p className="hidden text-xs font-extrabold uppercase tracking-[0.15em] text-[var(--ink-muted)] lg:block">Panel {coach ? "del coach" : "del alumno"}</p>
+          <p className="hidden text-xs font-extrabold uppercase tracking-[0.15em] text-[var(--ink-muted)] lg:block">{panelLabel}</p>
           <span aria-label="Perfil" className="grid size-10 place-items-center rounded-full bg-[var(--ink)] text-xs font-bold text-white">TN</span>
         </header>
         <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:px-10 lg:py-12">

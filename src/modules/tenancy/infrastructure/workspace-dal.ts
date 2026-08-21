@@ -14,13 +14,13 @@ async function sessionIdentity() {
 export async function listCurrentMemberships() {
   const session = await sessionIdentity();
   if (!session) return null;
-  return { userId: session.userId, memberships: await repository.listMemberships(session.userId) };
+  return { userId: session.userId, ...await repository.listAccessContext(session.userId) };
 }
 
 export async function requireWorkspaceAccess(workspaceSlug: string) {
   const current = await listCurrentMemberships();
   return resolveWorkspaceAccess(
-    current ? { userId: current.userId } : null,
+    current ? { userId: current.userId, platformRole: current.platformRole } : null,
     workspaceSlug,
     current?.memberships ?? [],
   );

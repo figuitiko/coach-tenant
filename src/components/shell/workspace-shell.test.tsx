@@ -39,4 +39,19 @@ describe("WorkspaceShell", () => {
 
     expect(screen.getByRole("link", { name: /cambiar a south/i })).toHaveAttribute("href", "/w/south");
   });
+
+  it("labels explicit super-admin context separately from tenant coach context", () => {
+    render(<WorkspaceShell currentMembership={{ ...defaultAdminMembership }} memberships={[defaultAdminMembership]} />);
+
+    expect(screen.getAllByText(/panel de super admin/i).length).toBeGreaterThan(0);
+  });
 });
+
+const defaultAdminMembership = {
+  workspaceId: "w-admin",
+  workspaceSlug: "north",
+  workspaceName: "North",
+  timeZone: "America/Mexico_City",
+  role: "COACH" as const,
+  accessMode: "SUPER_ADMIN" as const,
+};

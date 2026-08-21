@@ -17,6 +17,14 @@ export const MembershipRole = {
 export type MembershipRole = (typeof MembershipRole)[keyof typeof MembershipRole]
 
 
+export const PlatformRole = {
+  USER: 'USER',
+  SUPER_ADMIN: 'SUPER_ADMIN'
+} as const
+
+export type PlatformRole = (typeof PlatformRole)[keyof typeof PlatformRole]
+
+
 export const WorkoutStatus = {
   PLANNED: 'PLANNED',
   IN_PROGRESS: 'IN_PROGRESS',

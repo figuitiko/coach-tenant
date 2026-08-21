@@ -1,5 +1,6 @@
 import type { Prisma, PrismaClient } from "@/generated/prisma/client";
 import { TrainingAccessDeniedError, TrainingValidationError, type AssignedWorkout, type CoachTrainingDashboard, type PlanScheduleInput, type PrescribedExercise, type SaveSetInput, type TrainingRepository } from "../application/training-service";
+import { isWorkspaceRoleAuthorized } from "@/modules/tenancy/infrastructure/workspace-role-authorization";
 
 const workoutInclude = {
   exercises: { orderBy: { order: "asc" as const } },
@@ -273,11 +274,10 @@ function isTransactionConflict(error: unknown): error is { code: "P2034" | "P200
   return typeof error === "object" && error !== null && "code" in error && (error.code === "P2034" || error.code === "P2002");
 }
 
-type DatabaseLike = Pick<PrismaClient, "membership">;
+type DatabaseLike = Pick<PrismaClient, "membership" | "user">;
 
 async function requireCoach(database: DatabaseLike, workspaceId: string, actorId: string) {
-  const membership = await database.membership.findFirst({ where: { workspaceId, userId: actorId, role: "COACH" }, select: { id: true } });
-  if (!membership) throw new TrainingAccessDeniedError();
+  if (!await isWorkspaceRoleAuthorized(database, workspaceId, actorId, "COACH")) throw new TrainingAccessDeniedError();
 }
 
 function dateOnly(value: string) {

@@ -12,6 +12,11 @@ enum MembershipRole {
   STUDENT
 }
 
+enum PlatformRole {
+  USER
+  SUPER_ADMIN
+}
+
 enum WorkoutStatus {
   PLANNED
   IN_PROGRESS
@@ -55,6 +60,7 @@ model User {
   email            String                  @unique
   emailVerified    Boolean                 @default(false)
   image            String?
+  platformRole     PlatformRole            @default(USER)
   createdAt        DateTime                @default(now())
   updatedAt        DateTime                @updatedAt
   sessions         Session[]

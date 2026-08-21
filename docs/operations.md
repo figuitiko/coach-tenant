@@ -16,6 +16,15 @@ pnpm dev
 
 The seed recreates only `fuerza-norte-pilot` and `movimiento-sur-pilot`. Local accounts use `PILOT_SEED_PASSWORD` (documented default only for local pilot data). Production seeding fails unless an operator explicitly sets `ALLOW_PRODUCTION_SEED=true` during an intentional reset.
 
+Local pilot identities are intentionally separated:
+
+- `pilot.admin@tenand.local` is the platform `SUPER_ADMIN`; it has no tenant membership and selects either workspace through explicit global admin context.
+- `coach.fuerzanorte@tenand.local` is an ordinary `USER`, owner and `COACH` only in Fuerza Norte.
+- `coach.movimientosur@tenand.local` is an ordinary `USER`, owner and `COACH` only in Movimiento Sur.
+- `pilot.student1@tenand.local` remains a normal student member of both workspaces to exercise multi-workspace membership selection.
+
+All use the local-only seed password. Never reuse these credentials or enable the pilot seed in a real production dataset.
+
 ## Auth and SMTP
 
 Use an HTTPS `BETTER_AUTH_URL` in production and a high-entropy secret. Configure a verified SMTP sender. Password reset links must resolve to the deployed origin; do not log link tokens or invitation tokens. Rotate SMTP credentials through the provider and secret store.

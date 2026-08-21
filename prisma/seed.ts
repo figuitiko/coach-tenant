@@ -14,7 +14,9 @@ const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) })
 const password = process.env.PILOT_SEED_PASSWORD ?? "TenandPilot!2026";
 const fixedDate = new Date("2026-08-19T15:00:00.000Z");
 const dateOnly = (value: string) => new Date(`${value}T00:00:00.000Z`);
-const coach = { id: "pilot-coach", name: "Franco Rivera", email: "pilot.coach@tenand.local" };
+const admin = { id: "pilot-admin", name: "Administración Piloto", email: "pilot.admin@tenand.local", platformRole: "SUPER_ADMIN" as const };
+const northCoach = { id: "pilot-coach-north", name: "Franco Rivera", email: "coach.fuerzanorte@tenand.local", platformRole: "USER" as const };
+const southCoach = { id: "pilot-coach-south", name: "Camila Suárez", email: "coach.movimientosur@tenand.local", platformRole: "USER" as const };
 const students = [
   { id: "pilot-student-1", name: "Martina López", email: "pilot.student1@tenand.local" },
   { id: "pilot-student-2", name: "Facundo Torres", email: "pilot.student2@tenand.local" },
@@ -26,31 +28,31 @@ const students = [
 async function main() {
   const passwordHash = await hashPassword(password);
   const priorInvitedUsers = await prisma.user.findMany({ where: { email: "pilot.invited@tenand.local" }, select: { id: true } });
-  const resetUserIds = [coach.id, ...students.map(({ id }) => id), ...priorInvitedUsers.map(({ id }) => id)];
+  const resetUserIds = ["pilot-coach", admin.id, northCoach.id, southCoach.id, ...students.map(({ id }) => id), ...priorInvitedUsers.map(({ id }) => id)];
   await prisma.workspace.deleteMany({ where: { slug: { in: ["fuerza-norte-pilot", "movimiento-sur-pilot"] } } });
   await prisma.account.deleteMany({ where: { userId: { in: resetUserIds } } });
   await prisma.user.deleteMany({ where: { id: { in: resetUserIds } } });
 
-  for (const user of [coach, ...students]) {
+  for (const user of [admin, northCoach, southCoach, ...students]) {
     await prisma.user.create({ data: { ...user, emailVerified: true, createdAt: fixedDate, updatedAt: fixedDate } });
     await prisma.account.create({ data: { id: `pilot-account-${user.id}`, accountId: user.id, providerId: "credential", userId: user.id, password: passwordHash, createdAt: fixedDate, updatedAt: fixedDate } });
   }
 
   const workspace = await prisma.workspace.create({ data: {
-    id: "pilot-workspace-north", slug: "fuerza-norte-pilot", name: "Fuerza Norte · Piloto", ownerId: coach.id,
+    id: "pilot-workspace-north", slug: "fuerza-norte-pilot", name: "Fuerza Norte · Piloto", ownerId: northCoach.id,
     timeZone: "America/Mexico_City", createdAt: fixedDate, updatedAt: fixedDate,
     memberships: { create: [
-      { id: "pilot-membership-coach", userId: coach.id, role: "COACH", createdAt: fixedDate, updatedAt: fixedDate },
+      { id: "pilot-membership-coach", userId: northCoach.id, role: "COACH", createdAt: fixedDate, updatedAt: fixedDate },
       ...students.map((student, index) => ({ id: `pilot-membership-student-${index + 1}`, userId: student.id, role: "STUDENT" as const, createdAt: fixedDate, updatedAt: fixedDate })),
     ] },
   } });
   const activeInvitationToken = "pilot-active-invitation-token-0001";
-  await prisma.invitation.create({ data: { id: "cm00000000000000000000001", workspaceId: workspace.id, invitedById: coach.id, tokenHash: hashInvitationToken(activeInvitationToken), role: "STUDENT", expiresAt: new Date("2099-08-19T15:00:00Z"), createdAt: fixedDate, updatedAt: fixedDate } });
+  await prisma.invitation.create({ data: { id: "cm00000000000000000000001", workspaceId: workspace.id, invitedById: northCoach.id, tokenHash: hashInvitationToken(activeInvitationToken), role: "STUDENT", expiresAt: new Date("2099-08-19T15:00:00Z"), createdAt: fixedDate, updatedAt: fixedDate } });
   await prisma.workspace.create({ data: {
-    id: "pilot-workspace-south", slug: "movimiento-sur-pilot", name: "Movimiento Sur · Piloto", ownerId: coach.id,
+    id: "pilot-workspace-south", slug: "movimiento-sur-pilot", name: "Movimiento Sur · Piloto", ownerId: southCoach.id,
     timeZone: "America/Argentina/Buenos_Aires", createdAt: fixedDate, updatedAt: fixedDate,
     memberships: { create: [
-      { id: "pilot-membership-coach-south", userId: coach.id, role: "COACH", createdAt: fixedDate, updatedAt: fixedDate },
+      { id: "pilot-membership-coach-south", userId: southCoach.id, role: "COACH", createdAt: fixedDate, updatedAt: fixedDate },
       { id: "pilot-membership-student-1-south", userId: students[0].id, role: "STUDENT", createdAt: fixedDate, updatedAt: fixedDate },
     ] },
   } });
@@ -61,22 +63,22 @@ async function main() {
     ["pilot-exercise-row", "Remo con mancuerna", "Tronco estable, recorrido completo."],
     ["pilot-exercise-rdl", "Peso muerto rumano", "Cadera atrás y espalda neutra."],
   ] as const;
-  for (const [id, name, notes] of exerciseRows) await prisma.exercise.create({ data: { id, workspaceId: workspace.id, createdById: coach.id, name, notes, createdAt: fixedDate, updatedAt: fixedDate } });
+  for (const [id, name, notes] of exerciseRows) await prisma.exercise.create({ data: { id, workspaceId: workspace.id, createdById: northCoach.id, name, notes, createdAt: fixedDate, updatedAt: fixedDate } });
 
-  const lower = await prisma.workoutTemplate.create({ data: { id: "pilot-template-lower", workspaceId: workspace.id, createdById: coach.id, name: "Piernas · Base", description: "Fuerza técnica para el piloto", createdAt: fixedDate, updatedAt: fixedDate, exercises: { create: [
+  const lower = await prisma.workoutTemplate.create({ data: { id: "pilot-template-lower", workspaceId: workspace.id, createdById: northCoach.id, name: "Piernas · Base", description: "Fuerza técnica para el piloto", createdAt: fixedDate, updatedAt: fixedDate, exercises: { create: [
     { id: "pilot-template-exercise-squat", exerciseId: "pilot-exercise-squat", order: 0, prescribedSets: 3, repMin: 6, repMax: 8, targetRpe: 7.5, restSeconds: 120 },
     { id: "pilot-template-exercise-rdl", exerciseId: "pilot-exercise-rdl", order: 1, prescribedSets: 3, repMin: 8, repMax: 10, targetRpe: 8, restSeconds: 90 },
   ] } } });
-  const upper = await prisma.workoutTemplate.create({ data: { id: "pilot-template-upper", workspaceId: workspace.id, createdById: coach.id, name: "Torso · Base", description: "Empuje y tracción", createdAt: fixedDate, updatedAt: fixedDate, exercises: { create: [
+  const upper = await prisma.workoutTemplate.create({ data: { id: "pilot-template-upper", workspaceId: workspace.id, createdById: northCoach.id, name: "Torso · Base", description: "Empuje y tracción", createdAt: fixedDate, updatedAt: fixedDate, exercises: { create: [
     { id: "pilot-template-exercise-bench", exerciseId: "pilot-exercise-bench", order: 0, prescribedSets: 3, repMin: 6, repMax: 8, targetRpe: 8, restSeconds: 120 },
     { id: "pilot-template-exercise-row", exerciseId: "pilot-exercise-row", order: 1, prescribedSets: 3, repMin: 8, repMax: 12, targetRpe: 7, restSeconds: 75 },
   ] } } });
 
-  const plan = await prisma.workoutPlan.create({ data: { id: "pilot-plan-august", workspaceId: workspace.id, createdById: coach.id, name: "Bloque piloto · Agosto", startsOn: dateOnly("2026-08-17"), endsOn: dateOnly("2026-08-30"), createdAt: fixedDate, updatedAt: fixedDate, workouts: { create: [
+  const plan = await prisma.workoutPlan.create({ data: { id: "pilot-plan-august", workspaceId: workspace.id, createdById: northCoach.id, name: "Bloque piloto · Agosto", startsOn: dateOnly("2026-08-17"), endsOn: dateOnly("2026-08-30"), createdAt: fixedDate, updatedAt: fixedDate, workouts: { create: [
     { id: "pilot-plan-workout-1", templateId: lower.id, order: 0, scheduledOn: dateOnly("2026-08-19") },
     { id: "pilot-plan-workout-2", templateId: upper.id, order: 1, scheduledOn: dateOnly("2026-08-21") },
   ] } } });
-  const assignment = await prisma.studentPlanAssignment.create({ data: { id: "pilot-assignment-martina", workspaceId: workspace.id, planId: plan.id, studentMembershipId: "pilot-membership-student-1", assignedById: coach.id, assignedAt: fixedDate } });
+  const assignment = await prisma.studentPlanAssignment.create({ data: { id: "pilot-assignment-martina", workspaceId: workspace.id, planId: plan.id, studentMembershipId: "pilot-membership-student-1", assignedById: northCoach.id, assignedAt: fixedDate } });
 
   const completed = await prisma.assignedWorkout.create({ data: { id: "pilot-assigned-completed", workspaceId: workspace.id, assignmentId: assignment.id, planWorkoutId: "pilot-plan-workout-1", sourceTemplateId: lower.id, studentId: students[0].id, templateName: lower.name, scheduledOn: dateOnly("2026-08-19"), status: "COMPLETED", createdAt: fixedDate, updatedAt: fixedDate, exercises: { create: [
     { id: "pilot-assigned-squat", sourceExerciseId: "pilot-exercise-squat", exerciseName: "Sentadilla", order: 0, prescribedSets: 3, repMin: 6, repMax: 8, targetRpe: 7.5, restSeconds: 120 },
@@ -94,7 +96,7 @@ async function main() {
 
   await prisma.measurementCheckIn.create({ data: { id: "pilot-checkin-submitted", workspaceId: workspace.id, studentId: students[0].id, status: "SUBMITTED", reviewStatus: "PENDING", weight: 68.4, weightUnit: "KG", waist: 76.5, waistUnit: "CM", notes: "Buena energía; sueño más regular.", submitIdempotencyKey: "pilot-submit-checkin", submittedAt: fixedDate, createdAt: fixedDate, updatedAt: fixedDate } });
   const reviewedCheckIn = await prisma.measurementCheckIn.create({ data: { id: "pilot-checkin-reviewed", workspaceId: workspace.id, studentId: students[1].id, status: "REVIEWED", reviewStatus: "REVIEWED", weight: 81.2, weightUnit: "KG", notes: "Semana sostenida.", submitIdempotencyKey: "pilot-submit-reviewed", submittedAt: new Date("2026-08-12T15:00:00Z"), reviewedAt: fixedDate, createdAt: fixedDate, updatedAt: fixedDate } });
-  await prisma.reviewNote.create({ data: { id: "pilot-review-note-completed", workspaceId: workspace.id, coachId: coach.id, checkInId: reviewedCheckIn.id, body: "Buen ritmo. Sostenemos cargas y priorizamos descanso.", idempotencyKey: "pilot-completed-review", createdAt: fixedDate } });
+  await prisma.reviewNote.create({ data: { id: "pilot-review-note-completed", workspaceId: workspace.id, coachId: northCoach.id, checkInId: reviewedCheckIn.id, body: "Buen ritmo. Sostenemos cargas y priorizamos descanso.", idempotencyKey: "pilot-completed-review", createdAt: fixedDate } });
   console.info(`Seeded ${workspace.slug}. Local-only accounts use password from PILOT_SEED_PASSWORD (default: TenandPilot!2026).`);
 }
 

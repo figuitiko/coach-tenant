@@ -1,4 +1,6 @@
 export type MembershipRole = "COACH" | "STUDENT";
+export type PlatformRole = "USER" | "SUPER_ADMIN";
+export type WorkspaceAccessMode = "MEMBERSHIP" | "SUPER_ADMIN";
 
 export type WorkspaceMembershipDto = {
   workspaceId: string;
@@ -6,9 +8,10 @@ export type WorkspaceMembershipDto = {
   workspaceName: string;
   timeZone: string;
   role: MembershipRole;
+  accessMode?: WorkspaceAccessMode;
 };
 
-export type SessionIdentity = { userId: string };
+export type SessionIdentity = { userId: string; platformRole?: PlatformRole };
 
 export class UnauthenticatedError extends Error {}
 export class CrossTenantAccessError extends Error {}
@@ -20,8 +23,21 @@ export function resolveWorkspaceAccess(
 ) {
   if (!session) throw new UnauthenticatedError("Authentication required");
   const workspace = memberships.find((membership) => membership.workspaceSlug === workspaceSlug);
-  if (!workspace) throw new CrossTenantAccessError("Workspace access denied");
-  return { userId: session.userId, workspace };
+  if (!workspace || (workspace.accessMode === "SUPER_ADMIN" && session.platformRole !== "SUPER_ADMIN")) {
+    throw new CrossTenantAccessError("Workspace access denied");
+  }
+  return { userId: session.userId, platformRole: session.platformRole ?? "USER", workspace };
+}
+
+export function authorizeWorkspaceList(
+  platformRole: PlatformRole,
+  memberships: readonly WorkspaceMembershipDto[],
+  allWorkspaces: readonly Omit<WorkspaceMembershipDto, "role" | "accessMode">[],
+): WorkspaceMembershipDto[] {
+  if (platformRole === "SUPER_ADMIN") {
+    return allWorkspaces.map((workspace) => ({ ...workspace, role: "COACH", accessMode: "SUPER_ADMIN" }));
+  }
+  return memberships.filter((workspace) => workspace.accessMode !== "SUPER_ADMIN");
 }
 
 export function selectWorkspaceEntry(

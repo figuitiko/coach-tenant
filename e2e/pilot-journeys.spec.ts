@@ -15,6 +15,25 @@ test.describe("pilot PostgreSQL journeys", () => {
   test.skip(!enabled, "TEST_DATABASE_URL is mandatory for authenticated pilot E2E");
   test.describe.configure({ mode: "serial" });
 
+  test("super admin selects either workspace through explicit global context", async ({ page }) => {
+    await signIn(page, "pilot.admin@tenand.local");
+    await expect(page).toHaveURL(/\/workspace$/);
+    await expect(page.getByText(/panel de super admin/i)).toBeVisible();
+    await expect(page.getByRole("link", { name: /fuerza norte/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /movimiento sur/i })).toBeVisible();
+  });
+
+  test("ordinary tenant coaches cannot guess the other workspace", async ({ page }) => {
+    await signIn(page, "coach.fuerzanorte@tenand.local");
+    await expect(page).toHaveURL(/\/w\/fuerza-norte-pilot$/);
+    expect((await page.goto("/w/movimiento-sur-pilot"))?.status()).toBe(404);
+
+    await page.context().clearCookies();
+    await signIn(page, "coach.movimientosur@tenand.local");
+    await expect(page).toHaveURL(/\/w\/movimiento-sur-pilot$/);
+    expect((await page.goto("/w/fuerza-norte-pilot"))?.status()).toBe(404);
+  });
+
   test("new user accepts an active invitation exactly once", async ({ page }) => {
     const invitePath = "/invite/pilot-active-invitation-token-0001";
     await page.goto(`/sign-in?callbackURL=${encodeURIComponent(invitePath)}`);
@@ -29,14 +48,14 @@ test.describe("pilot PostgreSQL journeys", () => {
     await expect(page).toHaveURL(/\/w\/fuerza-norte-pilot$/);
 
     await page.context().clearCookies();
-    await signIn(page, "pilot.coach@tenand.local");
+    await signIn(page, "coach.fuerzanorte@tenand.local");
     await page.goto(invitePath);
     await page.getByRole("button", { name: /aceptar invitación/i }).click();
     await expect(page).toHaveURL(/\/workspace\?invite=unavailable$/);
   });
 
   test("coach can author training data and assign a saved plan", async ({ page }) => {
-    await signIn(page, "pilot.coach@tenand.local");
+    await signIn(page, "coach.fuerzanorte@tenand.local");
     await page.goto("/w/fuerza-norte-pilot/training");
     await expect(page.getByRole("heading", { name: "Entrenamiento" })).toBeVisible();
     const exercise = page.getByRole("form", { name: /crear ejercicio/i });
@@ -86,7 +105,7 @@ test.describe("pilot PostgreSQL journeys", () => {
   });
 
   test("coach can open and complete a review", async ({ page }) => {
-    await signIn(page, "pilot.coach@tenand.local");
+    await signIn(page, "coach.fuerzanorte@tenand.local");
     await page.goto("/w/fuerza-norte-pilot/progress");
     const review = page.getByRole("link", { name: /revisar (entrenamiento|check-in)/i }).first();
     await review.click();

@@ -16,7 +16,7 @@ test("authenticated mobile roles can navigate, log training, and submit progress
   test.skip(!enabled, "TEST_DATABASE_URL is mandatory for authenticated mobile E2E");
   const coachContext = await browser.newContext(pixel7);
   const coach = await coachContext.newPage();
-  await signIn(coach, "pilot.coach@tenand.local");
+  await signIn(coach, "coach.fuerzanorte@tenand.local");
   await coach.goto("/w/fuerza-norte-pilot");
   const coachNavigation = coach.getByRole("navigation", { name: /navegación móvil/i });
   await expect(coachNavigation.getByRole("link", { name: "Alumnos" })).toBeVisible();

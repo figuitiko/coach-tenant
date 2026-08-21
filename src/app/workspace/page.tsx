@@ -14,6 +14,7 @@ export default async function WorkspacePage() {
   return (
     <main className="mx-auto min-h-screen max-w-2xl px-5 py-16">
       <h1 className="display-type text-5xl font-semibold">Elegí un workspace</h1>
+      {current.platformRole === "SUPER_ADMIN" ? <p className="mt-3 text-sm font-bold text-[var(--signal-dark)]">Panel de super admin · acceso global explícito</p> : null}
       {current.memberships.length === 0 ? (
         <p className="mt-5 text-[var(--ink-muted)]">Tu cuenta todavía no tiene acceso a un workspace.</p>
       ) : (
@@ -21,7 +22,7 @@ export default async function WorkspacePage() {
           {current.memberships.map((membership) => (
             <li key={membership.workspaceId}>
               <Link className="block border border-[var(--line)] bg-white/60 p-5 font-bold hover:border-[var(--ink)]" href={`/w/${membership.workspaceSlug}`}>
-                {membership.workspaceName} <span className="ml-2 text-xs text-[var(--ink-muted)]">{membership.role}</span>
+                {membership.workspaceName} <span className="ml-2 text-xs text-[var(--ink-muted)]">{membership.accessMode === "SUPER_ADMIN" ? "SUPER ADMIN" : membership.role}</span>
               </Link>
             </li>
           ))}
