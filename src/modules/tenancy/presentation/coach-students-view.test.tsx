@@ -30,4 +30,18 @@ describe("CoachStudentsView", () => {
     expect(screen.getByText("Revocada")).toBeVisible();
     expect(document.body.textContent).not.toMatch(/token|hash/i);
   });
+
+  it("opens plan assignment in an explicit student context and shows recent plan status", () => {
+    render(<CoachStudentsView workspaceSlug="north" students={[{
+      id: "membership-ana",
+      name: "Ana",
+      status: "Plan Base · 2 sesiones pendientes",
+    }]} invitations={[]} createInvitation={vi.fn()} revokeInvitation={vi.fn()} />);
+
+    expect(screen.getByText(/plan base · 2 sesiones pendientes/i)).toBeVisible();
+    expect(screen.getByRole("link", { name: /gestionar entrenamiento de ana/i })).toHaveAttribute(
+      "href",
+      "/w/north/training?studentMembershipId=membership-ana#assignment",
+    );
+  });
 });

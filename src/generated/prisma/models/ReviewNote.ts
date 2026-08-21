@@ -210,6 +210,7 @@ export type ReviewNoteWhereInput = {
   coach?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   checkIn?: Prisma.XOR<Prisma.MeasurementCheckInNullableScalarRelationFilter, Prisma.MeasurementCheckInWhereInput> | null
   workoutSession?: Prisma.XOR<Prisma.WorkoutSessionNullableScalarRelationFilter, Prisma.WorkoutSessionWhereInput> | null
+  reply?: Prisma.XOR<Prisma.ReviewReplyNullableScalarRelationFilter, Prisma.ReviewReplyWhereInput> | null
 }
 
 export type ReviewNoteOrderByWithRelationInput = {
@@ -225,6 +226,7 @@ export type ReviewNoteOrderByWithRelationInput = {
   coach?: Prisma.UserOrderByWithRelationInput
   checkIn?: Prisma.MeasurementCheckInOrderByWithRelationInput
   workoutSession?: Prisma.WorkoutSessionOrderByWithRelationInput
+  reply?: Prisma.ReviewReplyOrderByWithRelationInput
 }
 
 export type ReviewNoteWhereUniqueInput = Prisma.AtLeast<{
@@ -244,6 +246,7 @@ export type ReviewNoteWhereUniqueInput = Prisma.AtLeast<{
   coach?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   checkIn?: Prisma.XOR<Prisma.MeasurementCheckInNullableScalarRelationFilter, Prisma.MeasurementCheckInWhereInput> | null
   workoutSession?: Prisma.XOR<Prisma.WorkoutSessionNullableScalarRelationFilter, Prisma.WorkoutSessionWhereInput> | null
+  reply?: Prisma.XOR<Prisma.ReviewReplyNullableScalarRelationFilter, Prisma.ReviewReplyWhereInput> | null
 }, "id" | "workspaceId_idempotencyKey">
 
 export type ReviewNoteOrderByWithAggregationInput = {
@@ -283,6 +286,7 @@ export type ReviewNoteCreateInput = {
   coach: Prisma.UserCreateNestedOneWithoutReviewNotesInput
   checkIn?: Prisma.MeasurementCheckInCreateNestedOneWithoutReviewNotesInput
   workoutSession?: Prisma.WorkoutSessionCreateNestedOneWithoutReviewNotesInput
+  reply?: Prisma.ReviewReplyCreateNestedOneWithoutReviewNoteInput
 }
 
 export type ReviewNoteUncheckedCreateInput = {
@@ -294,6 +298,7 @@ export type ReviewNoteUncheckedCreateInput = {
   body: string
   idempotencyKey: string
   createdAt?: Date | string
+  reply?: Prisma.ReviewReplyUncheckedCreateNestedOneWithoutReviewNoteInput
 }
 
 export type ReviewNoteUpdateInput = {
@@ -305,6 +310,7 @@ export type ReviewNoteUpdateInput = {
   coach?: Prisma.UserUpdateOneRequiredWithoutReviewNotesNestedInput
   checkIn?: Prisma.MeasurementCheckInUpdateOneWithoutReviewNotesNestedInput
   workoutSession?: Prisma.WorkoutSessionUpdateOneWithoutReviewNotesNestedInput
+  reply?: Prisma.ReviewReplyUpdateOneWithoutReviewNoteNestedInput
 }
 
 export type ReviewNoteUncheckedUpdateInput = {
@@ -316,6 +322,7 @@ export type ReviewNoteUncheckedUpdateInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reply?: Prisma.ReviewReplyUncheckedUpdateOneWithoutReviewNoteNestedInput
 }
 
 export type ReviewNoteCreateManyInput = {
@@ -393,6 +400,11 @@ export type ReviewNoteMinOrderByAggregateInput = {
   body?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type ReviewNoteScalarRelationFilter = {
+  is?: Prisma.ReviewNoteWhereInput
+  isNot?: Prisma.ReviewNoteWhereInput
 }
 
 export type ReviewNoteCreateNestedManyWithoutCoachInput = {
@@ -563,6 +575,20 @@ export type ReviewNoteUncheckedUpdateManyWithoutCheckInNestedInput = {
   deleteMany?: Prisma.ReviewNoteScalarWhereInput | Prisma.ReviewNoteScalarWhereInput[]
 }
 
+export type ReviewNoteCreateNestedOneWithoutReplyInput = {
+  create?: Prisma.XOR<Prisma.ReviewNoteCreateWithoutReplyInput, Prisma.ReviewNoteUncheckedCreateWithoutReplyInput>
+  connectOrCreate?: Prisma.ReviewNoteCreateOrConnectWithoutReplyInput
+  connect?: Prisma.ReviewNoteWhereUniqueInput
+}
+
+export type ReviewNoteUpdateOneRequiredWithoutReplyNestedInput = {
+  create?: Prisma.XOR<Prisma.ReviewNoteCreateWithoutReplyInput, Prisma.ReviewNoteUncheckedCreateWithoutReplyInput>
+  connectOrCreate?: Prisma.ReviewNoteCreateOrConnectWithoutReplyInput
+  upsert?: Prisma.ReviewNoteUpsertWithoutReplyInput
+  connect?: Prisma.ReviewNoteWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ReviewNoteUpdateToOneWithWhereWithoutReplyInput, Prisma.ReviewNoteUpdateWithoutReplyInput>, Prisma.ReviewNoteUncheckedUpdateWithoutReplyInput>
+}
+
 export type ReviewNoteCreateWithoutCoachInput = {
   id?: string
   body: string
@@ -571,6 +597,7 @@ export type ReviewNoteCreateWithoutCoachInput = {
   workspace: Prisma.WorkspaceCreateNestedOneWithoutReviewNotesInput
   checkIn?: Prisma.MeasurementCheckInCreateNestedOneWithoutReviewNotesInput
   workoutSession?: Prisma.WorkoutSessionCreateNestedOneWithoutReviewNotesInput
+  reply?: Prisma.ReviewReplyCreateNestedOneWithoutReviewNoteInput
 }
 
 export type ReviewNoteUncheckedCreateWithoutCoachInput = {
@@ -581,6 +608,7 @@ export type ReviewNoteUncheckedCreateWithoutCoachInput = {
   body: string
   idempotencyKey: string
   createdAt?: Date | string
+  reply?: Prisma.ReviewReplyUncheckedCreateNestedOneWithoutReviewNoteInput
 }
 
 export type ReviewNoteCreateOrConnectWithoutCoachInput = {
@@ -631,6 +659,7 @@ export type ReviewNoteCreateWithoutWorkspaceInput = {
   coach: Prisma.UserCreateNestedOneWithoutReviewNotesInput
   checkIn?: Prisma.MeasurementCheckInCreateNestedOneWithoutReviewNotesInput
   workoutSession?: Prisma.WorkoutSessionCreateNestedOneWithoutReviewNotesInput
+  reply?: Prisma.ReviewReplyCreateNestedOneWithoutReviewNoteInput
 }
 
 export type ReviewNoteUncheckedCreateWithoutWorkspaceInput = {
@@ -641,6 +670,7 @@ export type ReviewNoteUncheckedCreateWithoutWorkspaceInput = {
   body: string
   idempotencyKey: string
   createdAt?: Date | string
+  reply?: Prisma.ReviewReplyUncheckedCreateNestedOneWithoutReviewNoteInput
 }
 
 export type ReviewNoteCreateOrConnectWithoutWorkspaceInput = {
@@ -677,6 +707,7 @@ export type ReviewNoteCreateWithoutWorkoutSessionInput = {
   workspace: Prisma.WorkspaceCreateNestedOneWithoutReviewNotesInput
   coach: Prisma.UserCreateNestedOneWithoutReviewNotesInput
   checkIn?: Prisma.MeasurementCheckInCreateNestedOneWithoutReviewNotesInput
+  reply?: Prisma.ReviewReplyCreateNestedOneWithoutReviewNoteInput
 }
 
 export type ReviewNoteUncheckedCreateWithoutWorkoutSessionInput = {
@@ -687,6 +718,7 @@ export type ReviewNoteUncheckedCreateWithoutWorkoutSessionInput = {
   body: string
   idempotencyKey: string
   createdAt?: Date | string
+  reply?: Prisma.ReviewReplyUncheckedCreateNestedOneWithoutReviewNoteInput
 }
 
 export type ReviewNoteCreateOrConnectWithoutWorkoutSessionInput = {
@@ -723,6 +755,7 @@ export type ReviewNoteCreateWithoutCheckInInput = {
   workspace: Prisma.WorkspaceCreateNestedOneWithoutReviewNotesInput
   coach: Prisma.UserCreateNestedOneWithoutReviewNotesInput
   workoutSession?: Prisma.WorkoutSessionCreateNestedOneWithoutReviewNotesInput
+  reply?: Prisma.ReviewReplyCreateNestedOneWithoutReviewNoteInput
 }
 
 export type ReviewNoteUncheckedCreateWithoutCheckInInput = {
@@ -733,6 +766,7 @@ export type ReviewNoteUncheckedCreateWithoutCheckInInput = {
   body: string
   idempotencyKey: string
   createdAt?: Date | string
+  reply?: Prisma.ReviewReplyUncheckedCreateNestedOneWithoutReviewNoteInput
 }
 
 export type ReviewNoteCreateOrConnectWithoutCheckInInput = {
@@ -761,6 +795,66 @@ export type ReviewNoteUpdateManyWithWhereWithoutCheckInInput = {
   data: Prisma.XOR<Prisma.ReviewNoteUpdateManyMutationInput, Prisma.ReviewNoteUncheckedUpdateManyWithoutCheckInInput>
 }
 
+export type ReviewNoteCreateWithoutReplyInput = {
+  id?: string
+  body: string
+  idempotencyKey: string
+  createdAt?: Date | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutReviewNotesInput
+  coach: Prisma.UserCreateNestedOneWithoutReviewNotesInput
+  checkIn?: Prisma.MeasurementCheckInCreateNestedOneWithoutReviewNotesInput
+  workoutSession?: Prisma.WorkoutSessionCreateNestedOneWithoutReviewNotesInput
+}
+
+export type ReviewNoteUncheckedCreateWithoutReplyInput = {
+  id?: string
+  workspaceId: string
+  coachId: string
+  checkInId?: string | null
+  workoutSessionId?: string | null
+  body: string
+  idempotencyKey: string
+  createdAt?: Date | string
+}
+
+export type ReviewNoteCreateOrConnectWithoutReplyInput = {
+  where: Prisma.ReviewNoteWhereUniqueInput
+  create: Prisma.XOR<Prisma.ReviewNoteCreateWithoutReplyInput, Prisma.ReviewNoteUncheckedCreateWithoutReplyInput>
+}
+
+export type ReviewNoteUpsertWithoutReplyInput = {
+  update: Prisma.XOR<Prisma.ReviewNoteUpdateWithoutReplyInput, Prisma.ReviewNoteUncheckedUpdateWithoutReplyInput>
+  create: Prisma.XOR<Prisma.ReviewNoteCreateWithoutReplyInput, Prisma.ReviewNoteUncheckedCreateWithoutReplyInput>
+  where?: Prisma.ReviewNoteWhereInput
+}
+
+export type ReviewNoteUpdateToOneWithWhereWithoutReplyInput = {
+  where?: Prisma.ReviewNoteWhereInput
+  data: Prisma.XOR<Prisma.ReviewNoteUpdateWithoutReplyInput, Prisma.ReviewNoteUncheckedUpdateWithoutReplyInput>
+}
+
+export type ReviewNoteUpdateWithoutReplyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  body?: Prisma.StringFieldUpdateOperationsInput | string
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutReviewNotesNestedInput
+  coach?: Prisma.UserUpdateOneRequiredWithoutReviewNotesNestedInput
+  checkIn?: Prisma.MeasurementCheckInUpdateOneWithoutReviewNotesNestedInput
+  workoutSession?: Prisma.WorkoutSessionUpdateOneWithoutReviewNotesNestedInput
+}
+
+export type ReviewNoteUncheckedUpdateWithoutReplyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  coachId?: Prisma.StringFieldUpdateOperationsInput | string
+  checkInId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workoutSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.StringFieldUpdateOperationsInput | string
+  idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type ReviewNoteCreateManyCoachInput = {
   id?: string
   workspaceId: string
@@ -779,6 +873,7 @@ export type ReviewNoteUpdateWithoutCoachInput = {
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutReviewNotesNestedInput
   checkIn?: Prisma.MeasurementCheckInUpdateOneWithoutReviewNotesNestedInput
   workoutSession?: Prisma.WorkoutSessionUpdateOneWithoutReviewNotesNestedInput
+  reply?: Prisma.ReviewReplyUpdateOneWithoutReviewNoteNestedInput
 }
 
 export type ReviewNoteUncheckedUpdateWithoutCoachInput = {
@@ -789,6 +884,7 @@ export type ReviewNoteUncheckedUpdateWithoutCoachInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reply?: Prisma.ReviewReplyUncheckedUpdateOneWithoutReviewNoteNestedInput
 }
 
 export type ReviewNoteUncheckedUpdateManyWithoutCoachInput = {
@@ -819,6 +915,7 @@ export type ReviewNoteUpdateWithoutWorkspaceInput = {
   coach?: Prisma.UserUpdateOneRequiredWithoutReviewNotesNestedInput
   checkIn?: Prisma.MeasurementCheckInUpdateOneWithoutReviewNotesNestedInput
   workoutSession?: Prisma.WorkoutSessionUpdateOneWithoutReviewNotesNestedInput
+  reply?: Prisma.ReviewReplyUpdateOneWithoutReviewNoteNestedInput
 }
 
 export type ReviewNoteUncheckedUpdateWithoutWorkspaceInput = {
@@ -829,6 +926,7 @@ export type ReviewNoteUncheckedUpdateWithoutWorkspaceInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reply?: Prisma.ReviewReplyUncheckedUpdateOneWithoutReviewNoteNestedInput
 }
 
 export type ReviewNoteUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -859,6 +957,7 @@ export type ReviewNoteUpdateWithoutWorkoutSessionInput = {
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutReviewNotesNestedInput
   coach?: Prisma.UserUpdateOneRequiredWithoutReviewNotesNestedInput
   checkIn?: Prisma.MeasurementCheckInUpdateOneWithoutReviewNotesNestedInput
+  reply?: Prisma.ReviewReplyUpdateOneWithoutReviewNoteNestedInput
 }
 
 export type ReviewNoteUncheckedUpdateWithoutWorkoutSessionInput = {
@@ -869,6 +968,7 @@ export type ReviewNoteUncheckedUpdateWithoutWorkoutSessionInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reply?: Prisma.ReviewReplyUncheckedUpdateOneWithoutReviewNoteNestedInput
 }
 
 export type ReviewNoteUncheckedUpdateManyWithoutWorkoutSessionInput = {
@@ -899,6 +999,7 @@ export type ReviewNoteUpdateWithoutCheckInInput = {
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutReviewNotesNestedInput
   coach?: Prisma.UserUpdateOneRequiredWithoutReviewNotesNestedInput
   workoutSession?: Prisma.WorkoutSessionUpdateOneWithoutReviewNotesNestedInput
+  reply?: Prisma.ReviewReplyUpdateOneWithoutReviewNoteNestedInput
 }
 
 export type ReviewNoteUncheckedUpdateWithoutCheckInInput = {
@@ -909,6 +1010,7 @@ export type ReviewNoteUncheckedUpdateWithoutCheckInInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   idempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reply?: Prisma.ReviewReplyUncheckedUpdateOneWithoutReviewNoteNestedInput
 }
 
 export type ReviewNoteUncheckedUpdateManyWithoutCheckInInput = {
@@ -936,6 +1038,7 @@ export type ReviewNoteSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   coach?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   checkIn?: boolean | Prisma.ReviewNote$checkInArgs<ExtArgs>
   workoutSession?: boolean | Prisma.ReviewNote$workoutSessionArgs<ExtArgs>
+  reply?: boolean | Prisma.ReviewNote$replyArgs<ExtArgs>
 }, ExtArgs["result"]["reviewNote"]>
 
 export type ReviewNoteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -985,6 +1088,7 @@ export type ReviewNoteInclude<ExtArgs extends runtime.Types.Extensions.InternalA
   coach?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   checkIn?: boolean | Prisma.ReviewNote$checkInArgs<ExtArgs>
   workoutSession?: boolean | Prisma.ReviewNote$workoutSessionArgs<ExtArgs>
+  reply?: boolean | Prisma.ReviewNote$replyArgs<ExtArgs>
 }
 export type ReviewNoteIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -1006,6 +1110,7 @@ export type $ReviewNotePayload<ExtArgs extends runtime.Types.Extensions.Internal
     coach: Prisma.$UserPayload<ExtArgs>
     checkIn: Prisma.$MeasurementCheckInPayload<ExtArgs> | null
     workoutSession: Prisma.$WorkoutSessionPayload<ExtArgs> | null
+    reply: Prisma.$ReviewReplyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1414,6 +1519,7 @@ export interface Prisma__ReviewNoteClient<T, Null = never, ExtArgs extends runti
   coach<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   checkIn<T extends Prisma.ReviewNote$checkInArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReviewNote$checkInArgs<ExtArgs>>): Prisma.Prisma__MeasurementCheckInClient<runtime.Types.Result.GetResult<Prisma.$MeasurementCheckInPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   workoutSession<T extends Prisma.ReviewNote$workoutSessionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReviewNote$workoutSessionArgs<ExtArgs>>): Prisma.Prisma__WorkoutSessionClient<runtime.Types.Result.GetResult<Prisma.$WorkoutSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  reply<T extends Prisma.ReviewNote$replyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReviewNote$replyArgs<ExtArgs>>): Prisma.Prisma__ReviewReplyClient<runtime.Types.Result.GetResult<Prisma.$ReviewReplyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1887,6 +1993,25 @@ export type ReviewNote$workoutSessionArgs<ExtArgs extends runtime.Types.Extensio
    */
   include?: Prisma.WorkoutSessionInclude<ExtArgs> | null
   where?: Prisma.WorkoutSessionWhereInput
+}
+
+/**
+ * ReviewNote.reply
+ */
+export type ReviewNote$replyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ReviewReply
+   */
+  select?: Prisma.ReviewReplySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ReviewReply
+   */
+  omit?: Prisma.ReviewReplyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReviewReplyInclude<ExtArgs> | null
+  where?: Prisma.ReviewReplyWhereInput
 }
 
 /**

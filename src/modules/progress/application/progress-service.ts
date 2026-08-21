@@ -12,14 +12,16 @@ export type CheckInMetrics = {
 };
 export type ReviewKind = "CHECK_IN" | "WORKOUT";
 export type ReviewQueueItem = { kind: ReviewKind; id: string; studentId: string; studentName: string; submittedAt: Date };
-export type ReviewDetail = { kind: ReviewKind; id: string; studentId: string; studentName: string; reviewStatus: "PENDING" | "REVIEWED"; details: Array<{ label: string; value: string }>; photos: Array<{ id: string; mimeType: string }>; notes: Array<{ id: string; body: string; createdAt: Date }> };
-export type StudentProgress = { draft: { id: string; status: string; metrics: Record<string, unknown>; notes: string | null; photos: Array<{ id: string; mimeType: string; sizeBytes: number }> } | null; history: Array<{ id: string; submittedAt: Date | null; notes: string | null }> };
+export type ReviewMessage = { id: string; body: string; createdAt: Date; reply: { id: string; body: string; createdAt: Date } | null };
+export type ReviewDetail = { kind: ReviewKind; id: string; studentId: string; studentName: string; reviewStatus: "PENDING" | "REVIEWED"; details: Array<{ label: string; value: string }>; photos: Array<{ id: string; mimeType: string }>; notes: ReviewMessage[] };
+export type StudentProgress = { draft: { id: string; status: string; metrics: Record<string, unknown>; notes: string | null; photos: Array<{ id: string; mimeType: string; sizeBytes: number }> } | null; history: Array<{ id: string; submittedAt: Date | null; notes: string | null; reviewNotes: ReviewMessage[] }> };
 export type UploadIntent = { id: string; objectKey: string; mimeType: string; sizeBytes: number; checksumSha256: string; expiresAt: Date; status: "PENDING" | "CONSUMED" | "EXPIRED" };
 
 export interface ProgressRepository {
   createDraft(input: { workspaceId: string; studentId: string; createdAt: Date }): Promise<{ id: string; status: "DRAFT" }>;
   editDraft(input: { workspaceId: string; studentId: string; checkInId: string; metrics: CheckInMetrics; notes: string | null }): Promise<{ id: string; status: "DRAFT" } | null>;
   submitDraft(input: { workspaceId: string; studentId: string; checkInId: string; idempotencyKey: string; submittedAt: Date }): Promise<{ id: string; status: "SUBMITTED" } | null>;
+  submitCurrentDraft(input: { workspaceId: string; studentId: string; checkInId: string; metrics: CheckInMetrics; notes: string | null; idempotencyKey: string; submittedAt: Date }): Promise<{ id: string; status: "SUBMITTED" } | null>;
   reserveUploadIntent(input: { workspaceId: string; studentId: string; checkInId: string; idempotencyKey: string; objectKey: string; mimeType: string; sizeBytes: number; checksumSha256: string; expiresAt: Date }): Promise<UploadIntent | null>;
   getUploadIntent(input: { workspaceId: string; studentId: string; uploadIntentId: string }): Promise<UploadIntent | null>;
   attachPhoto(input: { workspaceId: string; studentId: string; uploadIntentId: string; attachedAt: Date }): Promise<{ id: string } | null>;
@@ -30,6 +32,7 @@ export interface ProgressRepository {
   listReviewQueue(input: { workspaceId: string; coachId: string }): Promise<ReviewQueueItem[]>;
   getReviewDetail(input: { workspaceId: string; coachId: string; kind: ReviewKind; itemId: string }): Promise<ReviewDetail | null>;
   completeReview(input: { workspaceId: string; coachId: string; kind: ReviewKind; itemId: string; note: string; idempotencyKey: string; reviewedAt: Date }): Promise<{ id: string; reviewed: boolean } | null>;
+  replyToReview(input: { workspaceId: string; studentId: string; reviewNoteId: string; body: string; createdAt: Date }): Promise<{ id: string } | null>;
 }
 
 export class ProgressAccessDeniedError extends Error {}
@@ -55,6 +58,18 @@ export class ProgressService {
   async submitDraft(actor: ProgressActor, input: { checkInId: string; idempotencyKey: string }) {
     requireRole(actor, "STUDENT");
     const result = await this.repository.submitDraft({ workspaceId: actor.workspaceId, studentId: actor.actorId, checkInId: requiredId(input.checkInId), idempotencyKey: requiredId(input.idempotencyKey), submittedAt: this.now() });
+    if (!result) throw new ProgressAccessDeniedError();
+    return result;
+  }
+
+  async submitCurrentDraft(actor: ProgressActor, input: { checkInId: string; metrics: CheckInMetrics; notes: string | null; idempotencyKey: string }) {
+    requireRole(actor, "STUDENT");
+    validateMetrics(input.metrics);
+    const result = await this.repository.submitCurrentDraft({
+      workspaceId: actor.workspaceId, studentId: actor.actorId, checkInId: requiredId(input.checkInId),
+      metrics: structuredClone(input.metrics), notes: optionalText(input.notes, 1000),
+      idempotencyKey: requiredId(input.idempotencyKey), submittedAt: this.now(),
+    });
     if (!result) throw new ProgressAccessDeniedError();
     return result;
   }
@@ -118,6 +133,15 @@ export class ProgressService {
   async completeReview(actor: ProgressActor, input: { kind: ReviewKind; itemId: string; note: string; idempotencyKey: string }) {
     requireRole(actor, "COACH");
     const result = await this.repository.completeReview({ ...input, workspaceId: actor.workspaceId, coachId: actor.actorId, note: optionalText(input.note, 2000) ?? "", reviewedAt: this.now() });
+    if (!result) throw new ProgressAccessDeniedError();
+    return result;
+  }
+
+  async replyToReview(actor: ProgressActor, input: { reviewNoteId: string; body: string }) {
+    requireRole(actor, "STUDENT");
+    const body = optionalText(input.body, 500);
+    if (!body) throw new ProgressValidationError("Reply is required");
+    const result = await this.repository.replyToReview({ workspaceId: actor.workspaceId, studentId: actor.actorId, reviewNoteId: requiredId(input.reviewNoteId), body, createdAt: this.now() });
     if (!result) throw new ProgressAccessDeniedError();
     return result;
   }

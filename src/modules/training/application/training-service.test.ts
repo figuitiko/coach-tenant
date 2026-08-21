@@ -269,6 +269,9 @@ function repositoryFixture(): TrainingRepository & {
     async listStudentSchedule(input) {
       return assignments.filter((item) => item.workspaceId === input.workspaceId && item.studentId === input.studentId && item.scheduledOn === input.date);
     },
+    async listStudentPlanOverview(input) {
+      return assignments.filter((item) => item.workspaceId === input.workspaceId && item.studentId === input.studentId);
+    },
     async saveSet(input) {
       const workout = assignments.find((item) => item.id === input.assignedWorkoutId && item.workspaceId === input.workspaceId && item.studentId === input.studentId);
       if (!workout || !workout.exercises.some((exercise) => exercise.id === input.exerciseSnapshotId)) return null;

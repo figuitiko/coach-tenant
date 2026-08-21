@@ -13,7 +13,7 @@ describe("training views", () => {
       templates: [{ id: "template-1", name: "Día A", description: "Fuerza base", exercises: [{ exerciseId: "exercise-1", exerciseName: "Sentadilla", order: 0, prescribedSets: 3, repMin: 6, repMax: 8, targetRpe: 8, restSeconds: 120, notes: null }] }],
       plans: [],
       students: [{ membershipId: "membership-1", name: "Martina López" }],
-    }} actions={{ createExercise: action, createTemplate: action, editTemplate: action, createPlan: action, assignPlan: action }} />);
+    }} selectedStudentMembershipId="membership-1" actions={{ createExercise: action, createTemplate: action, editTemplate: action, createPlan: action, assignPlan: action }} />);
 
     expect(screen.getByRole("heading", { name: /biblioteca de ejercicios/i })).toBeInTheDocument();
     expect(screen.getByRole("form", { name: /crear ejercicio/i })).toBeInTheDocument();
@@ -27,6 +27,24 @@ describe("training views", () => {
     const planForm = screen.getByRole("form", { name: /programar plan/i });
     expect(within(planForm).getAllByLabelText(/incluir entrenamiento/i)).toHaveLength(3);
     expect(screen.getByRole("form", { name: /asignar plan/i })).toBeInTheDocument();
+    expect(screen.getByText(/asignando a martina lópez/i)).toBeVisible();
+    expect(screen.getAllByText(/^paso [1-4]$/i)).toHaveLength(4);
+  });
+
+  it("shows the assigned plan overview and discoverable date navigation", () => {
+    const workout = {
+      id: "assigned-workout-1", workspaceId: "workspace-1", studentId: "student-1", scheduledOn: "2026-08-21",
+      templateName: "Torso", status: "PLANNED" as const, exercises: [], session: null,
+      reviewNotes: [{ id: "note-1", body: "Buen ritmo", reply: null }],
+    };
+    render(<StudentTrainingView date="2026-08-21" workouts={[workout]} overview={[workout]} actions={{ saveSet: action, completeWorkout: action, replyToReview: action }} />);
+
+    expect(screen.getByRole("heading", { name: /tu plan asignado/i })).toBeVisible();
+    expect(screen.getByRole("link", { name: /abrir torso/i })).toHaveAttribute("href", "?date=2026-08-21#workout-assigned-workout-1");
+    expect(screen.getByRole("link", { name: /día anterior/i })).toBeVisible();
+    expect(screen.getByRole("link", { name: /día siguiente/i })).toBeVisible();
+    expect(screen.getByText("Buen ritmo")).toBeVisible();
+    expect(screen.getByRole("form", { name: /responder a la devolución/i })).toBeVisible();
   });
 
   it("renders a mobile-friendly daily schedule and actual set logger", () => {
@@ -39,7 +57,7 @@ describe("training views", () => {
       status: "IN_PROGRESS",
       exercises: [{ id: "snapshot-exercise-1", exerciseId: "exercise-1", exerciseName: "Sentadilla", order: 0, prescribedSets: 3, repMin: 6, repMax: 8, targetRpe: 8, restSeconds: 120, notes: null }],
       session: { id: "session-1", startedAt: new Date("2026-08-18T18:00:00Z"), completedAt: null, sets: [] },
-    }]} actions={{ saveSet: action, completeWorkout: action }} />);
+    }]} actions={{ saveSet: action, completeWorkout: action, replyToReview: action }} />);
 
     const logger = screen.getByRole("form", { name: /registrar serie 1 de sentadilla/i });
     expect(within(logger).getByLabelText(/repeticiones reales/i)).toHaveAttribute("inputmode", "numeric");

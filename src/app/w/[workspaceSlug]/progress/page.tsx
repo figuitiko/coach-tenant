@@ -1,19 +1,19 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CrossTenantAccessError, UnauthenticatedError } from "@/modules/tenancy/application/workspace-access";
 import { requireWorkspaceAccess } from "@/modules/tenancy/infrastructure/workspace-dal";
 import { progressService } from "@/modules/progress/infrastructure/progress-use-cases";
 import { CoachReviewView, StudentProgressView } from "@/modules/progress/presentation/progress-view";
-import { attachPhotoAction, completeReviewAction, requestUploadAction, saveDraftAction, submitCheckInAction } from "./actions";
+import { attachPhotoAction, completeReviewAction, replyToReviewAction, requestUploadAction, saveOrSubmitCheckInAction } from "./actions";
+import { WorkspaceNavigation } from "@/components/shell/workspace-navigation";
 
 export const runtime = "nodejs";
 export default async function ProgressPage({ params, searchParams }: { params: Promise<{ workspaceSlug: string }>; searchParams: Promise<{ kind?: string; itemId?: string }> }) {
   const [{ workspaceSlug }, query] = await Promise.all([params, searchParams]);
   const { actor, dashboard, queue, detail } = await load(workspaceSlug, query);
   const content = actor.role === "STUDENT"
-    ? <StudentProgressView draft={dashboard!.draft!} history={dashboard!.history} actions={{ saveDraft: saveDraftAction.bind(null, workspaceSlug), submit: submitCheckInAction.bind(null, workspaceSlug), requestUpload: requestUploadAction.bind(null, workspaceSlug), attachPhoto: attachPhotoAction.bind(null, workspaceSlug) }}/>
+    ? <StudentProgressView draft={dashboard!.draft!} history={dashboard!.history} actions={{ saveOrSubmit: saveOrSubmitCheckInAction.bind(null, workspaceSlug), reply: replyToReviewAction.bind(null, workspaceSlug), requestUpload: requestUploadAction.bind(null, workspaceSlug), attachPhoto: attachPhotoAction.bind(null, workspaceSlug) }}/>
     : <CoachReviewView queue={queue!} detail={detail!} reviewAction={completeReviewAction.bind(null, workspaceSlug)}/>;
-  return <main className="min-h-screen bg-[var(--paper-light)] pb-12"><nav aria-label="Miga de pan" className="border-b border-[var(--line)] px-5 py-4 sm:px-8 lg:px-10"><Link className="text-sm font-extrabold text-[var(--signal-dark)] underline underline-offset-4" href={`/w/${workspaceSlug}`}>← Volver al panel</Link></nav>{content}</main>;
+  return <main className="min-h-screen bg-[var(--paper-light)] pb-24 lg:pb-12"><WorkspaceNavigation workspaceSlug={workspaceSlug} role={actor.role}/>{content}</main>;
 }
 
 async function load(workspaceSlug: string, query: { kind?: string; itemId?: string }) {

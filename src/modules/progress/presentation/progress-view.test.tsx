@@ -7,7 +7,7 @@ const action = vi.fn(async () => ({ status: "success" as const, message: "Guarda
 
 describe("progress views", () => {
   it("renders a mobile-first labelled metrics form with announced state and repeat-submit protection", () => {
-    render(<StudentProgressView draft={{ id: "draft-1", status: "DRAFT", metrics: { weight: { value: 82.5, unit: "LB" }, waist: { value: 91, unit: "IN" } }, notes: "Persisted note", photos: [] }} history={[]} actions={{ saveDraft: action, submit: action, requestUpload: action, attachPhoto: action }} />);
+    render(<StudentProgressView draft={{ id: "draft-1", status: "DRAFT", metrics: { weight: { value: 82.5, unit: "LB" }, waist: { value: 91, unit: "IN" } }, notes: "Persisted note", photos: [] }} history={[]} actions={{ saveOrSubmit: action, reply: action, requestUpload: action, attachPhoto: action }} />);
     expect(screen.getByRole("heading", { name: /tu progreso/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/^peso$/i)).toHaveAttribute("inputmode", "decimal");
     expect(screen.getByLabelText(/^peso$/i)).toHaveValue(82.5);
@@ -17,6 +17,18 @@ describe("progress views", () => {
     expect(screen.getByLabelText(/^notas$/i)).toHaveValue("Persisted note");
     expect(screen.getAllByRole("status").every(node => node.getAttribute("aria-live") === "polite")).toBe(true);
     expect(screen.getByRole("button", { name: /enviar check-in/i })).toBeEnabled();
+    expect(screen.getByRole("button", { name: /guardar borrador/i })).toHaveAttribute("name", "intent");
+    expect(screen.getByRole("button", { name: /enviar check-in/i })).toHaveAttribute("name", "intent");
+  });
+
+  it("shows coach feedback in student history and offers one contextual reply", () => {
+    render(<StudentProgressView draft={{ id: "draft-1", status: "DRAFT", metrics: {}, notes: null, photos: [] }} history={[{
+      id: "check-1", submittedAt: new Date("2026-08-20"), notes: "Bien",
+      reviewNotes: [{ id: "note-1", body: "Sostené el descanso", createdAt: new Date("2026-08-20"), reply: null }],
+    }]} actions={{ saveOrSubmit: action, reply: action, requestUpload: action, attachPhoto: action }} />);
+
+    expect(screen.getByText("Sostené el descanso")).toBeVisible();
+    expect(screen.getByRole("form", { name: /responder a la devolución/i })).toBeVisible();
   });
 
   it("uses accessible queue and review-detail semantics", () => {

@@ -53,6 +53,7 @@ export type AssignedWorkout = {
   status: WorkoutStatus;
   exercises: Array<PrescribedExercise & { id: string }>;
   session: WorkoutSessionDto | null;
+  reviewNotes?: Array<{ id: string; body: string; reply: { body: string } | null }>;
 };
 
 export type CoachTrainingDashboard = {
@@ -82,6 +83,7 @@ export interface TrainingRepository {
   findMembership(membershipId: string): Promise<{ workspaceId: string; role: TrainingRole; userId?: string } | null>;
   assignSavedPlan(input: { workspaceId: string; actorId: string; studentMembershipId: string; planId: string }): Promise<{ id: string; workouts: AssignedWorkout[] } | null>;
   listStudentSchedule(input: { workspaceId: string; studentId: string; date: string }): Promise<AssignedWorkout[]>;
+  listStudentPlanOverview(input: { workspaceId: string; studentId: string }): Promise<AssignedWorkout[]>;
   saveSet(input: SaveSetInput & { workspaceId: string; studentId: string; savedAt: Date }): Promise<AssignedWorkout | null>;
   completeWorkout(input: { workspaceId: string; studentId: string; assignedWorkoutId: string; completedAt: Date }): Promise<WorkoutSessionDto | null>;
   listCoachDashboard(input: { workspaceId: string; actorId: string }): Promise<CoachTrainingDashboard>;
@@ -169,6 +171,11 @@ export class TrainingService {
     requireStudent(actor);
     if (!isCalendarDate(date)) throw new TrainingValidationError("Invalid schedule date");
     return this.repository.listStudentSchedule({ workspaceId: actor.workspaceId, studentId: actor.actorId, date });
+  }
+
+  async getStudentPlanOverview(actor: TrainingActor) {
+    requireStudent(actor);
+    return this.repository.listStudentPlanOverview({ workspaceId: actor.workspaceId, studentId: actor.actorId });
   }
 
   async saveSet(actor: TrainingActor, input: SaveSetInput) {

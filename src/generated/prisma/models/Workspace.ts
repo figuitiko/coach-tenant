@@ -211,6 +211,7 @@ export type WorkspaceWhereInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInListRelationFilter
   progressPhotos?: Prisma.ProgressPhotoListRelationFilter
   reviewNotes?: Prisma.ReviewNoteListRelationFilter
+  reviewReplies?: Prisma.ReviewReplyListRelationFilter
   photoUploadIntents?: Prisma.PhotoUploadIntentListRelationFilter
 }
 
@@ -235,6 +236,7 @@ export type WorkspaceOrderByWithRelationInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInOrderByRelationAggregateInput
   progressPhotos?: Prisma.ProgressPhotoOrderByRelationAggregateInput
   reviewNotes?: Prisma.ReviewNoteOrderByRelationAggregateInput
+  reviewReplies?: Prisma.ReviewReplyOrderByRelationAggregateInput
   photoUploadIntents?: Prisma.PhotoUploadIntentOrderByRelationAggregateInput
 }
 
@@ -262,6 +264,7 @@ export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
   measurementCheckIns?: Prisma.MeasurementCheckInListRelationFilter
   progressPhotos?: Prisma.ProgressPhotoListRelationFilter
   reviewNotes?: Prisma.ReviewNoteListRelationFilter
+  reviewReplies?: Prisma.ReviewReplyListRelationFilter
   photoUploadIntents?: Prisma.PhotoUploadIntentListRelationFilter
 }, "id" | "slug">
 
@@ -311,6 +314,7 @@ export type WorkspaceCreateInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -334,6 +338,7 @@ export type WorkspaceUncheckedCreateInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -357,6 +362,7 @@ export type WorkspaceUpdateInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -380,6 +386,7 @@ export type WorkspaceUncheckedUpdateInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -681,6 +688,20 @@ export type WorkspaceUpdateOneRequiredWithoutReviewNotesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutReviewNotesInput, Prisma.WorkspaceUpdateWithoutReviewNotesInput>, Prisma.WorkspaceUncheckedUpdateWithoutReviewNotesInput>
 }
 
+export type WorkspaceCreateNestedOneWithoutReviewRepliesInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutReviewRepliesInput, Prisma.WorkspaceUncheckedCreateWithoutReviewRepliesInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutReviewRepliesInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+}
+
+export type WorkspaceUpdateOneRequiredWithoutReviewRepliesNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutReviewRepliesInput, Prisma.WorkspaceUncheckedCreateWithoutReviewRepliesInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutReviewRepliesInput
+  upsert?: Prisma.WorkspaceUpsertWithoutReviewRepliesInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutReviewRepliesInput, Prisma.WorkspaceUpdateWithoutReviewRepliesInput>, Prisma.WorkspaceUncheckedUpdateWithoutReviewRepliesInput>
+}
+
 export type WorkspaceCreateWithoutOwnerInput = {
   id?: string
   slug: string
@@ -700,6 +721,7 @@ export type WorkspaceCreateWithoutOwnerInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -722,6 +744,7 @@ export type WorkspaceUncheckedCreateWithoutOwnerInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -783,6 +806,7 @@ export type WorkspaceCreateWithoutMembershipsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -805,6 +829,7 @@ export type WorkspaceUncheckedCreateWithoutMembershipsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -843,6 +868,7 @@ export type WorkspaceUpdateWithoutMembershipsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -865,6 +891,7 @@ export type WorkspaceUncheckedUpdateWithoutMembershipsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -887,6 +914,7 @@ export type WorkspaceCreateWithoutInvitationsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -909,6 +937,7 @@ export type WorkspaceUncheckedCreateWithoutInvitationsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -947,6 +976,7 @@ export type WorkspaceUpdateWithoutInvitationsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -969,6 +999,7 @@ export type WorkspaceUncheckedUpdateWithoutInvitationsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -991,6 +1022,7 @@ export type WorkspaceCreateWithoutAuditEventsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1013,6 +1045,7 @@ export type WorkspaceUncheckedCreateWithoutAuditEventsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1051,6 +1084,7 @@ export type WorkspaceUpdateWithoutAuditEventsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1073,6 +1107,7 @@ export type WorkspaceUncheckedUpdateWithoutAuditEventsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1095,6 +1130,7 @@ export type WorkspaceCreateWithoutProductEventsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1117,6 +1153,7 @@ export type WorkspaceUncheckedCreateWithoutProductEventsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1155,6 +1192,7 @@ export type WorkspaceUpdateWithoutProductEventsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1177,6 +1215,7 @@ export type WorkspaceUncheckedUpdateWithoutProductEventsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1199,6 +1238,7 @@ export type WorkspaceCreateWithoutExercisesInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1221,6 +1261,7 @@ export type WorkspaceUncheckedCreateWithoutExercisesInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1259,6 +1300,7 @@ export type WorkspaceUpdateWithoutExercisesInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1281,6 +1323,7 @@ export type WorkspaceUncheckedUpdateWithoutExercisesInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1303,6 +1346,7 @@ export type WorkspaceCreateWithoutWorkoutTemplatesInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1325,6 +1369,7 @@ export type WorkspaceUncheckedCreateWithoutWorkoutTemplatesInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1363,6 +1408,7 @@ export type WorkspaceUpdateWithoutWorkoutTemplatesInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1385,6 +1431,7 @@ export type WorkspaceUncheckedUpdateWithoutWorkoutTemplatesInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1407,6 +1454,7 @@ export type WorkspaceCreateWithoutWorkoutPlansInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1429,6 +1477,7 @@ export type WorkspaceUncheckedCreateWithoutWorkoutPlansInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1467,6 +1516,7 @@ export type WorkspaceUpdateWithoutWorkoutPlansInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1489,6 +1539,7 @@ export type WorkspaceUncheckedUpdateWithoutWorkoutPlansInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1511,6 +1562,7 @@ export type WorkspaceCreateWithoutPlanAssignmentsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1533,6 +1585,7 @@ export type WorkspaceUncheckedCreateWithoutPlanAssignmentsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1571,6 +1624,7 @@ export type WorkspaceUpdateWithoutPlanAssignmentsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1593,6 +1647,7 @@ export type WorkspaceUncheckedUpdateWithoutPlanAssignmentsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1615,6 +1670,7 @@ export type WorkspaceCreateWithoutAssignedWorkoutsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1637,6 +1693,7 @@ export type WorkspaceUncheckedCreateWithoutAssignedWorkoutsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1675,6 +1732,7 @@ export type WorkspaceUpdateWithoutAssignedWorkoutsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1697,6 +1755,7 @@ export type WorkspaceUncheckedUpdateWithoutAssignedWorkoutsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1719,6 +1778,7 @@ export type WorkspaceCreateWithoutMeasurementCheckInsInput = {
   assignedWorkouts?: Prisma.AssignedWorkoutCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1741,6 +1801,7 @@ export type WorkspaceUncheckedCreateWithoutMeasurementCheckInsInput = {
   assignedWorkouts?: Prisma.AssignedWorkoutUncheckedCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1779,6 +1840,7 @@ export type WorkspaceUpdateWithoutMeasurementCheckInsInput = {
   assignedWorkouts?: Prisma.AssignedWorkoutUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1801,6 +1863,7 @@ export type WorkspaceUncheckedUpdateWithoutMeasurementCheckInsInput = {
   assignedWorkouts?: Prisma.AssignedWorkoutUncheckedUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1824,6 +1887,7 @@ export type WorkspaceCreateWithoutPhotoUploadIntentsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutPhotoUploadIntentsInput = {
@@ -1846,6 +1910,7 @@ export type WorkspaceUncheckedCreateWithoutPhotoUploadIntentsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutPhotoUploadIntentsInput = {
@@ -1884,6 +1949,7 @@ export type WorkspaceUpdateWithoutPhotoUploadIntentsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutPhotoUploadIntentsInput = {
@@ -1906,6 +1972,7 @@ export type WorkspaceUncheckedUpdateWithoutPhotoUploadIntentsInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutProgressPhotosInput = {
@@ -1927,6 +1994,7 @@ export type WorkspaceCreateWithoutProgressPhotosInput = {
   assignedWorkouts?: Prisma.AssignedWorkoutCreateNestedManyWithoutWorkspaceInput
   measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1949,6 +2017,7 @@ export type WorkspaceUncheckedCreateWithoutProgressPhotosInput = {
   assignedWorkouts?: Prisma.AssignedWorkoutUncheckedCreateNestedManyWithoutWorkspaceInput
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutWorkspaceInput
   reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1987,6 +2056,7 @@ export type WorkspaceUpdateWithoutProgressPhotosInput = {
   assignedWorkouts?: Prisma.AssignedWorkoutUpdateManyWithoutWorkspaceNestedInput
   measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -2009,6 +2079,7 @@ export type WorkspaceUncheckedUpdateWithoutProgressPhotosInput = {
   assignedWorkouts?: Prisma.AssignedWorkoutUncheckedUpdateManyWithoutWorkspaceNestedInput
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -2031,6 +2102,7 @@ export type WorkspaceCreateWithoutReviewNotesInput = {
   assignedWorkouts?: Prisma.AssignedWorkoutCreateNestedManyWithoutWorkspaceInput
   measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -2053,6 +2125,7 @@ export type WorkspaceUncheckedCreateWithoutReviewNotesInput = {
   assignedWorkouts?: Prisma.AssignedWorkoutUncheckedCreateNestedManyWithoutWorkspaceInput
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutWorkspaceInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutWorkspaceInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedCreateNestedManyWithoutWorkspaceInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -2091,6 +2164,7 @@ export type WorkspaceUpdateWithoutReviewNotesInput = {
   assignedWorkouts?: Prisma.AssignedWorkoutUpdateManyWithoutWorkspaceNestedInput
   measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -2113,6 +2187,115 @@ export type WorkspaceUncheckedUpdateWithoutReviewNotesInput = {
   assignedWorkouts?: Prisma.AssignedWorkoutUncheckedUpdateManyWithoutWorkspaceNestedInput
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceCreateWithoutReviewRepliesInput = {
+  id?: string
+  slug: string
+  name: string
+  timeZone?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutOwnedWorkspacesInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutWorkspaceInput
+  invitations?: Prisma.InvitationCreateNestedManyWithoutWorkspaceInput
+  auditEvents?: Prisma.AuditEventCreateNestedManyWithoutWorkspaceInput
+  productEvents?: Prisma.ProductEventCreateNestedManyWithoutWorkspaceInput
+  exercises?: Prisma.ExerciseCreateNestedManyWithoutWorkspaceInput
+  workoutTemplates?: Prisma.WorkoutTemplateCreateNestedManyWithoutWorkspaceInput
+  workoutPlans?: Prisma.WorkoutPlanCreateNestedManyWithoutWorkspaceInput
+  planAssignments?: Prisma.StudentPlanAssignmentCreateNestedManyWithoutWorkspaceInput
+  assignedWorkouts?: Prisma.AssignedWorkoutCreateNestedManyWithoutWorkspaceInput
+  measurementCheckIns?: Prisma.MeasurementCheckInCreateNestedManyWithoutWorkspaceInput
+  progressPhotos?: Prisma.ProgressPhotoCreateNestedManyWithoutWorkspaceInput
+  reviewNotes?: Prisma.ReviewNoteCreateNestedManyWithoutWorkspaceInput
+  photoUploadIntents?: Prisma.PhotoUploadIntentCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceUncheckedCreateWithoutReviewRepliesInput = {
+  id?: string
+  slug: string
+  name: string
+  timeZone?: string
+  ownerId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutWorkspaceInput
+  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
+  auditEvents?: Prisma.AuditEventUncheckedCreateNestedManyWithoutWorkspaceInput
+  productEvents?: Prisma.ProductEventUncheckedCreateNestedManyWithoutWorkspaceInput
+  exercises?: Prisma.ExerciseUncheckedCreateNestedManyWithoutWorkspaceInput
+  workoutTemplates?: Prisma.WorkoutTemplateUncheckedCreateNestedManyWithoutWorkspaceInput
+  workoutPlans?: Prisma.WorkoutPlanUncheckedCreateNestedManyWithoutWorkspaceInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedCreateNestedManyWithoutWorkspaceInput
+  assignedWorkouts?: Prisma.AssignedWorkoutUncheckedCreateNestedManyWithoutWorkspaceInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedCreateNestedManyWithoutWorkspaceInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedCreateNestedManyWithoutWorkspaceInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedCreateNestedManyWithoutWorkspaceInput
+  photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceCreateOrConnectWithoutReviewRepliesInput = {
+  where: Prisma.WorkspaceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutReviewRepliesInput, Prisma.WorkspaceUncheckedCreateWithoutReviewRepliesInput>
+}
+
+export type WorkspaceUpsertWithoutReviewRepliesInput = {
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutReviewRepliesInput, Prisma.WorkspaceUncheckedUpdateWithoutReviewRepliesInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutReviewRepliesInput, Prisma.WorkspaceUncheckedCreateWithoutReviewRepliesInput>
+  where?: Prisma.WorkspaceWhereInput
+}
+
+export type WorkspaceUpdateToOneWithWhereWithoutReviewRepliesInput = {
+  where?: Prisma.WorkspaceWhereInput
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutReviewRepliesInput, Prisma.WorkspaceUncheckedUpdateWithoutReviewRepliesInput>
+}
+
+export type WorkspaceUpdateWithoutReviewRepliesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  timeZone?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutWorkspaceNestedInput
+  invitations?: Prisma.InvitationUpdateManyWithoutWorkspaceNestedInput
+  auditEvents?: Prisma.AuditEventUpdateManyWithoutWorkspaceNestedInput
+  productEvents?: Prisma.ProductEventUpdateManyWithoutWorkspaceNestedInput
+  exercises?: Prisma.ExerciseUpdateManyWithoutWorkspaceNestedInput
+  workoutTemplates?: Prisma.WorkoutTemplateUpdateManyWithoutWorkspaceNestedInput
+  workoutPlans?: Prisma.WorkoutPlanUpdateManyWithoutWorkspaceNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUpdateManyWithoutWorkspaceNestedInput
+  assignedWorkouts?: Prisma.AssignedWorkoutUpdateManyWithoutWorkspaceNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutWorkspaceNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutWorkspaceNestedInput
+  reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutWorkspaceNestedInput
+  photoUploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceUncheckedUpdateWithoutReviewRepliesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  timeZone?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
+  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
+  auditEvents?: Prisma.AuditEventUncheckedUpdateManyWithoutWorkspaceNestedInput
+  productEvents?: Prisma.ProductEventUncheckedUpdateManyWithoutWorkspaceNestedInput
+  exercises?: Prisma.ExerciseUncheckedUpdateManyWithoutWorkspaceNestedInput
+  workoutTemplates?: Prisma.WorkoutTemplateUncheckedUpdateManyWithoutWorkspaceNestedInput
+  workoutPlans?: Prisma.WorkoutPlanUncheckedUpdateManyWithoutWorkspaceNestedInput
+  planAssignments?: Prisma.StudentPlanAssignmentUncheckedUpdateManyWithoutWorkspaceNestedInput
+  assignedWorkouts?: Prisma.AssignedWorkoutUncheckedUpdateManyWithoutWorkspaceNestedInput
+  measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceNestedInput
+  progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutWorkspaceNestedInput
+  reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -2144,6 +2327,7 @@ export type WorkspaceUpdateWithoutOwnerInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -2166,6 +2350,7 @@ export type WorkspaceUncheckedUpdateWithoutOwnerInput = {
   measurementCheckIns?: Prisma.MeasurementCheckInUncheckedUpdateManyWithoutWorkspaceNestedInput
   progressPhotos?: Prisma.ProgressPhotoUncheckedUpdateManyWithoutWorkspaceNestedInput
   reviewNotes?: Prisma.ReviewNoteUncheckedUpdateManyWithoutWorkspaceNestedInput
+  reviewReplies?: Prisma.ReviewReplyUncheckedUpdateManyWithoutWorkspaceNestedInput
   photoUploadIntents?: Prisma.PhotoUploadIntentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -2196,6 +2381,7 @@ export type WorkspaceCountOutputType = {
   measurementCheckIns: number
   progressPhotos: number
   reviewNotes: number
+  reviewReplies: number
   photoUploadIntents: number
 }
 
@@ -2212,6 +2398,7 @@ export type WorkspaceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensi
   measurementCheckIns?: boolean | WorkspaceCountOutputTypeCountMeasurementCheckInsArgs
   progressPhotos?: boolean | WorkspaceCountOutputTypeCountProgressPhotosArgs
   reviewNotes?: boolean | WorkspaceCountOutputTypeCountReviewNotesArgs
+  reviewReplies?: boolean | WorkspaceCountOutputTypeCountReviewRepliesArgs
   photoUploadIntents?: boolean | WorkspaceCountOutputTypeCountPhotoUploadIntentsArgs
 }
 
@@ -2312,6 +2499,13 @@ export type WorkspaceCountOutputTypeCountReviewNotesArgs<ExtArgs extends runtime
 /**
  * WorkspaceCountOutputType without action
  */
+export type WorkspaceCountOutputTypeCountReviewRepliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReviewReplyWhereInput
+}
+
+/**
+ * WorkspaceCountOutputType without action
+ */
 export type WorkspaceCountOutputTypeCountPhotoUploadIntentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.PhotoUploadIntentWhereInput
 }
@@ -2338,6 +2532,7 @@ export type WorkspaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   measurementCheckIns?: boolean | Prisma.Workspace$measurementCheckInsArgs<ExtArgs>
   progressPhotos?: boolean | Prisma.Workspace$progressPhotosArgs<ExtArgs>
   reviewNotes?: boolean | Prisma.Workspace$reviewNotesArgs<ExtArgs>
+  reviewReplies?: boolean | Prisma.Workspace$reviewRepliesArgs<ExtArgs>
   photoUploadIntents?: boolean | Prisma.Workspace$photoUploadIntentsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workspace"]>
@@ -2389,6 +2584,7 @@ export type WorkspaceInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   measurementCheckIns?: boolean | Prisma.Workspace$measurementCheckInsArgs<ExtArgs>
   progressPhotos?: boolean | Prisma.Workspace$progressPhotosArgs<ExtArgs>
   reviewNotes?: boolean | Prisma.Workspace$reviewNotesArgs<ExtArgs>
+  reviewReplies?: boolean | Prisma.Workspace$reviewRepliesArgs<ExtArgs>
   photoUploadIntents?: boolean | Prisma.Workspace$photoUploadIntentsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -2415,6 +2611,7 @@ export type $WorkspacePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     measurementCheckIns: Prisma.$MeasurementCheckInPayload<ExtArgs>[]
     progressPhotos: Prisma.$ProgressPhotoPayload<ExtArgs>[]
     reviewNotes: Prisma.$ReviewNotePayload<ExtArgs>[]
+    reviewReplies: Prisma.$ReviewReplyPayload<ExtArgs>[]
     photoUploadIntents: Prisma.$PhotoUploadIntentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -2832,6 +3029,7 @@ export interface Prisma__WorkspaceClient<T, Null = never, ExtArgs extends runtim
   measurementCheckIns<T extends Prisma.Workspace$measurementCheckInsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$measurementCheckInsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MeasurementCheckInPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   progressPhotos<T extends Prisma.Workspace$progressPhotosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$progressPhotosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProgressPhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reviewNotes<T extends Prisma.Workspace$reviewNotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$reviewNotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReviewNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reviewReplies<T extends Prisma.Workspace$reviewRepliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$reviewRepliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReviewReplyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   photoUploadIntents<T extends Prisma.Workspace$photoUploadIntentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$photoUploadIntentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PhotoUploadIntentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -3555,6 +3753,30 @@ export type Workspace$reviewNotesArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.ReviewNoteScalarFieldEnum | Prisma.ReviewNoteScalarFieldEnum[]
+}
+
+/**
+ * Workspace.reviewReplies
+ */
+export type Workspace$reviewRepliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ReviewReply
+   */
+  select?: Prisma.ReviewReplySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ReviewReply
+   */
+  omit?: Prisma.ReviewReplyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReviewReplyInclude<ExtArgs> | null
+  where?: Prisma.ReviewReplyWhereInput
+  orderBy?: Prisma.ReviewReplyOrderByWithRelationInput | Prisma.ReviewReplyOrderByWithRelationInput[]
+  cursor?: Prisma.ReviewReplyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReviewReplyScalarFieldEnum | Prisma.ReviewReplyScalarFieldEnum[]
 }
 
 /**

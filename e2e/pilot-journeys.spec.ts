@@ -56,8 +56,14 @@ test.describe("pilot PostgreSQL journeys", () => {
 
   test("coach can author training data and assign a saved plan", async ({ page }) => {
     await signIn(page, "coach.fuerzanorte@tenand.local");
-    await page.goto("/w/fuerza-norte-pilot/training");
+    await page.goto("/w/fuerza-norte-pilot/students");
+    await page.getByRole("link", { name: /gestionar entrenamiento de martina lópez/i }).click();
+    await expect(page).toHaveURL(/studentMembershipId=pilot-membership-student-1/);
     await expect(page.getByRole("heading", { name: "Entrenamiento" })).toBeVisible();
+    await expect(page.getByText(/asignando a martina lópez/i)).toBeVisible();
+    for (const step of ["Paso 1", "Paso 2", "Paso 3", "Paso 4"]) {
+      await expect(page.getByText(step, { exact: true })).toBeVisible();
+    }
     const exercise = page.getByRole("form", { name: /crear ejercicio/i });
     await exercise.getByLabel("Nombre").fill("Zancada piloto E2E");
     await exercise.getByRole("button", { name: /guardar ejercicio/i }).click();
@@ -81,36 +87,62 @@ test.describe("pilot PostgreSQL journeys", () => {
     await expect(plan.getByRole("status")).toContainText(/guardad/i);
     const assignment = page.getByRole("form", { name: /asignar plan/i });
     await assignment.getByLabel("Plan").selectOption({ label: "Plan E2E" });
-    await assignment.getByLabel("Alumno").selectOption({ label: "Martina López" });
+    await expect(assignment.getByLabel("Alumno")).toHaveValue("pilot-membership-student-1");
     await assignment.getByRole("button", { name: /asignar plan/i }).click();
     await expect(assignment.getByRole("status")).toContainText(/guardad/i);
+
+    expect((await page.goto("/w/fuerza-norte-pilot/training?studentMembershipId=pilot-membership-student-1-south"))?.status()).toBe(404);
   });
 
-  test("student can log a set and submit a measurement check-in", async ({ page }) => {
+  test("student discovers a dated workout, completes it, and submits current measurements", async ({ page }) => {
     await signIn(page, "pilot.student1@tenand.local");
-    await page.goto("/w/fuerza-norte-pilot/training?date=2026-08-21");
+    await page.goto("/w/fuerza-norte-pilot/training");
+    await expect(page.getByRole("heading", { name: /tu plan asignado/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /día anterior/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /día siguiente/i })).toBeVisible();
+    await page.getByRole("link", { name: /abrir torso · base/i }).click();
+    await expect(page).toHaveURL(/date=2026-08-21/);
     const setForm = page.getByRole("form", { name: /registrar serie 1 de press banca/i });
     await setForm.getByLabel(/repeticiones reales/i).fill("8");
     await setForm.getByLabel(/peso real/i).fill("42.5");
     await setForm.getByLabel(/serie completada/i).check();
     await setForm.getByRole("button", { name: /guardar serie/i }).click();
     await expect(setForm.getByRole("status")).toContainText(/guardad/i);
+    await page.getByRole("button", { name: /finalizar entrenamiento/i }).click();
+    await expect(page.getByRole("button", { name: /entrenamiento finalizado/i })).toBeDisabled();
 
     await page.goto("/w/fuerza-norte-pilot/progress");
     await page.getByLabel(/^peso$/i).fill("68.2");
-    await page.getByRole("button", { name: /guardar borrador/i }).click();
-    await expect(page.getByRole("status").filter({ hasText: /guardad/i }).first()).toBeVisible();
+    await page.getByLabel(/notas/i).fill("Valores actuales enviados en un solo paso.");
     await page.getByRole("button", { name: /enviar check-in/i }).click();
     await expect(page.getByText(/check-in enviado/i).first()).toBeVisible();
   });
 
-  test("coach can open and complete a review", async ({ page }) => {
+  test("coach reviews, the owning student replies, and the coach sees the reply", async ({ page }) => {
+    const coachNote = "Buen trabajo. Mantenemos la progresión E2E.";
+    const studentReply = "Entendido, mantengo la carga esta semana.";
     await signIn(page, "coach.fuerzanorte@tenand.local");
     await page.goto("/w/fuerza-norte-pilot/progress");
-    const review = page.getByRole("link", { name: /revisar (entrenamiento|check-in)/i }).first();
+    const review = page.getByRole("link", { name: /revisar check-in de martina lópez/i }).first();
     await review.click();
-    await page.getByLabel(/nota contextual/i).fill("Buen trabajo. Mantenemos la progresión.");
+    const reviewUrl = page.url();
+    await page.getByLabel(/nota contextual/i).fill(coachNote);
     await page.getByRole("button", { name: /marcar revisado/i }).click();
     await expect(page.getByRole("status")).toContainText(/guardad/i);
+
+    await page.context().clearCookies();
+    await signIn(page, "pilot.student1@tenand.local");
+    await page.goto("/w/fuerza-norte-pilot/progress");
+    await expect(page.getByText(coachNote)).toBeVisible();
+    const response = page.getByRole("form", { name: /responder a la devolución/i });
+    await expect(response).toBeVisible();
+    await response.getByLabel(/respuesta breve/i).fill(studentReply);
+    await response.getByRole("button", { name: /enviar respuesta/i }).click();
+    await expect(response.getByRole("status")).toContainText(/guardad/i);
+
+    await page.context().clearCookies();
+    await signIn(page, "coach.fuerzanorte@tenand.local");
+    await page.goto(reviewUrl);
+    await expect(page.getByText(`Respuesta del alumno: ${studentReply}`)).toBeVisible();
   });
 });

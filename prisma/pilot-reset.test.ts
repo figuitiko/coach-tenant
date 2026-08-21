@@ -18,6 +18,7 @@ describe("resetPilotFixtures", () => {
         ...model("user"),
       },
       account: model("account"),
+      reviewReply: model("reviewReply"),
       reviewNote: model("reviewNote"),
       progressPhoto: model("progressPhoto"),
       photoUploadIntent: model("photoUploadIntent"),
@@ -50,7 +51,7 @@ describe("resetPilotFixtures", () => {
 
     expect(calls).toEqual([
       "transaction:start",
-      "reviewNote", "progressPhoto", "photoUploadIntent", "measurementCheckIn",
+      "reviewReply", "reviewNote", "progressPhoto", "photoUploadIntent", "measurementCheckIn",
       "setLog", "exerciseLog", "workoutSession", "assignedExercise", "assignedWorkout",
       "studentPlanAssignment", "planWorkout", "workoutPlan",
       "templateExercise", "workoutTemplate", "exercise",
@@ -66,7 +67,7 @@ describe("resetPilotFixtures", () => {
     const transaction = {
       workspace: { findMany: async () => [{ id: "pilot-workspace-north" }, { id: "pilot-workspace-south" }], ...model("workspace") },
       user: { findMany: async () => [], ...model("user") },
-      account: model("account"), reviewNote: model("reviewNote"), progressPhoto: model("progressPhoto"),
+      account: model("account"), reviewReply: model("reviewReply"), reviewNote: model("reviewNote"), progressPhoto: model("progressPhoto"),
       photoUploadIntent: model("photoUploadIntent"), measurementCheckIn: model("measurementCheckIn"),
       setLog: model("setLog"), exerciseLog: model("exerciseLog"), workoutSession: model("workoutSession"),
       assignedExercise: model("assignedExercise"), assignedWorkout: model("assignedWorkout"),

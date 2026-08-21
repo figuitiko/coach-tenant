@@ -30,8 +30,10 @@ test("authenticated mobile roles can navigate, log training, and submit progress
   const studentNavigation = student.getByRole("navigation", { name: /navegación móvil/i });
   await expect(studentNavigation.getByRole("link", { name: "Entrenamiento" })).toBeVisible();
   await expect(studentNavigation.getByRole("link", { name: "Progreso" })).toBeVisible();
-  await student.goto("/w/fuerza-norte-pilot/training?date=2026-08-21");
-  const setForm = student.getByRole("form", { name: /registrar serie 2 de press banca/i });
+  await student.goto("/w/fuerza-norte-pilot/training");
+  await expect(student.getByRole("heading", { name: /tu plan asignado/i })).toBeVisible();
+  await student.getByRole("link", { name: /abrir plantilla e2e/i }).click();
+  const setForm = student.getByRole("form", { name: /registrar serie 1 de zancada piloto e2e/i });
   await setForm.getByLabel(/repeticiones reales/i).fill("8");
   await setForm.getByLabel(/peso real/i).fill("42.5");
   await setForm.getByLabel(/serie completada/i).check();
@@ -39,8 +41,6 @@ test("authenticated mobile roles can navigate, log training, and submit progress
   await expect(setForm.getByRole("status")).toContainText(/guardad/i);
   await student.goto("/w/fuerza-norte-pilot/progress");
   await student.getByLabel(/^peso$/i).fill("68.1");
-  await student.getByRole("button", { name: /guardar borrador/i }).click();
-  await expect(student.getByRole("status").filter({ hasText: /guardad/i }).first()).toBeVisible();
   await student.getByRole("button", { name: /enviar check-in/i }).click();
   await expect(student.getByText(/check-in enviado/i).first()).toBeVisible();
   await studentContext.close();

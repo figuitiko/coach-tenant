@@ -31,6 +31,7 @@ export async function resetPilotFixtures(database: PrismaClient) {
     if (workspaceIds.length) {
       const workspaceFilter = { in: workspaceIds };
 
+      await transaction.reviewReply.deleteMany({ where: { workspaceId: workspaceFilter } });
       await transaction.reviewNote.deleteMany({ where: { OR: [
         { workspaceId: workspaceFilter },
         { checkIn: { workspaceId: workspaceFilter } },

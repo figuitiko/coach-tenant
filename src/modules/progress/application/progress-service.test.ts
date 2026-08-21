@@ -5,12 +5,13 @@ const student = { actorId: "student-a", workspaceId: "workspace-a", role: "STUDE
 const coach = { actorId: "coach-a", workspaceId: "workspace-a", role: "COACH" } satisfies ProgressActor;
 
 function repository(): ProgressRepository & { calls: Record<string, unknown[]> } {
-  const calls: Record<string, unknown[]> = { create: [], edit: [], submit: [], intent: [], attach: [], review: [] };
+  const calls: Record<string, unknown[]> = { create: [], edit: [], submit: [], submitCurrent: [], intent: [], attach: [], review: [], reply: [] };
   return {
     calls,
     createDraft: async (input) => (calls.create.push(input), { id: "check-1", status: "DRAFT" }),
     editDraft: async (input) => (calls.edit.push(input), input.checkInId === "other" ? null : { id: input.checkInId, status: "DRAFT" }),
     submitDraft: async (input) => (calls.submit.push(input), input.checkInId === "other" ? null : { id: input.checkInId, status: "SUBMITTED" }),
+    submitCurrentDraft: async (input) => (calls.submitCurrent.push(input), input.checkInId === "other" ? null : { id: input.checkInId, status: "SUBMITTED" }),
     reserveUploadIntent: async (input) => (calls.intent.push(input), input.checkInId === "other" ? null : { id: "intent-1", objectKey: input.objectKey, mimeType: input.mimeType, sizeBytes: input.sizeBytes, checksumSha256: input.checksumSha256, expiresAt: input.expiresAt, status: "PENDING" }),
     getUploadIntent: async (input) => input.uploadIntentId === "intent-1" ? { id: "intent-1", objectKey: "key", mimeType: "image/jpeg", sizeBytes: 42, checksumSha256: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", expiresAt: new Date(Date.now() + 60_000), status: "PENDING" } : null,
     attachPhoto: async (input) => (calls.attach.push(input), input.uploadIntentId === "forged" ? null : { id: "photo-1" }),
@@ -21,6 +22,7 @@ function repository(): ProgressRepository & { calls: Record<string, unknown[]> }
     listReviewQueue: async () => [{ kind: "CHECK_IN", id: "check-1", studentId: "student-a", studentName: "Ana", submittedAt: new Date() }],
     getReviewDetail: async (input) => input.itemId === "cross-tenant" ? null : { kind: input.kind, id: input.itemId, studentId: "student-a", studentName: "Ana", reviewStatus: "PENDING", details: [], photos: [], notes: [] },
     completeReview: async (input) => (calls.review.push(input), input.itemId === "cross-tenant" ? null : { id: "note-1", reviewed: true }),
+    replyToReview: async (input) => (calls.reply.push(input), input.reviewNoteId === "foreign" ? null : { id: "reply-1" }),
   };
 }
 
@@ -39,6 +41,25 @@ describe("ProgressService", () => {
     const service = new ProgressService(repository());
     await expect(service.editDraft(student, { checkInId: "check-1", metrics: { ...validMetrics, bodyFat: { value: 101, unit: "PERCENT" } }, notes: null })).rejects.toBeInstanceOf(ProgressValidationError);
     await expect(service.editDraft(student, { checkInId: "check-1", metrics: { ...validMetrics, chest: { value: 100, unit: "KG" as never } }, notes: null })).rejects.toBeInstanceOf(ProgressValidationError);
+  });
+
+  it("submits the currently typed metrics and notes in one repository operation", async () => {
+    const repo = repository();
+    const service = new ProgressService(repo);
+    await service.submitCurrentDraft(student, { checkInId: "check-1", metrics: validMetrics, notes: "Valor actual", idempotencyKey: "submit-current" });
+
+    expect(repo.calls.submitCurrent).toEqual([expect.objectContaining({
+      workspaceId: "workspace-a", studentId: "student-a", metrics: validMetrics, notes: "Valor actual",
+    })]);
+  });
+
+  it("allows only the owning student to send one bounded contextual reply", async () => {
+    const repo = repository();
+    const service = new ProgressService(repo);
+    await service.replyToReview(student, { reviewNoteId: "note-1", body: "Entendido, gracias" });
+    expect(repo.calls.reply).toEqual([{ workspaceId: "workspace-a", studentId: "student-a", reviewNoteId: "note-1", body: "Entendido, gracias", createdAt: expect.any(Date) }]);
+    await expect(service.replyToReview(student, { reviewNoteId: "foreign", body: "Intento" })).rejects.toBeInstanceOf(ProgressAccessDeniedError);
+    await expect(service.replyToReview(coach, { reviewNoteId: "note-1", body: "No corresponde" })).rejects.toBeInstanceOf(ProgressAccessDeniedError);
   });
 
   it("creates, edits, and submits only the student's own draft with an idempotency key", async () => {

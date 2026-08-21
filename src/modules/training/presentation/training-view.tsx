@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { initialTrainingActionState, type TrainingActionState } from "./training-action-state";
@@ -13,11 +14,14 @@ const buttonClass = "min-h-12 rounded-full bg-[var(--signal)] px-5 text-sm font-
 
 export function CoachTrainingView({
   dashboard,
+  selectedStudentMembershipId,
   actions,
 }: {
   dashboard: CoachTrainingDashboard;
+  selectedStudentMembershipId?: string;
   actions: { createExercise: FormAction; createTemplate: FormAction; editTemplate: FormAction; createPlan: FormAction; assignPlan: FormAction };
 }) {
+  const selectedStudent = dashboard.students.find((student) => student.membershipId === selectedStudentMembershipId);
   return (
     <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:px-10 lg:py-12">
       <header className="border-b-4 border-[var(--ink)] pb-7">
@@ -28,6 +32,7 @@ export function CoachTrainingView({
 
       <section className="mt-9 grid gap-5 lg:grid-cols-2" aria-labelledby="exercise-library-title">
         <article className="bg-[var(--paper)] p-5 sm:p-7">
+          <p className="text-xs font-extrabold uppercase tracking-[.14em] text-[var(--signal-dark)]">Paso 1</p>
           <h2 className="display-type text-3xl font-semibold" id="exercise-library-title">Biblioteca de ejercicios</h2>
           <ActionForm action={actions.createExercise} ariaLabel="Crear ejercicio" className="mt-5 grid gap-4">
             <label className={labelClass}>Nombre<input className={fieldClass} name="name" required /></label>
@@ -40,6 +45,7 @@ export function CoachTrainingView({
         </article>
 
         <article className="border border-[var(--line)] bg-white/60 p-5 sm:p-7">
+          <p className="text-xs font-extrabold uppercase tracking-[.14em] text-[var(--signal-dark)]">Paso 2</p>
           <h2 className="display-type text-3xl font-semibold">Plantilla práctica</h2>
           <ActionForm action={actions.createTemplate} ariaLabel="Crear plantilla" className="mt-5 grid grid-cols-2 gap-4">
             <label className={`${labelClass} col-span-2`}>Nombre de plantilla<input className={fieldClass} name="name" required /></label>
@@ -78,6 +84,7 @@ export function CoachTrainingView({
 
       <section className="mt-5 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]" aria-label="Planificación">
         <article className="border-t-4 border-[var(--signal)] bg-[var(--ink)] p-5 text-white sm:p-7">
+          <p className="text-xs font-extrabold uppercase tracking-[.14em] text-[var(--signal-bright)]">Paso 3</p>
           <h2 className="display-type text-3xl font-semibold">Calendario del plan</h2>
           <ActionForm action={actions.createPlan} ariaLabel="Programar plan" className="mt-5 grid grid-cols-2 gap-4">
             <label className={`${labelClass} col-span-2 !text-white/75`}>Nombre del bloque<input className={`${fieldClass} text-[var(--ink)]`} name="name" required /></label>
@@ -95,11 +102,13 @@ export function CoachTrainingView({
             <SubmitButton className={`${buttonClass} col-span-2 bg-[var(--signal-bright)] text-[var(--ink)]`}>Programar plan</SubmitButton>
           </ActionForm>
         </article>
-        <article className="bg-[var(--paper)] p-5 sm:p-7">
+        <article className="bg-[var(--paper)] p-5 sm:p-7" id="assignment">
+          <p className="text-xs font-extrabold uppercase tracking-[.14em] text-[var(--signal-dark)]">Paso 4</p>
           <h2 className="display-type text-3xl font-semibold">Asignación</h2>
+          {selectedStudent ? <p className="mt-2 rounded-lg bg-white p-3 text-sm font-extrabold">Asignando a {selectedStudent.name}</p> : <p className="mt-2 text-sm text-[var(--ink-muted)]">Elegí un alumno de este workspace.</p>}
           <ActionForm action={actions.assignPlan} ariaLabel="Asignar plan" className="mt-5 grid gap-4">
             <label className={labelClass}>Plan<select className={fieldClass} name="planId" required><option value="">Elegí uno</option>{dashboard.plans.map((plan) => <option key={plan.id} value={plan.id}>{plan.name}</option>)}</select></label>
-            <label className={labelClass}>Alumno<select className={fieldClass} name="studentMembershipId" required><option value="">Elegí uno</option>{dashboard.students.map((student) => <option key={student.membershipId} value={student.membershipId}>{student.name}</option>)}</select></label>
+            <label className={labelClass}>Alumno<select className={fieldClass} defaultValue={selectedStudentMembershipId ?? ""} name="studentMembershipId" required><option value="">Elegí uno</option>{dashboard.students.map((student) => <option key={student.membershipId} value={student.membershipId}>{student.name}</option>)}</select></label>
             <SubmitButton className={buttonClass}>Asignar plan</SubmitButton>
           </ActionForm>
         </article>
@@ -111,11 +120,13 @@ export function CoachTrainingView({
 export function StudentTrainingView({
   date,
   workouts,
+  overview = workouts,
   actions,
 }: {
   date: string;
   workouts: AssignedWorkout[];
-  actions: { saveSet: FormAction; completeWorkout: FormAction };
+  overview?: AssignedWorkout[];
+  actions: { saveSet: FormAction; completeWorkout: FormAction; replyToReview: FormAction };
 }) {
   return (
     <div className="mx-auto max-w-3xl px-4 py-7 sm:px-8 lg:py-12">
@@ -123,8 +134,13 @@ export function StudentTrainingView({
         <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[var(--signal-dark)]">Tu agenda · {date}</p>
         <h1 className="display-type mt-2 text-5xl font-semibold">Entrenamiento de hoy</h1>
       </header>
+      <section className="mt-7 bg-[var(--paper)] p-5" aria-labelledby="plan-overview-title">
+        <h2 className="display-type text-3xl font-semibold" id="plan-overview-title">Tu plan asignado</h2>
+        {overview.length ? <ul className="mt-4 grid gap-3">{overview.map((workout) => <li className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--line)] pt-3" key={workout.id}><div><strong>{workout.templateName}</strong><p className="text-sm text-[var(--ink-muted)]">{workout.scheduledOn} · {statusLabel(workout.status)}</p></div><Link className="min-h-11 rounded-full border-2 border-[var(--ink)] px-4 py-2 text-sm font-extrabold" href={`?date=${workout.scheduledOn}#workout-${workout.id}`}>Abrir {workout.templateName}</Link></li>)}</ul> : <p className="mt-3 text-sm text-[var(--ink-muted)]">Todavía no tenés un plan asignado. Tu coach lo va a preparar con fechas concretas.</p>}
+      </section>
+      <nav aria-label="Cambiar fecha de entrenamiento" className="mt-5 grid grid-cols-3 items-center gap-2"><Link className="min-h-11 rounded-full border border-[var(--line)] px-3 py-2 text-center text-sm font-bold" href={`?date=${shiftDate(date, -1)}`}>Día anterior</Link><span className="text-center text-sm font-extrabold">{date}</span><Link className="min-h-11 rounded-full border border-[var(--line)] px-3 py-2 text-center text-sm font-bold" href={`?date=${shiftDate(date, 1)}`}>Día siguiente</Link></nav>
       {workouts.length === 0 ? <p className="mt-8 bg-[var(--paper)] p-6 font-bold">No tenés una sesión programada para hoy.</p> : workouts.map((workout) => (
-        <article className="mt-7" key={workout.id}>
+        <article className="mt-7" id={`workout-${workout.id}`} key={workout.id}>
           <div className="flex items-end justify-between gap-4 bg-[var(--ink)] p-5 text-white">
             <div><p className="text-xs font-bold uppercase tracking-[0.12em] text-white/70">{statusLabel(workout.status)}</p><h2 className="display-type mt-1 text-4xl font-semibold">{workout.templateName}</h2></div>
             <span className="text-sm font-bold">{workout.exercises.length} ejercicios</span>
@@ -164,11 +180,14 @@ export function StudentTrainingView({
             <input name="assignedWorkoutId" type="hidden" value={workout.id} />
             <SubmitButton className={`${buttonClass} w-full bg-[var(--ink)]`} disabled={workout.status === "COMPLETED"}>{workout.status === "COMPLETED" ? "Entrenamiento finalizado" : "Finalizar entrenamiento"}</SubmitButton>
           </ActionForm>
+          {workout.reviewNotes?.length ? <section className="mt-5 border-l-4 border-[var(--signal)] bg-white p-4" aria-label="Devolución del coach"><h3 className="font-extrabold">Devolución del coach</h3>{workout.reviewNotes.map((note) => <div className="mt-2" key={note.id}><p>{note.body}</p>{note.reply ? <p className="mt-1 text-sm text-[var(--ink-muted)]">Tu respuesta: {note.reply.body}</p> : <ActionForm action={actions.replyToReview} ariaLabel="Responder a la devolución" className="mt-3"><input name="reviewNoteId" type="hidden" value={note.id}/><label className={labelClass}>Respuesta breve<textarea className={`${fieldClass} min-h-20 py-3`} maxLength={500} name="body" required/></label><SubmitButton className={buttonClass}>Enviar respuesta</SubmitButton></ActionForm>}</div>)}</section> : null}
         </article>
       ))}
     </div>
   );
 }
+
+function shiftDate(value: string, days: number) { const date = new Date(`${value}T12:00:00.000Z`); date.setUTCDate(date.getUTCDate() + days); return date.toISOString().slice(0, 10); }
 
 function ActionForm({ action, ariaLabel, className, children }: { action: FormAction; ariaLabel?: string; className?: string; children: ReactNode }) {
   const [state, formAction] = useActionState(action, initialTrainingActionState);

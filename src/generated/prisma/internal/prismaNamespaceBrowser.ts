@@ -73,6 +73,7 @@ export const ModelName = {
   PhotoUploadIntent: 'PhotoUploadIntent',
   ProgressPhoto: 'ProgressPhoto',
   ReviewNote: 'ReviewNote',
+  ReviewReply: 'ReviewReply',
   ExerciseLog: 'ExerciseLog',
   SetLog: 'SetLog'
 } as const
@@ -431,6 +432,18 @@ export const ReviewNoteScalarFieldEnum = {
 } as const
 
 export type ReviewNoteScalarFieldEnum = (typeof ReviewNoteScalarFieldEnum)[keyof typeof ReviewNoteScalarFieldEnum]
+
+
+export const ReviewReplyScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  reviewNoteId: 'reviewNoteId',
+  studentId: 'studentId',
+  body: 'body',
+  createdAt: 'createdAt'
+} as const
+
+export type ReviewReplyScalarFieldEnum = (typeof ReviewReplyScalarFieldEnum)[keyof typeof ReviewReplyScalarFieldEnum]
 
 
 export const ExerciseLogScalarFieldEnum = {

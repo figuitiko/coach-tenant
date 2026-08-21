@@ -79,6 +79,7 @@ model User {
   measurementCheckIns MeasurementCheckIn[] @relation("CheckInStudent")
   progressPhotos   ProgressPhoto[]          @relation("PhotoStudent")
   reviewNotes      ReviewNote[]             @relation("ReviewCoach")
+  reviewReplies    ReviewReply[]            @relation("ReviewReplyStudent")
   photoUploadIntents PhotoUploadIntent[]    @relation("UploadIntentStudent")
 }
 
@@ -148,6 +149,7 @@ model Workspace {
   measurementCheckIns MeasurementCheckIn[]
   progressPhotos   ProgressPhoto[]
   reviewNotes      ReviewNote[]
+  reviewReplies    ReviewReply[]
   photoUploadIntents PhotoUploadIntent[]
 
   @@index([ownerId])
@@ -477,11 +479,27 @@ model ReviewNote {
   coach          User                @relation("ReviewCoach", fields: [coachId], references: [id], onDelete: Restrict)
   checkIn        MeasurementCheckIn? @relation(fields: [checkInId], references: [id], onDelete: Cascade)
   workoutSession WorkoutSession?     @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade)
+  reply          ReviewReply?
 
   @@index([workspaceId, createdAt])
   @@index([checkInId])
   @@index([workoutSessionId])
   @@unique([workspaceId, idempotencyKey])
+}
+
+model ReviewReply {
+  id           String     @id @default(cuid())
+  workspaceId  String
+  reviewNoteId String     @unique
+  studentId    String
+  body         String
+  createdAt    DateTime   @default(now())
+  workspace    Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  reviewNote   ReviewNote @relation(fields: [reviewNoteId], references: [id], onDelete: Cascade)
+  student      User       @relation("ReviewReplyStudent", fields: [studentId], references: [id], onDelete: Restrict)
+
+  @@index([workspaceId, createdAt])
+  @@index([studentId, createdAt])
 }
 
 model ExerciseLog {

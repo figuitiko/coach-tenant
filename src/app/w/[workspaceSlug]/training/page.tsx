@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CrossTenantAccessError, UnauthenticatedError } from "@/modules/tenancy/application/workspace-access";
 import { requireWorkspaceAccess } from "@/modules/tenancy/infrastructure/workspace-dal";
@@ -6,6 +5,8 @@ import { trainingService } from "@/modules/training/infrastructure/training-use-
 import { CoachTrainingView, StudentTrainingView } from "@/modules/training/presentation/training-view";
 import { calendarDateInTimeZone, isCalendarDate } from "@/modules/training/presentation/local-date";
 import { assignPlanAction, completeWorkoutAction, createExerciseAction, createPlanAction, createTemplateAction, editTemplateAction, saveSetAction } from "./actions";
+import { WorkspaceNavigation } from "@/components/shell/workspace-navigation";
+import { replyToReviewAction } from "@/app/w/[workspaceSlug]/progress/actions";
 
 export const runtime = "nodejs";
 
@@ -14,7 +15,7 @@ export default async function TrainingPage({
   searchParams,
 }: {
   params: Promise<{ workspaceSlug: string }>;
-  searchParams: Promise<{ date?: string }>;
+  searchParams: Promise<{ date?: string; studentMembershipId?: string }>;
 }) {
   const [{ workspaceSlug }, query] = await Promise.all([params, searchParams]);
   const { actor, date } = await loadTrainingContext(workspaceSlug, query.date);
@@ -26,15 +27,23 @@ export default async function TrainingPage({
     assignPlan: assignPlanAction.bind(null, workspaceSlug),
     saveSet: saveSetAction.bind(null, workspaceSlug),
     completeWorkout: completeWorkoutAction.bind(null, workspaceSlug),
+    replyToReview: replyToReviewAction.bind(null, workspaceSlug),
   };
-  const training = actor.role === "COACH"
-    ? <CoachTrainingView dashboard={await trainingService.getCoachDashboard(actor)} actions={actions} />
-    : <StudentTrainingView date={date} workouts={await trainingService.getStudentSchedule(actor, date)} actions={actions} />;
+  let training;
+  if (actor.role === "COACH") {
+    const dashboard = await trainingService.getCoachDashboard(actor);
+    if (query.studentMembershipId && !dashboard.students.some((student) => student.membershipId === query.studentMembershipId)) notFound();
+    training = <CoachTrainingView dashboard={dashboard} selectedStudentMembershipId={query.studentMembershipId} actions={actions} />;
+  } else {
+    const overview = await trainingService.getStudentPlanOverview(actor);
+    const selectedDate = query.date && isCalendarDate(query.date)
+      ? date
+      : overview.find((workout) => workout.status !== "COMPLETED" && workout.scheduledOn >= date)?.scheduledOn ?? overview.at(-1)?.scheduledOn ?? date;
+    training = <StudentTrainingView date={selectedDate} workouts={overview.filter((workout) => workout.scheduledOn === selectedDate)} overview={overview} actions={actions} />;
+  }
   return (
-    <main className="min-h-screen bg-[var(--paper-light)] pb-12">
-      <nav aria-label="Miga de pan" className="border-b border-[var(--line)] px-5 py-4 sm:px-8 lg:px-10">
-        <Link className="text-sm font-extrabold text-[var(--signal-dark)] underline underline-offset-4" href={`/w/${workspaceSlug}`}>← Volver al panel</Link>
-      </nav>
+    <main className="min-h-screen bg-[var(--paper-light)] pb-24 lg:pb-12">
+      <WorkspaceNavigation workspaceSlug={workspaceSlug} role={actor.role}/>
       {training}
     </main>
   );

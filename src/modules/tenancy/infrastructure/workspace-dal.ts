@@ -33,12 +33,14 @@ export async function listCoachRoster(workspaceId: string) {
     select: {
       id: true,
       user: { select: { name: true } },
-      planAssignments: { select: { id: true }, take: 1, orderBy: { assignedAt: "desc" } },
+      planAssignments: { select: { id: true, assignedAt: true, plan: { select: { name: true } }, workouts: { select: { status: true } } }, take: 1, orderBy: { assignedAt: "desc" } },
     },
   });
   return memberships.map((membership) => ({
     id: membership.id,
     name: membership.user.name,
-    status: membership.planAssignments.length ? "Plan asignado" : "Sin plan activo",
+    status: membership.planAssignments[0]
+      ? `${membership.planAssignments[0].plan.name} · ${membership.planAssignments[0].workouts.filter((workout) => workout.status !== "COMPLETED").length} sesiones pendientes`
+      : "Sin plan activo",
   }));
 }

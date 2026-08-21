@@ -7,6 +7,7 @@ const workoutInclude = {
   session: {
     include: {
       exerciseLogs: { include: { sets: { orderBy: { setNumber: "asc" as const } } } },
+      reviewNotes: { orderBy: { createdAt: "asc" as const }, select: { id: true, body: true, reply: { select: { body: true } } } },
     },
   },
 } satisfies Prisma.AssignedWorkoutInclude;
@@ -178,6 +179,15 @@ export class PrismaTrainingRepository implements TrainingRepository {
     return workouts.map(mapWorkout);
   }
 
+  async listStudentPlanOverview(input: { workspaceId: string; studentId: string }) {
+    const workouts = await this.database.assignedWorkout.findMany({
+      where: { workspaceId: input.workspaceId, studentId: input.studentId },
+      orderBy: [{ scheduledOn: "asc" }, { createdAt: "asc" }],
+      include: workoutInclude,
+    });
+    return workouts.map(mapWorkout);
+  }
+
   async saveSet(input: SaveSetInput & { workspaceId: string; studentId: string; savedAt: Date }) {
     return serializableTransaction(this.database, async (tx) => {
       const workout = await tx.assignedWorkout.findFirst({
@@ -307,6 +317,7 @@ function mapWorkout(workout: WorkoutRecord): AssignedWorkout {
     status: workout.status,
     exercises: workout.exercises.map((exercise) => ({ id: exercise.id, exerciseId: exercise.sourceExerciseId, exerciseName: exercise.exerciseName, order: exercise.order, prescribedSets: exercise.prescribedSets, repMin: exercise.repMin, repMax: exercise.repMax, targetRpe: exercise.targetRpe === null ? null : Number(exercise.targetRpe), restSeconds: exercise.restSeconds, notes: exercise.notes })),
     session: workout.session ? { id: workout.session.id, startedAt: workout.session.startedAt, completedAt: workout.session.completedAt, sets } : null,
+    reviewNotes: workout.session?.reviewNotes ?? [],
   };
 }
 

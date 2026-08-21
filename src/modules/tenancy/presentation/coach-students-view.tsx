@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition, type FormEvent } from "react";
 
 export type CoachStudent = { id: string; name: string; status: string };
@@ -54,7 +55,7 @@ export function CoachStudentsView({ workspaceSlug, students, invitations: initia
       </section>
       <section aria-labelledby="history-title"><h2 className="display-type text-3xl font-semibold" id="history-title">Historial de invitaciones</h2>{invitations.length ? <ul className="mt-4 divide-y divide-[var(--line)] border-y border-[var(--line)]">{invitations.map((invitation) => <li className="flex items-center justify-between gap-4 py-4" key={invitation.id}><div><strong>{statusLabel(invitation.status)}</strong><p className="text-xs text-[var(--ink-muted)]">Vence {new Date(invitation.expiresAt).toLocaleDateString("es")}</p></div>{invitation.status === "ACTIVE" ? <button className="min-h-11 text-sm font-bold text-red-700 underline" disabled={pending} onClick={() => revoke(invitation.id)} type="button">Revocar</button> : null}</li>)}</ul> : <p className="mt-4 border border-dashed border-[var(--line)] bg-white/50 p-5 text-sm text-[var(--ink-muted)]">Todavía no generaste invitaciones.</p>}</section>
     </div>
-    <section className="mt-9" aria-labelledby="roster-title"><h2 className="display-type text-3xl font-semibold" id="roster-title">Alumnos</h2>{students.length ? <ul className="mt-4 grid gap-3 sm:grid-cols-2">{students.map((student) => <li className="border border-[var(--line)] bg-white/60 p-4" key={student.id}><strong>{student.name}</strong><p className="mt-1 text-sm text-[var(--ink-muted)]">{student.status}</p></li>)}</ul> : <p className="mt-4 border border-dashed border-[var(--line)] bg-white/50 p-5 text-sm text-[var(--ink-muted)]">Cuando acepten una invitación, van a aparecer acá.</p>}</section>
+    <section className="mt-9" aria-labelledby="roster-title"><h2 className="display-type text-3xl font-semibold" id="roster-title">Alumnos</h2>{students.length ? <ul className="mt-4 grid gap-3 sm:grid-cols-2">{students.map((student) => <li className="border border-[var(--line)] bg-white/60 p-4" key={student.id}><strong>{student.name}</strong><p className="mt-1 text-sm text-[var(--ink-muted)]">{student.status}</p><Link className="mt-4 inline-flex min-h-11 items-center rounded-full bg-[var(--ink)] px-4 text-sm font-extrabold text-white" href={`/w/${workspaceSlug}/training?studentMembershipId=${encodeURIComponent(student.id)}#assignment`}>Gestionar entrenamiento de {student.name}</Link></li>)}</ul> : <p className="mt-4 border border-dashed border-[var(--line)] bg-white/50 p-5 text-sm text-[var(--ink-muted)]">Cuando acepten una invitación, van a aparecer acá.</p>}</section>
   </div>;
 }
 

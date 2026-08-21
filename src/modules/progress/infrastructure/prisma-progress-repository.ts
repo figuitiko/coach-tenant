@@ -35,6 +35,22 @@ export class PrismaProgressRepository implements ProgressRepository {
     });
   }
 
+  async submitCurrentDraft(input: { workspaceId: string; studentId: string; checkInId: string; metrics: CheckInMetrics; notes: string | null; idempotencyKey: string; submittedAt: Date }) {
+    return this.db.$transaction(async (tx) => {
+      await requireMember(tx, input.workspaceId, input.studentId, "STUDENT");
+      const submitted = await tx.measurementCheckIn.updateMany({
+        where: { id: input.checkInId, workspaceId: input.workspaceId, studentId: input.studentId, status: "DRAFT" },
+        data: { ...metricData(input.metrics), notes: input.notes, status: "SUBMITTED", draftSlot: null, submittedAt: input.submittedAt, submitIdempotencyKey: input.idempotencyKey },
+      });
+      if (submitted.count === 1) {
+        await eventPair(tx, input.workspaceId, input.studentId, "measurement_check_in.submitted", "measurement_check_in_submitted", "MeasurementCheckIn", input.checkInId, `checkin-submit:${input.checkInId}`);
+        return { id: input.checkInId, status: "SUBMITTED" as const };
+      }
+      const existing = await tx.measurementCheckIn.findFirst({ where: { id: input.checkInId, workspaceId: input.workspaceId, studentId: input.studentId, status: { in: ["SUBMITTED", "REVIEWED"] }, submitIdempotencyKey: input.idempotencyKey }, select: { id: true } });
+      return existing ? { id: existing.id, status: "SUBMITTED" as const } : null;
+    });
+  }
+
   async reserveUploadIntent(input: { workspaceId: string; studentId: string; checkInId: string; idempotencyKey: string; objectKey: string; mimeType: string; sizeBytes: number; checksumSha256: string; expiresAt: Date }) {
     return this.db.$transaction(async (tx) => {
       await requireMember(tx, input.workspaceId, input.studentId, "STUDENT");
@@ -69,14 +85,14 @@ export class PrismaProgressRepository implements ProgressRepository {
 
   async listStudentHistory(input: { workspaceId: string; studentId: string }) {
     await requireMember(this.db, input.workspaceId, input.studentId, "STUDENT");
-    return this.db.measurementCheckIn.findMany({ where: { workspaceId: input.workspaceId, studentId: input.studentId, status: { not: "DRAFT" } }, orderBy: { submittedAt: "desc" }, include: { photos: { select: { id: true, mimeType: true, sizeBytes: true } }, reviewNotes: { select: { id: true, body: true, createdAt: true } } } });
+    return this.db.measurementCheckIn.findMany({ where: { workspaceId: input.workspaceId, studentId: input.studentId, status: { not: "DRAFT" } }, orderBy: { submittedAt: "desc" }, include: { photos: { select: { id: true, mimeType: true, sizeBytes: true } }, reviewNotes: { select: { id: true, body: true, createdAt: true, reply: { select: { id: true, body: true, createdAt: true } } } } } });
   }
 
   async getStudentProgress(input: { workspaceId: string; studentId: string }) {
     await requireMember(this.db, input.workspaceId, input.studentId, "STUDENT");
     const [draft, history] = await Promise.all([
       this.db.measurementCheckIn.findFirst({ where: { workspaceId: input.workspaceId, studentId: input.studentId, status: "DRAFT" }, orderBy: { createdAt: "desc" }, include: { photos: { select: { id: true, mimeType: true, sizeBytes: true } } } }),
-      this.db.measurementCheckIn.findMany({ where: { workspaceId: input.workspaceId, studentId: input.studentId, status: { not: "DRAFT" } }, orderBy: { submittedAt: "desc" }, select: { id: true, submittedAt: true, notes: true } }),
+      this.db.measurementCheckIn.findMany({ where: { workspaceId: input.workspaceId, studentId: input.studentId, status: { not: "DRAFT" } }, orderBy: { submittedAt: "desc" }, select: { id: true, submittedAt: true, notes: true, reviewNotes: { orderBy: { createdAt: "asc" }, select: { id: true, body: true, createdAt: true, reply: { select: { id: true, body: true, createdAt: true } } } } } }),
     ]);
     return { draft: draft ? { id: draft.id, status: draft.status, metrics: { weight: draft.weight === null ? null : { value: Number(draft.weight), unit: draft.weightUnit }, bodyFat: draft.bodyFat === null ? null : { value: Number(draft.bodyFat), unit: draft.bodyFatUnit }, chest: draft.chest === null ? null : { value: Number(draft.chest), unit: draft.chestUnit }, waist: draft.waist === null ? null : { value: Number(draft.waist), unit: draft.waistUnit }, hips: draft.hips === null ? null : { value: Number(draft.hips), unit: draft.hipsUnit }, arm: draft.arm === null ? null : { value: Number(draft.arm), unit: draft.armUnit }, thigh: draft.thigh === null ? null : { value: Number(draft.thigh), unit: draft.thighUnit } }, notes: draft.notes, photos: draft.photos } : null, history };
   }
@@ -113,10 +129,10 @@ export class PrismaProgressRepository implements ProgressRepository {
   async getReviewDetail(input: { workspaceId: string; coachId: string; kind: ReviewKind; itemId: string }): Promise<ReviewDetail | null> {
     await requireMember(this.db, input.workspaceId, input.coachId, "COACH");
     if (input.kind === "CHECK_IN") {
-      const item = await this.db.measurementCheckIn.findFirst({ where: { id: input.itemId, workspaceId: input.workspaceId, status: { not: "DRAFT" } }, include: { student: { select: { name: true } }, photos: { select: { id: true, mimeType: true } }, reviewNotes: { select: { id: true, body: true, createdAt: true }, orderBy: { createdAt: "asc" } } } });
+      const item = await this.db.measurementCheckIn.findFirst({ where: { id: input.itemId, workspaceId: input.workspaceId, status: { not: "DRAFT" } }, include: { student: { select: { name: true } }, photos: { select: { id: true, mimeType: true } }, reviewNotes: { select: { id: true, body: true, createdAt: true, reply: { select: { id: true, body: true, createdAt: true } } }, orderBy: { createdAt: "asc" } } } });
       return item ? { kind: "CHECK_IN", id: item.id, studentId: item.studentId, studentName: item.student.name, reviewStatus: item.reviewStatus, details: checkInDetails(item), photos: item.photos, notes: item.reviewNotes } : null;
     }
-    const item = await this.db.workoutSession.findFirst({ where: { id: input.itemId, status: "COMPLETED", assignedWorkout: { workspaceId: input.workspaceId } }, include: { student: { select: { name: true } }, assignedWorkout: { select: { templateName: true } }, exerciseLogs: { include: { assignedExercise: { select: { exerciseName: true } }, sets: true } }, reviewNotes: { select: { id: true, body: true, createdAt: true }, orderBy: { createdAt: "asc" } } } });
+    const item = await this.db.workoutSession.findFirst({ where: { id: input.itemId, status: "COMPLETED", assignedWorkout: { workspaceId: input.workspaceId } }, include: { student: { select: { name: true } }, assignedWorkout: { select: { templateName: true } }, exerciseLogs: { include: { assignedExercise: { select: { exerciseName: true } }, sets: true } }, reviewNotes: { select: { id: true, body: true, createdAt: true, reply: { select: { id: true, body: true, createdAt: true } } }, orderBy: { createdAt: "asc" } } } });
     return item ? { kind: "WORKOUT", id: item.id, studentId: item.studentId, studentName: item.student.name, reviewStatus: item.reviewStatus, details: [{ label: "Sesión", value: item.assignedWorkout.templateName }, ...item.exerciseLogs.map(log => ({ label: log.assignedExercise.exerciseName, value: `${log.sets.filter(set => set.completed).length}/${log.sets.length} series completadas` }))], photos: [], notes: item.reviewNotes } : null;
   }
 
@@ -145,6 +161,25 @@ export class PrismaProgressRepository implements ProgressRepository {
       await eventPair(tx, input.workspaceId, input.coachId, "review.completed", "review_completed", input.kind === "CHECK_IN" ? "MeasurementCheckIn" : "WorkoutSession", input.itemId, `review:${input.kind}:${input.itemId}`, { studentId });
       return { id: note.id, reviewed: true };
     }); } catch (error) { if (error instanceof ReviewConflict) return null; throw error; }
+  }
+
+  async replyToReview(input: { workspaceId: string; studentId: string; reviewNoteId: string; body: string; createdAt: Date }) {
+    return this.db.$transaction(async (tx) => {
+      await requireMember(tx, input.workspaceId, input.studentId, "STUDENT");
+      const note = await tx.reviewNote.findFirst({ where: {
+        id: input.reviewNoteId,
+        workspaceId: input.workspaceId,
+        OR: [
+          { checkIn: { studentId: input.studentId, workspaceId: input.workspaceId } },
+          { workoutSession: { studentId: input.studentId, assignedWorkout: { workspaceId: input.workspaceId } } },
+        ],
+      }, select: { id: true, reply: { select: { id: true, body: true } } } });
+      if (!note) return null;
+      if (note.reply) return note.reply.body === input.body ? { id: note.reply.id } : null;
+      const reply = await tx.reviewReply.create({ data: { workspaceId: input.workspaceId, reviewNoteId: note.id, studentId: input.studentId, body: input.body, createdAt: input.createdAt }, select: { id: true } });
+      await eventPair(tx, input.workspaceId, input.studentId, "review.replied", "review_replied", "ReviewNote", note.id, `review-reply:${note.id}`);
+      return reply;
+    });
   }
 }
 

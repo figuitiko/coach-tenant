@@ -10,8 +10,18 @@ import { requireWorkspaceAccess } from "@/modules/tenancy/infrastructure/workspa
 
 export async function saveDraftAction(slug: string, _state: ProgressActionState, data: FormData) { return execute(slug, async actor => { await progressService.editDraft(actor, { checkInId: text(data, "checkInId"), metrics: metrics(data), notes: optional(data, "notes") }); }); }
 export async function submitCheckInAction(slug: string, _state: ProgressActionState, data: FormData) { return execute(slug, async actor => { await progressService.submitDraft(actor, { checkInId: text(data, "checkInId"), idempotencyKey: text(data, "idempotencyKey") }); }); }
+export async function saveOrSubmitCheckInAction(slug: string, _state: ProgressActionState, data: FormData) {
+  const intent = text(data, "intent");
+  if (intent !== "SAVE" && intent !== "SUBMIT") return expected(new ProgressValidationError());
+  return execute(slug, async actor => {
+    const input = { checkInId: text(data, "checkInId"), metrics: metrics(data), notes: optional(data, "notes") };
+    if (intent === "SAVE") await progressService.editDraft(actor, input);
+    else await progressService.submitCurrentDraft(actor, { ...input, idempotencyKey: text(data, "idempotencyKey") });
+  }, intent === "SUBMIT" ? "Check-in enviado con tus valores actuales." : "Borrador guardado.");
+}
 export async function attachPhotoAction(slug: string, _state: ProgressActionState, data: FormData) { return execute(slug, async actor => { const uploadIntentId = text(data, "uploadIntentId"); const intent = await progressService.getUploadIntent(actor, uploadIntentId); const media = privateMediaFromEnvironment(s3SignerFromEnvironment()); await media.verifyUploadedObject(intent); await progressService.attachPhoto(actor, { uploadIntentId }); }); }
 export async function completeReviewAction(slug: string, _state: ProgressActionState, data: FormData) { return execute(slug, async actor => { await progressService.completeReview(actor, { kind: reviewKind(data), itemId: text(data, "itemId"), note: optional(data, "note") ?? "", idempotencyKey: text(data, "idempotencyKey") }); }); }
+export async function replyToReviewAction(slug: string, _state: ProgressActionState, data: FormData) { return execute(slug, async actor => { await progressService.replyToReview(actor, { reviewNoteId: text(data, "reviewNoteId"), body: text(data, "body") }); }, "Respuesta enviada al coach."); }
 
 export async function requestUploadAction(slug: string, _state: ProgressActionState, data: FormData): Promise<ProgressActionState> {
   try {
@@ -29,7 +39,7 @@ export async function requestUploadAction(slug: string, _state: ProgressActionSt
   } catch (error) { return expected(error); }
 }
 
-async function execute(slug: string, operation: (actor: ProgressActor) => Promise<void>): Promise<ProgressActionState> { try { await operation(await actorFor(slug)); revalidatePath(`/w/${slug}/progress`); return { status: "success", message: "Cambios guardados." }; } catch (error) { return expected(error); } }
+async function execute(slug: string, operation: (actor: ProgressActor) => Promise<void>, message = "Cambios guardados."): Promise<ProgressActionState> { try { await operation(await actorFor(slug)); revalidatePath(`/w/${slug}/progress`); revalidatePath(`/w/${slug}/training`); return { status: "success", message }; } catch (error) { return expected(error); } }
 function expected(error: unknown): ProgressActionState { if (error instanceof ProgressAccessDeniedError || error instanceof ProgressValidationError || error instanceof PrivateMediaError || error instanceof CrossTenantAccessError || error instanceof UnauthenticatedError) return { status: "error", message: "No pudimos guardar el progreso. Revisá los datos e intentá de nuevo." }; throw error; }
 async function actorFor(slug: string): Promise<ProgressActor> { const access = await requireWorkspaceAccess(slug); return { actorId: access.userId, workspaceId: access.workspace.workspaceId, role: access.workspace.role }; }
 function text(data: FormData, key: string) { const value = data.get(key); if (typeof value !== "string" || !value.trim() || value.length > 500) throw new ProgressValidationError(); return value.trim(); }

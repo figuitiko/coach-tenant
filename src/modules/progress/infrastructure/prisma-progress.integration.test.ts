@@ -10,11 +10,46 @@ const service = new ProgressService(new PrismaProgressRepository(prisma), () => 
 
 describe("PrismaProgressRepository PostgreSQL boundaries", () => {
   beforeEach(async () => {
-    await prisma.reviewNote.deleteMany(); await prisma.progressPhoto.deleteMany(); await prisma.measurementCheckIn.deleteMany();
+    await prisma.reviewReply.deleteMany(); await prisma.reviewNote.deleteMany(); await prisma.progressPhoto.deleteMany(); await prisma.measurementCheckIn.deleteMany();
     await prisma.setLog.deleteMany(); await prisma.exerciseLog.deleteMany(); await prisma.workoutSession.deleteMany(); await prisma.assignedExercise.deleteMany(); await prisma.assignedWorkout.deleteMany(); await prisma.studentPlanAssignment.deleteMany(); await prisma.planWorkout.deleteMany(); await prisma.workoutPlan.deleteMany(); await prisma.templateExercise.deleteMany(); await prisma.workoutTemplate.deleteMany(); await prisma.exercise.deleteMany();
     await prisma.productEvent.deleteMany(); await prisma.auditEvent.deleteMany(); await prisma.membership.deleteMany(); await prisma.invitation.deleteMany(); await prisma.session.deleteMany(); await prisma.account.deleteMany(); await prisma.workspace.deleteMany(); await prisma.user.deleteMany();
   });
   afterAll(() => prisma.$disconnect());
+
+  it("submits the current metric fields and notes in the same transaction", async () => {
+    const a = await fixture("current-submit");
+    const actor = { actorId: a.student.id, workspaceId: a.workspace.id, role: "STUDENT" as const };
+    const draft = await service.createDraft(actor);
+    await service.editDraft(actor, { checkInId: draft.id, metrics: emptyMetrics(), notes: "stale draft" });
+
+    await service.submitCurrentDraft(actor, {
+      checkInId: draft.id,
+      metrics: { ...emptyMetrics(), weight: { value: 68.2, unit: "KG" } },
+      notes: "current typed values",
+      idempotencyKey: "current-submit",
+    });
+
+    const persisted = await prisma.measurementCheckIn.findUniqueOrThrow({ where: { id: draft.id } });
+    expect(persisted).toMatchObject({ status: "SUBMITTED", weight: 68.2, weightUnit: "KG", notes: "current typed values" });
+  });
+
+  it("binds one contextual reply to the reviewed target and owning student", async () => {
+    const a = await fixture("reply-owner"); const b = await fixture("reply-other");
+    const student = { actorId: a.student.id, workspaceId: a.workspace.id, role: "STUDENT" as const };
+    const draft = await service.createDraft(student);
+    await service.submitCurrentDraft(student, { checkInId: draft.id, metrics: emptyMetrics(), notes: "ready", idempotencyKey: "reply-submit" });
+    await service.completeReview({ actorId: a.coach.id, workspaceId: a.workspace.id, role: "COACH" }, { kind: "CHECK_IN", itemId: draft.id, note: "Keep going", idempotencyKey: "reply-review" });
+    const note = await prisma.reviewNote.findFirstOrThrow({ where: { checkInId: draft.id } });
+
+    await service.replyToReview(student, { reviewNoteId: note.id, body: "Understood" });
+    await service.replyToReview(student, { reviewNoteId: note.id, body: "Understood" });
+    expect(await prisma.reviewReply.count({ where: { reviewNoteId: note.id } })).toBe(1);
+    await expect(service.replyToReview({ actorId: b.student.id, workspaceId: b.workspace.id, role: "STUDENT" }, { reviewNoteId: note.id, body: "guessed" })).rejects.toBeInstanceOf(ProgressAccessDeniedError);
+    await expect(service.replyToReview({ actorId: a.coach.id, workspaceId: a.workspace.id, role: "COACH" }, { reviewNoteId: note.id, body: "coach reply" })).rejects.toBeInstanceOf(ProgressAccessDeniedError);
+
+    const detail = await service.getReviewDetail({ actorId: a.coach.id, workspaceId: a.workspace.id, role: "COACH" }, "CHECK_IN", draft.id);
+    expect(detail.notes[0].reply?.body).toBe("Understood");
+  });
 
   it("isolates student drafts, makes submit retry-safe, and emits one event pair", async () => {
     const a = await fixture("a"); const b = await fixture("b");
@@ -98,4 +133,8 @@ async function fixture(suffix: string) {
   const workspace = await prisma.workspace.create({ data: { name: `Workspace ${suffix}`, slug: `workspace-${suffix}`, ownerId: coach.id } });
   await prisma.membership.createMany({ data: [{ workspaceId: workspace.id, userId: coach.id, role: "COACH" }, { workspaceId: workspace.id, userId: student.id, role: "STUDENT" }] });
   return { coach, student, workspace };
+}
+
+function emptyMetrics() {
+  return { weight: null, bodyFat: null, chest: null, waist: null, hips: null, arm: null, thigh: null };
 }
