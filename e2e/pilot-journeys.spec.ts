@@ -125,7 +125,6 @@ test.describe("pilot PostgreSQL journeys", () => {
     await page.goto("/w/fuerza-norte-pilot/progress");
     const review = page.getByRole("link", { name: /revisar check-in de martina lópez/i }).first();
     await review.click();
-    const reviewUrl = page.url();
     await page.getByLabel(/nota contextual/i).fill(coachNote);
     await page.getByRole("button", { name: /marcar revisado/i }).click();
     await expect(page.getByRole("status")).toContainText(/guardad/i);
@@ -142,7 +141,11 @@ test.describe("pilot PostgreSQL journeys", () => {
 
     await page.context().clearCookies();
     await signIn(page, "coach.fuerzanorte@tenand.local");
-    await page.goto(reviewUrl);
+    await page.goto("/w/fuerza-norte-pilot/progress");
+    const replied = page.getByRole("region", { name: /respuestas de alumnos/i });
+    await expect(replied).toContainText(studentReply);
+    await replied.getByRole("link", { name: /ver respuesta de martina lópez/i }).first().click();
+    await expect(page.getByText(coachNote)).toBeVisible();
     await expect(page.getByText(`Respuesta del alumno: ${studentReply}`)).toBeVisible();
   });
 });

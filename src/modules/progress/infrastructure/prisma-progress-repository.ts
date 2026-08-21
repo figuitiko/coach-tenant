@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@/generated/prisma/client";
 import { isWorkspaceRoleAuthorized } from "@/modules/tenancy/infrastructure/workspace-role-authorization";
-import { ProgressAccessDeniedError, type CheckInMetrics, type ProgressRepository, type ReviewDetail, type ReviewKind, type ReviewQueueItem } from "../application/progress-service";
+import { ProgressAccessDeniedError, type CheckInMetrics, type ProgressRepository, type ReviewDetail, type ReviewHistoryItem, type ReviewKind, type ReviewQueueItem } from "../application/progress-service";
 
 export class PrismaProgressRepository implements ProgressRepository {
   constructor(private readonly db: PrismaClient) {}
@@ -124,6 +124,33 @@ export class PrismaProgressRepository implements ProgressRepository {
       this.db.workoutSession.findMany({ where: { status: "COMPLETED", reviewStatus: "PENDING", assignedWorkout: { workspaceId: input.workspaceId } }, select: { id: true, studentId: true, completedAt: true, student: { select: { name: true } } } }),
     ]);
     return [...checks.map((item) => ({ kind: "CHECK_IN" as const, id: item.id, studentId: item.studentId, studentName: item.student.name, submittedAt: item.submittedAt! })), ...workouts.map((item) => ({ kind: "WORKOUT" as const, id: item.id, studentId: item.studentId, studentName: item.student.name, submittedAt: item.completedAt! }))].sort((a, b) => a.submittedAt.getTime() - b.submittedAt.getTime());
+  }
+
+  async listReviewHistory(input: { workspaceId: string; coachId: string }): Promise<ReviewHistoryItem[]> {
+    await requireMember(this.db, input.workspaceId, input.coachId, "COACH");
+    const select = {
+      createdAt: true,
+      checkIn: { select: { id: true, studentId: true, reviewedAt: true, student: { select: { name: true } } } },
+      workoutSession: { select: { id: true, studentId: true, reviewedAt: true, student: { select: { name: true } } } },
+      reply: { select: { body: true, createdAt: true } },
+    } as const;
+    const [replied, recent] = await Promise.all([
+      this.db.reviewNote.findMany({ where: { workspaceId: input.workspaceId, reply: { isNot: null } }, orderBy: { reply: { createdAt: "desc" } }, take: 20, select }),
+      this.db.reviewNote.findMany({ where: { workspaceId: input.workspaceId, reply: { is: null } }, orderBy: { createdAt: "desc" }, take: 20, select }),
+    ]);
+    const notes = [...replied, ...recent];
+    return notes.flatMap((note) => {
+      const target = note.checkIn ?? note.workoutSession;
+      if (!target) return [];
+      return [{
+        kind: note.checkIn ? "CHECK_IN" as const : "WORKOUT" as const,
+        id: target.id,
+        studentId: target.studentId,
+        studentName: target.student.name,
+        reviewedAt: target.reviewedAt ?? note.createdAt,
+        reply: note.reply,
+      }];
+    });
   }
 
   async getReviewDetail(input: { workspaceId: string; coachId: string; kind: ReviewKind; itemId: string }): Promise<ReviewDetail | null> {

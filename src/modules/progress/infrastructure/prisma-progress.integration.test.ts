@@ -41,6 +41,9 @@ describe("PrismaProgressRepository PostgreSQL boundaries", () => {
     await service.completeReview({ actorId: a.coach.id, workspaceId: a.workspace.id, role: "COACH" }, { kind: "CHECK_IN", itemId: draft.id, note: "Keep going", idempotencyKey: "reply-review" });
     const note = await prisma.reviewNote.findFirstOrThrow({ where: { checkInId: draft.id } });
 
+    expect(await service.getReviewQueue({ actorId: a.coach.id, workspaceId: a.workspace.id, role: "COACH" })).toEqual([]);
+    expect(await service.getReviewHistory({ actorId: a.coach.id, workspaceId: a.workspace.id, role: "COACH" })).toEqual([expect.objectContaining({ id: draft.id, reply: null })]);
+
     await service.replyToReview(student, { reviewNoteId: note.id, body: "Understood" });
     await service.replyToReview(student, { reviewNoteId: note.id, body: "Understood" });
     expect(await prisma.reviewReply.count({ where: { reviewNoteId: note.id } })).toBe(1);
@@ -49,6 +52,8 @@ describe("PrismaProgressRepository PostgreSQL boundaries", () => {
 
     const detail = await service.getReviewDetail({ actorId: a.coach.id, workspaceId: a.workspace.id, role: "COACH" }, "CHECK_IN", draft.id);
     expect(detail.notes[0].reply?.body).toBe("Understood");
+    expect(await service.getReviewHistory({ actorId: a.coach.id, workspaceId: a.workspace.id, role: "COACH" })).toEqual([expect.objectContaining({ id: draft.id, reply: expect.objectContaining({ body: "Understood" }) })]);
+    expect(await service.getReviewHistory({ actorId: b.coach.id, workspaceId: b.workspace.id, role: "COACH" })).toEqual([]);
   });
 
   it("isolates student drafts, makes submit retry-safe, and emits one event pair", async () => {

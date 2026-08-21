@@ -32,10 +32,26 @@ describe("progress views", () => {
   });
 
   it("uses accessible queue and review-detail semantics", () => {
-    render(<CoachReviewView queue={[{ kind: "WORKOUT", id: "workout-1", studentId: "s", studentName: "Ana", submittedAt: new Date("2026-08-19") }]} detail={null} reviewAction={action} />);
+    render(<CoachReviewView queue={[{ kind: "WORKOUT", id: "workout-1", studentId: "s", studentName: "Ana", submittedAt: new Date("2026-08-19") }]} history={[]} detail={null} reviewAction={action} />);
     expect(screen.getByRole("heading", { name: /cola de revisión/i })).toBeInTheDocument();
     expect(screen.getByRole("list", { name: /pendientes/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /revisar entrenamiento de ana/i })).toBeInTheDocument();
+  });
+
+  it("puts student replies ahead of recent reviewed history with normal detail links", () => {
+    render(<CoachReviewView queue={[]} history={[
+      { kind: "CHECK_IN", id: "check-replied", studentId: "s1", studentName: "Ana", reviewedAt: new Date("2026-08-20"), reply: { body: "Entendido, gracias", createdAt: new Date("2026-08-21") } },
+      { kind: "WORKOUT", id: "workout-reviewed", studentId: "s2", studentName: "Beto", reviewedAt: new Date("2026-08-19"), reply: null },
+    ]} detail={null} reviewAction={action} />);
+
+    const replied = screen.getByRole("region", { name: /respuestas de alumnos/i });
+    expect(replied).toHaveTextContent("Entendido, gracias");
+    expect(replied).toHaveTextContent(/revisado el/i);
+    expect(replied).toHaveTextContent(/respondió el/i);
+    expect(screen.getByRole("link", { name: /ver respuesta de ana/i })).toHaveAttribute("href", "?kind=CHECK_IN&itemId=check-replied");
+    expect(screen.getByRole("region", { name: /revisados recientemente/i })).toHaveTextContent("Beto");
+    expect(screen.getByRole("region", { name: /revisados recientemente/i })).toHaveTextContent(/revisado el/i);
+    expect(screen.getByRole("link", { name: /ver revisión de beto/i })).toHaveAttribute("href", "?kind=WORKOUT&itemId=workout-reviewed");
   });
 
   it("reuses an upload key for retry, rotates it for a distinct file, and shows success", async () => {

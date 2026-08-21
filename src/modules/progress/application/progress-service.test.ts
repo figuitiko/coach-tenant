@@ -20,6 +20,7 @@ function repository(): ProgressRepository & { calls: Record<string, unknown[]> }
     getStudentPhoto: async (input) => input.photoId === "mine" && input.studentId === student.actorId ? { objectKey: "workspace-a/student-a/photo.jpg", studentId: "student-a", mimeType: "image/jpeg", sizeBytes: 20 } : null,
     getCoachPhoto: async () => null,
     listReviewQueue: async () => [{ kind: "CHECK_IN", id: "check-1", studentId: "student-a", studentName: "Ana", submittedAt: new Date() }],
+    listReviewHistory: async (input) => input.workspaceId === "workspace-a" ? [{ kind: "CHECK_IN", id: "check-1", studentId: "student-a", studentName: "Ana", reviewedAt: new Date("2026-08-20"), reply: { body: "Entendido", createdAt: new Date("2026-08-21") } }] : [],
     getReviewDetail: async (input) => input.itemId === "cross-tenant" ? null : { kind: input.kind, id: input.itemId, studentId: "student-a", studentName: "Ana", reviewStatus: "PENDING", details: [], photos: [], notes: [] },
     completeReview: async (input) => (calls.review.push(input), input.itemId === "cross-tenant" ? null : { id: "note-1", reviewed: true }),
     replyToReview: async (input) => (calls.reply.push(input), input.reviewNoteId === "foreign" ? null : { id: "reply-1" }),
@@ -84,6 +85,12 @@ describe("ProgressService", () => {
     expect(await service.getReviewQueue(coach)).toEqual([expect.objectContaining({ kind: "CHECK_IN", id: "check-1" })]);
     await service.completeReview(coach, { kind: "WORKOUT", itemId: "workout-1", note: "Buen control", idempotencyKey: "review-1" });
     expect(repo.calls.review).toEqual([expect.objectContaining({ workspaceId: "workspace-a", coachId: "coach-a", idempotencyKey: "review-1" })]);
+  });
+
+  it("returns reviewed and replied targets only to a coach in the same workspace", async () => {
+    const service = new ProgressService(repository());
+    expect(await service.getReviewHistory(coach)).toEqual([expect.objectContaining({ id: "check-1", reply: expect.objectContaining({ body: "Entendido" }) })]);
+    await expect(service.getReviewHistory(student)).rejects.toBeInstanceOf(ProgressAccessDeniedError);
   });
 
   it("reserves an idempotent upload intent and attaches only by its persisted identity", async () => {

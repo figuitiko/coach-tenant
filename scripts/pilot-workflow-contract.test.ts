@@ -16,5 +16,7 @@ describe("explicit coach to student pilot workflow", () => {
     expect(journey).toMatch(/gestionar entrenamiento/i);
     expect(journey).toMatch(/día siguiente|tu plan asignado/i);
     expect(journey).toMatch(/responder a la devolución/i);
+    expect(journey).toMatch(/respuestas de alumnos/i);
+    expect(journey).not.toContain("page.goto(reviewUrl)");
   });
 });

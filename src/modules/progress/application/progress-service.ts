@@ -12,6 +12,7 @@ export type CheckInMetrics = {
 };
 export type ReviewKind = "CHECK_IN" | "WORKOUT";
 export type ReviewQueueItem = { kind: ReviewKind; id: string; studentId: string; studentName: string; submittedAt: Date };
+export type ReviewHistoryItem = { kind: ReviewKind; id: string; studentId: string; studentName: string; reviewedAt: Date; reply: { body: string; createdAt: Date } | null };
 export type ReviewMessage = { id: string; body: string; createdAt: Date; reply: { id: string; body: string; createdAt: Date } | null };
 export type ReviewDetail = { kind: ReviewKind; id: string; studentId: string; studentName: string; reviewStatus: "PENDING" | "REVIEWED"; details: Array<{ label: string; value: string }>; photos: Array<{ id: string; mimeType: string }>; notes: ReviewMessage[] };
 export type StudentProgress = { draft: { id: string; status: string; metrics: Record<string, unknown>; notes: string | null; photos: Array<{ id: string; mimeType: string; sizeBytes: number }> } | null; history: Array<{ id: string; submittedAt: Date | null; notes: string | null; reviewNotes: ReviewMessage[] }> };
@@ -30,6 +31,7 @@ export interface ProgressRepository {
   getStudentPhoto(input: { workspaceId: string; studentId: string; photoId: string }): Promise<{ objectKey: string; studentId: string; mimeType: string; sizeBytes: number } | null>;
   getCoachPhoto(input: { workspaceId: string; coachId: string; photoId: string }): Promise<{ objectKey: string; studentId: string; mimeType: string; sizeBytes: number } | null>;
   listReviewQueue(input: { workspaceId: string; coachId: string }): Promise<ReviewQueueItem[]>;
+  listReviewHistory(input: { workspaceId: string; coachId: string }): Promise<ReviewHistoryItem[]>;
   getReviewDetail(input: { workspaceId: string; coachId: string; kind: ReviewKind; itemId: string }): Promise<ReviewDetail | null>;
   completeReview(input: { workspaceId: string; coachId: string; kind: ReviewKind; itemId: string; note: string; idempotencyKey: string; reviewedAt: Date }): Promise<{ id: string; reviewed: boolean } | null>;
   replyToReview(input: { workspaceId: string; studentId: string; reviewNoteId: string; body: string; createdAt: Date }): Promise<{ id: string } | null>;
@@ -121,6 +123,11 @@ export class ProgressService {
   async getReviewQueue(actor: ProgressActor) {
     requireRole(actor, "COACH");
     return this.repository.listReviewQueue({ workspaceId: actor.workspaceId, coachId: actor.actorId });
+  }
+
+  async getReviewHistory(actor: ProgressActor) {
+    requireRole(actor, "COACH");
+    return this.repository.listReviewHistory({ workspaceId: actor.workspaceId, coachId: actor.actorId });
   }
 
   async getReviewDetail(actor: ProgressActor, kind: ReviewKind, itemId: string) {
