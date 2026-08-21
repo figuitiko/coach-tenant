@@ -3,6 +3,7 @@ import { hashPassword } from "better-auth/crypto";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { hashInvitationToken } from "../src/modules/tenancy/domain/invitation";
+import { resetPilotFixtures } from "./pilot-reset";
 
 if (process.env.NODE_ENV === "production" && process.env.ALLOW_PRODUCTION_SEED !== "true") {
   throw new Error("Pilot seed is disabled in production. Set ALLOW_PRODUCTION_SEED=true only for an intentional reset.");
@@ -27,11 +28,7 @@ const students = [
 
 async function main() {
   const passwordHash = await hashPassword(password);
-  const priorInvitedUsers = await prisma.user.findMany({ where: { email: "pilot.invited@tenand.local" }, select: { id: true } });
-  const resetUserIds = ["pilot-coach", admin.id, northCoach.id, southCoach.id, ...students.map(({ id }) => id), ...priorInvitedUsers.map(({ id }) => id)];
-  await prisma.workspace.deleteMany({ where: { slug: { in: ["fuerza-norte-pilot", "movimiento-sur-pilot"] } } });
-  await prisma.account.deleteMany({ where: { userId: { in: resetUserIds } } });
-  await prisma.user.deleteMany({ where: { id: { in: resetUserIds } } });
+  await resetPilotFixtures(prisma);
 
   for (const user of [admin, northCoach, southCoach, ...students]) {
     await prisma.user.create({ data: { ...user, emailVerified: true, createdAt: fixedDate, updatedAt: fixedDate } });

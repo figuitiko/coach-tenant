@@ -7,6 +7,7 @@ describe("pilot readiness contract", () => {
   it("provides a guarded deterministic seed and a documented command", () => {
     const config = read("prisma.config.ts");
     const seed = read("prisma/seed.ts");
+    const reset = read("prisma/pilot-reset.ts");
     expect(config).toContain('seed: "tsx prisma/seed.ts"');
     expect(seed).toContain('NODE_ENV === "production"');
     expect(seed).toContain("pilot.admin@tenand.local");
@@ -27,7 +28,8 @@ describe("pilot readiness contract", () => {
     expect(seed).toContain('status: "IN_PROGRESS"');
     expect(seed).toContain('status: "COMPLETED"');
     expect(seed).toContain("pilot-active-invitation-token");
-    expect(seed).toContain("pilot.invited@tenand.local");
+    expect(seed).toContain("resetPilotFixtures(prisma)");
+    expect(reset).toContain("pilot.invited@tenand.local");
     expect(seed).toContain("pilot-review-note-completed");
     expect(seed).not.toContain("prisma.progressPhoto.create");
     expect(seed).not.toContain("prisma.photoUploadIntent.create");
