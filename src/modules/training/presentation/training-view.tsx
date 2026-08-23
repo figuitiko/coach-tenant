@@ -161,10 +161,12 @@ export function StudentTrainingView({
                         <input name="exerciseSnapshotId" type="hidden" value={exercise.id} />
                         <input name="setNumber" type="hidden" value={setNumber} />
                         <p className="col-span-2 text-xs font-extrabold uppercase tracking-[0.12em] sm:col-span-4">Serie {setNumber}{logged ? " · guardada" : ""}</p>
-                        <label className={labelClass}>Repeticiones reales<input className={fieldClass} defaultValue={logged?.reps} inputMode="numeric" min="0" name="reps" required type="number" /></label>
-                        <label className={labelClass}>Peso real<input className={fieldClass} defaultValue={logged?.weight} inputMode="decimal" min="0" name="weight" required step="0.25" type="number" /></label>
-                        <label className={labelClass}>Unidad<select className={fieldClass} defaultValue={logged?.unit ?? "KG"} name="unit"><option value="KG">kg</option><option value="LB">lb</option></select></label>
-                        <label className={labelClass}>RPE real<input className={fieldClass} defaultValue={logged?.rpe ?? ""} inputMode="decimal" max="10" min="1" name="rpe" step="0.5" type="number" /></label>
+                        <fieldset className="col-span-2 grid grid-cols-1 gap-x-3 gap-y-0 sm:col-span-4 sm:grid-cols-4"><legend className="sr-only">Métricas de la serie</legend>
+                          <label className={`${labelClass} row-span-2 grid grid-rows-subgrid gap-0 pb-3`}>Repeticiones reales<input className={fieldClass} defaultValue={logged?.reps} inputMode="numeric" min="0" name="reps" required type="number" /></label>
+                          <label className={`${labelClass} row-span-2 grid grid-rows-subgrid gap-0 pb-3`}>Peso real<input className={fieldClass} defaultValue={logged?.weight} inputMode="decimal" min="0" name="weight" required step="0.25" type="number" /></label>
+                          <label className={`${labelClass} row-span-2 grid grid-rows-subgrid gap-0 pb-3`}>Unidad<select className={fieldClass} defaultValue={logged?.unit ?? "KG"} name="unit"><option value="KG">kg</option><option value="LB">lb</option></select></label>
+                          <label className={`${labelClass} row-span-2 grid grid-rows-subgrid gap-0 pb-3`}>RPE real<input className={fieldClass} defaultValue={logged?.rpe ?? ""} inputMode="decimal" max="10" min="1" name="rpe" step="0.5" type="number" /></label>
+                        </fieldset>
                         <label className={`${labelClass} col-span-2 sm:col-span-4`}>Notas<textarea className={`${fieldClass} min-h-20 py-3`} defaultValue={logged?.notes ?? ""} name="notes" /></label>
                         <input name="completed" type="hidden" value="false" />
                         <label className="col-span-2 flex min-h-12 items-center gap-3 text-sm font-extrabold sm:col-span-4"><input defaultChecked={logged?.completed ?? false} name="completed" type="checkbox" value="true" />Serie completada</label>

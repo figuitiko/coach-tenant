@@ -60,6 +60,11 @@ describe("training views", () => {
     }]} actions={{ saveSet: action, completeWorkout: action, replyToReview: action }} />);
 
     const logger = screen.getByRole("form", { name: /registrar serie 1 de sentadilla/i });
+    const metrics = within(logger).getByRole("group", { name: /métricas de la serie/i });
+    expect(metrics).toHaveClass("grid-cols-1", "sm:grid-cols-4");
+    for (const field of [/repeticiones reales/i, /peso real/i, /unidad/i, /rpe real/i]) {
+      expect(within(metrics).getByLabelText(field).closest("label")).toHaveClass("row-span-2", "grid-rows-subgrid");
+    }
     expect(within(logger).getByLabelText(/repeticiones reales/i)).toHaveAttribute("inputmode", "numeric");
     expect(within(logger).getByLabelText(/peso real/i)).toHaveAttribute("inputmode", "decimal");
     expect(within(logger).getByLabelText(/serie completada/i)).not.toBeChecked();
