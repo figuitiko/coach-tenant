@@ -26,12 +26,14 @@ test.describe("pilot PostgreSQL journeys", () => {
   test("ordinary tenant coaches cannot guess the other workspace", async ({ page }) => {
     await signIn(page, "coach.fuerzanorte@tenand.local");
     await expect(page).toHaveURL(/\/w\/fuerza-norte-pilot$/);
-    expect((await page.goto("/w/movimiento-sur-pilot"))?.status()).toBe(404);
+    await page.goto("/w/movimiento-sur-pilot");
+    await expectStreamedWorkspaceDenial(page, "Movimiento Sur");
 
     await page.context().clearCookies();
     await signIn(page, "coach.movimientosur@tenand.local");
     await expect(page).toHaveURL(/\/w\/movimiento-sur-pilot$/);
-    expect((await page.goto("/w/fuerza-norte-pilot"))?.status()).toBe(404);
+    await page.goto("/w/fuerza-norte-pilot");
+    await expectStreamedWorkspaceDenial(page, "Fuerza Norte");
   });
 
   test("new user accepts an active invitation exactly once", async ({ page }) => {
@@ -166,4 +168,15 @@ test.describe("pilot PostgreSQL journeys", () => {
 function requiredPilotSeedPassword() {
   if (!password) throw new Error("PILOT_SEED_PASSWORD is required for authenticated pilot E2E.");
   return password;
+}
+
+async function expectStreamedWorkspaceDenial(page: import("@playwright/test").Page, foreignWorkspaceName: string) {
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+  await expect(page.getByRole("heading", { name: "404" })).toBeVisible();
+  await expect(page.getByText("This page could not be found.")).toBeVisible();
+  await expect(page.getByText(foreignWorkspaceName, { exact: false })).toHaveCount(0);
+  await expect(page.getByText("Panel del coach", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Tu equipo, en contexto." })).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: /navegación/i })).toHaveCount(0);
+  await expect(page.getByLabel("Perfil")).toHaveCount(0);
 }
