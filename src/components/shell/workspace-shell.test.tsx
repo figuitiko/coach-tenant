@@ -1,6 +1,10 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { WorkspaceShell } from "./workspace-shell";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn(), refresh: vi.fn() }),
+}));
 
 describe("WorkspaceShell", () => {
   it("offers primary navigation to mobile users", () => {
@@ -44,6 +48,37 @@ describe("WorkspaceShell", () => {
     render(<WorkspaceShell currentMembership={{ ...defaultAdminMembership }} memberships={[defaultAdminMembership]} />);
 
     expect(screen.getAllByText(/panel de super admin/i).length).toBeGreaterThan(0);
+  });
+
+  it.each([
+    ["ordinary coach", {
+      workspaceId: "w-coach",
+      workspaceSlug: "north",
+      workspaceName: "North",
+      timeZone: "America/Mexico_City",
+      role: "COACH" as const,
+      accessMode: "MEMBERSHIP" as const,
+    }, 4],
+    ["student", {
+      workspaceId: "w-student",
+      workspaceSlug: "north",
+      workspaceName: "North",
+      timeZone: "America/Mexico_City",
+      role: "STUDENT" as const,
+      accessMode: "MEMBERSHIP" as const,
+    }, 3],
+    ["super admin", defaultAdminMembership, 4],
+  ] as const)("places logout last in desktop and mobile dashboard navigation for %s", (_label, membership, linkCount) => {
+    render(<WorkspaceShell currentMembership={membership} memberships={[membership]} />);
+
+    for (const navigation of screen.getAllByRole("navigation")) {
+      expect(within(navigation).getAllByRole("link")).toHaveLength(linkCount);
+      const logout = within(navigation).getByRole("button", { name: "Cerrar sesión" });
+      expect(navigation.lastElementChild).toBe(logout);
+    }
+
+    const mobile = screen.getByRole("navigation", { name: /navegación móvil/i });
+    expect(mobile).toHaveStyle({ gridTemplateColumns: `repeat(${linkCount + 1}, minmax(0, 1fr))` });
   });
 });
 

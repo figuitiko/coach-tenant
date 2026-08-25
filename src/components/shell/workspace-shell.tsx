@@ -1,4 +1,5 @@
 import { BrandMark } from "./brand-mark";
+import { SignOutAction } from "@/components/auth/sign-out-action";
 import { StatusPill } from "@/components/ui/status-pill";
 import type { WorkspaceMembershipDto } from "@/modules/tenancy/application/workspace-access";
 
@@ -80,7 +81,8 @@ export function WorkspaceShell({
 }
 
 function Navigation({ items, mobile }: { items: Array<{ href: string; label: string }>; mobile: boolean }) {
-  return <nav aria-label={mobile ? "Navegación móvil" : "Navegación principal"} className={mobile ? "fixed inset-x-0 bottom-0 z-50 grid border-t border-white/15 bg-[var(--ink)] px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 text-white shadow-[0_-10px_30px_rgba(16,27,43,0.18)] lg:hidden" : "mt-12 space-y-2 text-sm font-bold"} style={mobile ? { gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` } : undefined}>
+  return <nav aria-label={mobile ? "Navegación móvil" : "Navegación principal"} className={mobile ? "fixed inset-x-0 bottom-0 z-50 grid border-t border-white/15 bg-[var(--ink)] px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 text-white shadow-[0_-10px_30px_rgba(16,27,43,0.18)] lg:hidden" : "mt-12 space-y-2 text-sm font-bold"} style={mobile ? { gridTemplateColumns: `repeat(${items.length + 1}, minmax(0, 1fr))` } : undefined}>
     {items.map((item, index) => <a aria-current={index === 0 ? "page" : undefined} className={mobile ? `flex min-h-12 items-center justify-center rounded-lg px-1 text-center text-[0.7rem] font-bold ${index === 0 ? "bg-white/10 text-[var(--signal-bright)]" : "text-white"}` : index === 0 ? "block border-l-4 border-[var(--signal)] bg-white/60 px-4 py-3" : "block px-5 py-3 text-[var(--ink-muted)]"} href={item.href} key={item.href}>{item.label}</a>)}
+    <SignOutAction variant={mobile ? "mobile" : "sidebar"} />
   </nav>;
 }
