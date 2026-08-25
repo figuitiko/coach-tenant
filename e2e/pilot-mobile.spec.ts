@@ -21,6 +21,11 @@ test("authenticated mobile roles can navigate, log training, and submit progress
   const coachNavigation = coach.getByRole("navigation", { name: /navegación móvil/i });
   await expect(coachNavigation.getByRole("link", { name: "Alumnos" })).toBeVisible();
   await expect(coachNavigation.getByRole("link", { name: "Revisiones" })).toBeVisible();
+  await expect(coachNavigation.getByRole("button", { name: "Cerrar sesión" })).toBeVisible();
+  await coachNavigation.getByRole("button", { name: "Cerrar sesión" }).click();
+  await expect(coach).toHaveURL(/\/sign-in$/);
+  await coach.goto("/w/fuerza-norte-pilot");
+  await expect(coach).toHaveURL(/\/sign-in$/);
   await coachContext.close();
 
   const studentContext = await browser.newContext(pixel7);
@@ -43,5 +48,9 @@ test("authenticated mobile roles can navigate, log training, and submit progress
   await student.getByLabel(/^peso$/i).fill("68.1");
   await student.getByRole("button", { name: /enviar check-in/i }).click();
   await expect(student.getByText(/check-in enviado/i).first()).toBeVisible();
+  const progressNavigation = student.getByRole("navigation", { name: /navegación móvil del workspace/i });
+  await expect(progressNavigation.getByRole("button", { name: "Cerrar sesión" })).toBeVisible();
+  await progressNavigation.getByRole("button", { name: "Cerrar sesión" }).click();
+  await expect(student).toHaveURL(/\/sign-in$/);
   await studentContext.close();
 });

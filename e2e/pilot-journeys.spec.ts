@@ -94,6 +94,19 @@ test.describe("pilot PostgreSQL journeys", () => {
     expect((await page.goto("/w/fuerza-norte-pilot/training?studentMembershipId=pilot-membership-student-1-south"))?.status()).toBe(404);
   });
 
+  test("coach signs out from functional desktop navigation", async ({ page }) => {
+    await signIn(page, "coach.fuerzanorte@tenand.local");
+    await page.goto("/w/fuerza-norte-pilot/training");
+    const navigation = page.getByRole("navigation", { name: "Navegación del workspace" });
+
+    await expect(navigation.getByRole("button", { name: "Cerrar sesión" })).toBeVisible();
+    await navigation.getByRole("button", { name: "Cerrar sesión" }).click();
+
+    await expect(page).toHaveURL(/\/sign-in$/);
+    await page.goto("/w/fuerza-norte-pilot/training");
+    await expect(page).toHaveURL(/\/sign-in$/);
+  });
+
   test("student discovers a dated workout, completes it, and submits current measurements", async ({ page }) => {
     await signIn(page, "pilot.student1@tenand.local");
     await page.goto("/w/fuerza-norte-pilot/training");
