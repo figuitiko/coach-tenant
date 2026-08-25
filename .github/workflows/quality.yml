@@ -34,6 +34,11 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Generate ephemeral pilot credentials
+        run: |
+          pilot_password="$(openssl rand -base64 36)"
+          echo "::add-mask::$pilot_password"
+          echo "PILOT_SEED_PASSWORD=$pilot_password" >> "$GITHUB_ENV"
       - run: pnpm prisma generate
       - run: pnpm prisma migrate deploy
       - run: pnpm test

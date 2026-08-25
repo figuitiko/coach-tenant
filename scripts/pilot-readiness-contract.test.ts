@@ -71,6 +71,24 @@ describe("pilot readiness contract", () => {
     expect(mobilePilot.match(/newContext\(pixel7\)/g)).toHaveLength(2);
   });
 
+  it("pins authenticated E2E to the browser origin and injects one ephemeral seed password", () => {
+    const origin = "http://127.0.0.1:3000";
+    const workflow = read(".github/workflows/quality.yml");
+    const runner = read("scripts/run-pilot-e2e.mjs");
+    const playwright = read("playwright.config.ts");
+    const passwordConsumers = [read("prisma/seed.ts"), read("e2e/pilot-journeys.spec.ts"), read("e2e/pilot-mobile.spec.ts")];
+
+    expect(playwright).toContain(`baseURL: "${origin}"`);
+    expect(playwright).toContain(`url: "${origin}"`);
+    expect(runner).toContain(`const pilotOrigin = "${origin}"`);
+    expect(runner).toContain("BETTER_AUTH_URL: pilotOrigin");
+    expect(runner).toContain("PILOT_SEED_PASSWORD is required");
+    expect(workflow).toContain('pilot_password="$(openssl rand -base64 36)"');
+    expect(workflow).toContain('echo "::add-mask::$pilot_password"');
+    expect(workflow).toContain('PILOT_SEED_PASSWORD=$pilot_password');
+    for (const consumer of passwordConsumers) expect(consumer).not.toMatch(/PILOT_SEED_PASSWORD\s*\?\?/);
+  });
+
   it("fails fast on invalid production environment at server startup", () => {
     expect(read("src/instrumentation.ts")).toContain("validateProductionEnvironment");
   });

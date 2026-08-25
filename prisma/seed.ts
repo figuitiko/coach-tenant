@@ -10,9 +10,9 @@ if (process.env.NODE_ENV === "production" && process.env.ALLOW_PRODUCTION_SEED !
 }
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL is required to seed the pilot workspace.");
+const password = requiredPilotSeedPassword();
 
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
-const password = process.env.PILOT_SEED_PASSWORD ?? "TenandPilot!2026";
 const fixedDate = new Date("2026-08-19T15:00:00.000Z");
 const dateOnly = (value: string) => new Date(`${value}T00:00:00.000Z`);
 const admin = { id: "pilot-admin", name: "Administración Piloto", email: "pilot.admin@tenand.local", platformRole: "SUPER_ADMIN" as const };
@@ -94,7 +94,13 @@ async function main() {
   await prisma.measurementCheckIn.create({ data: { id: "pilot-checkin-submitted", workspaceId: workspace.id, studentId: students[0].id, status: "SUBMITTED", reviewStatus: "PENDING", weight: 68.4, weightUnit: "KG", waist: 76.5, waistUnit: "CM", notes: "Buena energía; sueño más regular.", submitIdempotencyKey: "pilot-submit-checkin", submittedAt: fixedDate, createdAt: fixedDate, updatedAt: fixedDate } });
   const reviewedCheckIn = await prisma.measurementCheckIn.create({ data: { id: "pilot-checkin-reviewed", workspaceId: workspace.id, studentId: students[1].id, status: "REVIEWED", reviewStatus: "REVIEWED", weight: 81.2, weightUnit: "KG", notes: "Semana sostenida.", submitIdempotencyKey: "pilot-submit-reviewed", submittedAt: new Date("2026-08-12T15:00:00Z"), reviewedAt: fixedDate, createdAt: fixedDate, updatedAt: fixedDate } });
   await prisma.reviewNote.create({ data: { id: "pilot-review-note-completed", workspaceId: workspace.id, coachId: northCoach.id, checkInId: reviewedCheckIn.id, body: "Buen ritmo. Sostenemos cargas y priorizamos descanso.", idempotencyKey: "pilot-completed-review", createdAt: fixedDate } });
-  console.info(`Seeded ${workspace.slug}. Local-only accounts use password from PILOT_SEED_PASSWORD (default: TenandPilot!2026).`);
+  console.info(`Seeded ${workspace.slug}. Local-only accounts use the injected PILOT_SEED_PASSWORD.`);
 }
 
 main().finally(() => prisma.$disconnect());
+
+function requiredPilotSeedPassword() {
+  const value = process.env.PILOT_SEED_PASSWORD?.trim();
+  if (!value) throw new Error("PILOT_SEED_PASSWORD is required to seed the pilot workspace.");
+  return value;
+}

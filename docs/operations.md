@@ -9,12 +9,13 @@ Copy `.env.example` to `.env.local`. Required runtime values are `DATABASE_URL`,
 Create separate development and test PostgreSQL databases, then:
 
 ```bash
+export PILOT_SEED_PASSWORD="$(openssl rand -base64 36)"
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/coach_tenand pnpm prisma migrate deploy
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/coach_tenand pnpm prisma db seed
 pnpm dev
 ```
 
-The seed recreates only `fuerza-norte-pilot` and `movimiento-sur-pilot`. Local accounts use `PILOT_SEED_PASSWORD` (documented default only for local pilot data). Production seeding fails unless an operator explicitly sets `ALLOW_PRODUCTION_SEED=true` during an intentional reset.
+The seed recreates only `fuerza-norte-pilot` and `movimiento-sur-pilot`. Local accounts use the required `PILOT_SEED_PASSWORD`; there is no committed fallback. Production seeding fails unless an operator explicitly sets `ALLOW_PRODUCTION_SEED=true` during an intentional reset.
 
 Local pilot identities are intentionally separated:
 
@@ -43,14 +44,14 @@ Agents MUST NOT run `next build` or `pnpm build`. Required checks are:
 
 ```bash
 pnpm test
-TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/coach_tenand_test pnpm test:integration:pg
+TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/coach_tenand_test PILOT_SEED_PASSWORD="$PILOT_SEED_PASSWORD" pnpm test:integration:pg
 pnpm lint
 pnpm typecheck
 pnpm prisma validate
 pnpm prisma generate
 pnpm exec playwright test --list
 pnpm test:e2e:public
-TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/coach_tenand_test pnpm test:e2e:pilot
+TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/coach_tenand_test PILOT_SEED_PASSWORD="$PILOT_SEED_PASSWORD" pnpm test:e2e:pilot
 ```
 
 The PostgreSQL suites fail closed when `TEST_DATABASE_URL` is absent. The pilot E2E command migrates and reseeds real PostgreSQL before exercising authenticated journeys.

@@ -1,13 +1,13 @@
 import { devices, expect, test } from "@playwright/test";
 
 const enabled = Boolean(process.env.TEST_DATABASE_URL);
-const password = process.env.PILOT_SEED_PASSWORD ?? "TenandPilot!2026";
+const password = process.env.PILOT_SEED_PASSWORD;
 const pixel7 = devices["Pixel 7"];
 
 async function signIn(page: import("@playwright/test").Page, email: string) {
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Contraseña").fill(password);
+  await page.getByLabel("Contraseña").fill(requiredPilotSeedPassword());
   await page.getByRole("button", { name: /ingresar al workspace/i }).click();
   await expect(page).toHaveURL(/\/workspace|\/w\//);
 }
@@ -54,3 +54,8 @@ test("authenticated mobile roles can navigate, log training, and submit progress
   await expect(student).toHaveURL(/\/sign-in$/);
   await studentContext.close();
 });
+
+function requiredPilotSeedPassword() {
+  if (!password) throw new Error("PILOT_SEED_PASSWORD is required for authenticated pilot E2E.");
+  return password;
+}

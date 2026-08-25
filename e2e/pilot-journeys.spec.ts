@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test";
 
 const enabled = Boolean(process.env.TEST_DATABASE_URL);
-const password = process.env.PILOT_SEED_PASSWORD ?? "TenandPilot!2026";
+const password = process.env.PILOT_SEED_PASSWORD;
 
 async function signIn(page: import("@playwright/test").Page, email: string) {
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Contraseña").fill(password);
+  await page.getByLabel("Contraseña").fill(requiredPilotSeedPassword());
   await page.getByRole("button", { name: /ingresar al workspace/i }).click();
   await expect(page).toHaveURL(/\/workspace|\/w\//);
 }
@@ -41,7 +41,7 @@ test.describe("pilot PostgreSQL journeys", () => {
     await expect(page.getByRole("heading", { name: /creá tu cuenta/i })).toBeVisible();
     await page.getByLabel("Nombre").fill("Invitada Piloto");
     await page.getByLabel("Email").nth(1).fill("pilot.invited@tenand.local");
-    await page.getByLabel("Contraseña").nth(1).fill(password);
+    await page.getByLabel("Contraseña").nth(1).fill(requiredPilotSeedPassword());
     await page.getByRole("button", { name: /crear cuenta/i }).click();
     await expect(page).toHaveURL(new RegExp(`${invitePath}$`));
     await page.getByRole("button", { name: /aceptar invitación/i }).click();
@@ -162,3 +162,8 @@ test.describe("pilot PostgreSQL journeys", () => {
     await expect(page.getByText(`Respuesta del alumno: ${studentReply}`)).toBeVisible();
   });
 });
+
+function requiredPilotSeedPassword() {
+  if (!password) throw new Error("PILOT_SEED_PASSWORD is required for authenticated pilot E2E.");
+  return password;
+}
