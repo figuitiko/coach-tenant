@@ -30,7 +30,8 @@ describe("PrismaProgressRepository PostgreSQL boundaries", () => {
     });
 
     const persisted = await prisma.measurementCheckIn.findUniqueOrThrow({ where: { id: draft.id } });
-    expect(persisted).toMatchObject({ status: "SUBMITTED", weight: 68.2, weightUnit: "KG", notes: "current typed values" });
+    expect(persisted).toMatchObject({ status: "SUBMITTED", weightUnit: "KG", notes: "current typed values" });
+    expect(Number(persisted.weight)).toBe(68.2);
   });
 
   it("binds one contextual reply to the reviewed target and owning student", async () => {
