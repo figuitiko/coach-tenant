@@ -1,13 +1,13 @@
 <claude-mem-context>
 # Memory Context
 
-# [coach-tenand] recent context, 2026-08-16 6:47pm CST
+# [coach-tenand] recent context, 2026-08-24 9:49pm CST
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 22 obs (6,396t read) | 93,858t work | 93% savings
+Stats: 31 obs (9,342t read) | 377,660t work | 98% savings
 
 ### Aug 16, 2026
 677 6:33p ⚖️ Coach Management SaaS — Multi-Tenant App Concept Defined
@@ -32,6 +32,25 @@ Stats: 22 obs (6,396t read) | 93,858t work | 93% savings
 718 " ⚖️ coach-tenand student onboarding — single-use expiring invite link via WhatsApp, no email dependency
 720 " ⚖️ coach-tenand technical architecture — modular monolith, 5 domain modules, full stack finalized
 723 6:46p ⚖️ coach-tenand full technical architecture locked — user approved without revisions
+725 6:51p ⚖️ coach-tenand full 5-phase evidence-gated roadmap finalized and approved
+726 6:52p 🟣 coach-tenand implementation started — scaffold_foundation subagent dispatched
+727 6:59p 🟣 coach-tenand Next.js scaffold in progress — feat/core-pilot branch initialized
+728 7:37p ⚖️ coach-platform — Multitenant Coaching App Concept Defined
+730 8:11p ⚖️ coach-platform — Multitenant Coaching SaaS Initial Requirements
+733 8:47p 🔵 coach-tenand observer agent pool slot timeout
+735 8:48p 🔵 coach-tenand scaffold_foundation subagent running
+736 9:51p ⚖️ coach-platform — Multitenant Coaching SaaS Concept Initiated
+737 10:07p ⚖️ coach-platform — Multitenant Coaching SaaS Concept Initiated
 
-Access 94k tokens of past work via get_observations([IDs]) or mem-search skill.
+Access 378k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
