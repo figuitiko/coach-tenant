@@ -27,13 +27,13 @@ test.describe("pilot PostgreSQL journeys", () => {
     await signIn(page, "coach.fuerzanorte@tenand.local");
     await expect(page).toHaveURL(/\/w\/fuerza-norte-pilot$/);
     await page.goto("/w/movimiento-sur-pilot");
-    await expectStreamedWorkspaceDenial(page, "Movimiento Sur");
+    await expectStreamedAccessDenial(page, "Movimiento Sur");
 
     await page.context().clearCookies();
     await signIn(page, "coach.movimientosur@tenand.local");
     await expect(page).toHaveURL(/\/w\/movimiento-sur-pilot$/);
     await page.goto("/w/fuerza-norte-pilot");
-    await expectStreamedWorkspaceDenial(page, "Fuerza Norte");
+    await expectStreamedAccessDenial(page, "Fuerza Norte");
   });
 
   test("new user accepts an active invitation exactly once", async ({ page }) => {
@@ -72,7 +72,7 @@ test.describe("pilot PostgreSQL journeys", () => {
     await expect(exercise.getByRole("status")).toContainText(/guardad/i);
     const template = page.getByRole("form", { name: /crear plantilla/i });
     await template.getByLabel(/nombre de plantilla/i).fill("Plantilla E2E");
-    await template.getByLabel("Ejercicio").first().selectOption({ label: "Zancada piloto E2E" });
+    await template.getByRole("combobox", { name: "Ejercicio", exact: true }).first().selectOption({ label: "Zancada piloto E2E" });
     await template.getByLabel("Series").first().fill("3");
     await template.getByLabel(/reps mín/i).first().fill("8");
     await template.getByLabel(/reps máx/i).first().fill("10");
@@ -93,7 +93,8 @@ test.describe("pilot PostgreSQL journeys", () => {
     await assignment.getByRole("button", { name: /asignar plan/i }).click();
     await expect(assignment.getByRole("status")).toContainText(/guardad/i);
 
-    expect((await page.goto("/w/fuerza-norte-pilot/training?studentMembershipId=pilot-membership-student-1-south"))?.status()).toBe(404);
+    await page.goto("/w/fuerza-norte-pilot/training?studentMembershipId=pilot-membership-student-1-south");
+    await expectStreamedAccessDenial(page, "Martina López");
   });
 
   test("coach signs out from functional desktop navigation", async ({ page }) => {
@@ -152,7 +153,7 @@ test.describe("pilot PostgreSQL journeys", () => {
     await expect(response).toBeVisible();
     await response.getByLabel(/respuesta breve/i).fill(studentReply);
     await response.getByRole("button", { name: /enviar respuesta/i }).click();
-    await expect(response.getByRole("status")).toContainText(/guardad/i);
+    await expect(page.getByText(`Tu respuesta: ${studentReply}`)).toBeVisible();
 
     await page.context().clearCookies();
     await signIn(page, "coach.fuerzanorte@tenand.local");
@@ -170,11 +171,11 @@ function requiredPilotSeedPassword() {
   return password;
 }
 
-async function expectStreamedWorkspaceDenial(page: import("@playwright/test").Page, foreignWorkspaceName: string) {
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+async function expectStreamedAccessDenial(page: import("@playwright/test").Page, forbiddenContent: string) {
+  await expect(page.locator('meta[name="robots"][content*="noindex"]').first()).toBeAttached();
   await expect(page.getByRole("heading", { name: "404" })).toBeVisible();
   await expect(page.getByText("This page could not be found.")).toBeVisible();
-  await expect(page.getByText(foreignWorkspaceName, { exact: false })).toHaveCount(0);
+  await expect(page.getByText(forbiddenContent, { exact: false })).toHaveCount(0);
   await expect(page.getByText("Panel del coach", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Tu equipo, en contexto." })).toHaveCount(0);
   await expect(page.getByRole("navigation", { name: /navegación/i })).toHaveCount(0);
