@@ -123,10 +123,34 @@ async function main() {
     approvedFingerprint: resultFingerprint, approveMutationKey: "pilot-result-approval-1-approve", approvedAt: fixedDate, createdAt: fixedDate, updatedAt: fixedDate,
   } });
 
+  const landingSnapshot = {
+    themeKey: "editorial",
+    coachDisplayName: northCoach.name,
+    heroEyebrow: "Entrenamiento de fuerza en Fuerza Norte",
+    heroHeadline: "Entrená fuerza real con seguimiento cercano",
+    heroSubheadline: "Planes de fuerza personalizados con revisión semanal de tu coach.",
+    valueProposition: "Menos adivinar, más progreso medible semana a semana.",
+    servicesHeading: "Programas",
+    methodologyHeading: "Cómo trabajamos",
+    resultsHeading: "Resultados",
+    aboutHeading: "Sobre el coach",
+    aboutBody: "Franco acompaña alumnos de Fuerza Norte con planes de fuerza basados en datos.",
+    faqHeading: "Preguntas frecuentes",
+    ctaHeading: "Sumate a Fuerza Norte",
+    ctaBody: "Escribinos por WhatsApp y arrancamos tu plan.",
+    whatsappDigits: "5215555550001",
+    whatsappMessage: "Hola, quiero sumarme a Fuerza Norte",
+    credibilityFacts: [{ order: 0, label: "Alumnos activos", value: "40+" }],
+    programs: [{ order: 0, title: "Fuerza · Base", description: "Bloques de 4 semanas con seguimiento semanal." }],
+    methodSteps: [{ order: 0, title: "Evaluación inicial", description: "Relevamos objetivos y disponibilidad." }],
+    faqs: [{ order: 0, question: "¿Necesito experiencia previa?", answer: "No, adaptamos el plan a tu nivel." }],
+    resultVersionIds: [resultVersion.id],
+  } as const;
+  const landingFingerprint = fingerprintMarketingFixture(landingSnapshot);
   const landing = await prisma.coachLanding.create({ data: { id: "pilot-landing-north", workspaceId: workspace.id, createdAt: fixedDate, updatedAt: fixedDate } });
   const landingRevision = await prisma.coachLandingRevision.create({ data: {
     id: "pilot-landing-revision-1", workspaceId: workspace.id, landingId: landing.id, revisionNumber: 1, themeKey: "editorial", createdById: northCoach.id,
-    mutationKey: "pilot-landing-revision-1-save", payloadHash: "pilot-landing-revision-1-hash",
+    mutationKey: "pilot-landing-revision-1-save", payloadHash: landingFingerprint,
     coachDisplayName: northCoach.name, heroEyebrow: "Entrenamiento de fuerza en Fuerza Norte",
     heroHeadline: "Entrená fuerza real con seguimiento cercano", heroSubheadline: "Planes de fuerza personalizados con revisión semanal de tu coach.",
     valueProposition: "Menos adivinar, más progreso medible semana a semana.",

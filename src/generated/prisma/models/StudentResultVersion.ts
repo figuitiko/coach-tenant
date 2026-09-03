@@ -333,6 +333,7 @@ export type StudentResultVersionWhereUniqueInput = Prisma.AtLeast<{
   storyId_versionNumber?: Prisma.StudentResultVersionStoryIdVersionNumberCompoundUniqueInput
   workspaceId_mutationKey?: Prisma.StudentResultVersionWorkspaceIdMutationKeyCompoundUniqueInput
   id_workspaceId?: Prisma.StudentResultVersionIdWorkspaceIdCompoundUniqueInput
+  id_storyId_workspaceId?: Prisma.StudentResultVersionIdStoryIdWorkspaceIdCompoundUniqueInput
   AND?: Prisma.StudentResultVersionWhereInput | Prisma.StudentResultVersionWhereInput[]
   OR?: Prisma.StudentResultVersionWhereInput[]
   NOT?: Prisma.StudentResultVersionWhereInput | Prisma.StudentResultVersionWhereInput[]
@@ -356,7 +357,7 @@ export type StudentResultVersionWhereUniqueInput = Prisma.AtLeast<{
   metrics?: Prisma.StudentResultMetricSnapshotListRelationFilter
   approval?: Prisma.XOR<Prisma.StudentResultApprovalNullableScalarRelationFilter, Prisma.StudentResultApprovalWhereInput> | null
   landingSelections?: Prisma.LandingRevisionResultListRelationFilter
-}, "id" | "storyId_versionNumber" | "workspaceId_mutationKey" | "id_workspaceId">
+}, "id" | "storyId_versionNumber" | "workspaceId_mutationKey" | "id_workspaceId" | "id_storyId_workspaceId">
 
 export type StudentResultVersionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -571,6 +572,12 @@ export type StudentResultVersionWorkspaceIdMutationKeyCompoundUniqueInput = {
 
 export type StudentResultVersionIdWorkspaceIdCompoundUniqueInput = {
   id: string
+  workspaceId: string
+}
+
+export type StudentResultVersionIdStoryIdWorkspaceIdCompoundUniqueInput = {
+  id: string
+  storyId: string
   workspaceId: string
 }
 

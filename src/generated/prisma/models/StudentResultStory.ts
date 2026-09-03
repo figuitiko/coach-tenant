@@ -224,7 +224,7 @@ export type StudentResultStoryWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   currentVersionId?: string
   id_workspaceId?: Prisma.StudentResultStoryIdWorkspaceIdCompoundUniqueInput
-  currentVersionId_workspaceId?: Prisma.StudentResultStoryCurrentVersionIdWorkspaceIdCompoundUniqueInput
+  currentVersionId_id_workspaceId?: Prisma.StudentResultStoryCurrentVersionIdIdWorkspaceIdCompoundUniqueInput
   AND?: Prisma.StudentResultStoryWhereInput | Prisma.StudentResultStoryWhereInput[]
   OR?: Prisma.StudentResultStoryWhereInput[]
   NOT?: Prisma.StudentResultStoryWhereInput | Prisma.StudentResultStoryWhereInput[]
@@ -238,7 +238,7 @@ export type StudentResultStoryWhereUniqueInput = Prisma.AtLeast<{
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   versions?: Prisma.StudentResultVersionListRelationFilter
   currentVersion?: Prisma.XOR<Prisma.StudentResultVersionNullableScalarRelationFilter, Prisma.StudentResultVersionWhereInput> | null
-}, "id" | "currentVersionId" | "id_workspaceId" | "currentVersionId_workspaceId">
+}, "id" | "currentVersionId" | "id_workspaceId" | "currentVersionId_id_workspaceId">
 
 export type StudentResultStoryOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -267,7 +267,6 @@ export type StudentResultStoryScalarWhereWithAggregatesInput = {
 }
 
 export type StudentResultStoryCreateInput = {
-  id?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutResultStoriesInput
@@ -289,7 +288,6 @@ export type StudentResultStoryUncheckedCreateInput = {
 }
 
 export type StudentResultStoryUpdateInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutResultStoriesNestedInput
@@ -321,7 +319,6 @@ export type StudentResultStoryCreateManyInput = {
 }
 
 export type StudentResultStoryUpdateManyMutationInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -351,8 +348,9 @@ export type StudentResultStoryIdWorkspaceIdCompoundUniqueInput = {
   workspaceId: string
 }
 
-export type StudentResultStoryCurrentVersionIdWorkspaceIdCompoundUniqueInput = {
+export type StudentResultStoryCurrentVersionIdIdWorkspaceIdCompoundUniqueInput = {
   currentVersionId: string
+  id: string
   workspaceId: string
 }
 
@@ -569,7 +567,6 @@ export type StudentResultStoryUncheckedUpdateOneWithoutCurrentVersionNestedInput
 }
 
 export type StudentResultStoryCreateWithoutCreatedByInput = {
-  id?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutResultStoriesInput
@@ -628,7 +625,6 @@ export type StudentResultStoryScalarWhereInput = {
 }
 
 export type StudentResultStoryCreateWithoutWorkspaceInput = {
-  id?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   studentMembership: Prisma.MembershipCreateNestedOneWithoutResultStoriesInput
@@ -674,7 +670,6 @@ export type StudentResultStoryUpdateManyWithWhereWithoutWorkspaceInput = {
 }
 
 export type StudentResultStoryCreateWithoutStudentMembershipInput = {
-  id?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutResultStoriesInput
@@ -719,7 +714,6 @@ export type StudentResultStoryUpdateManyWithWhereWithoutStudentMembershipInput =
 }
 
 export type StudentResultStoryCreateWithoutVersionsInput = {
-  id?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutResultStoriesInput
@@ -744,7 +738,6 @@ export type StudentResultStoryCreateOrConnectWithoutVersionsInput = {
 }
 
 export type StudentResultStoryCreateWithoutCurrentVersionInput = {
-  id?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutResultStoriesInput
@@ -754,7 +747,6 @@ export type StudentResultStoryCreateWithoutCurrentVersionInput = {
 }
 
 export type StudentResultStoryUncheckedCreateWithoutCurrentVersionInput = {
-  id?: string
   studentMembershipId: string
   createdById: string
   createdAt?: Date | string
@@ -779,7 +771,6 @@ export type StudentResultStoryUpdateToOneWithWhereWithoutVersionsInput = {
 }
 
 export type StudentResultStoryUpdateWithoutVersionsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutResultStoriesNestedInput
@@ -810,7 +801,6 @@ export type StudentResultStoryUpdateToOneWithWhereWithoutCurrentVersionInput = {
 }
 
 export type StudentResultStoryUpdateWithoutCurrentVersionInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutResultStoriesNestedInput
@@ -820,7 +810,6 @@ export type StudentResultStoryUpdateWithoutCurrentVersionInput = {
 }
 
 export type StudentResultStoryUncheckedUpdateWithoutCurrentVersionInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   studentMembershipId?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -838,7 +827,6 @@ export type StudentResultStoryCreateManyCreatedByInput = {
 }
 
 export type StudentResultStoryUpdateWithoutCreatedByInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutResultStoriesNestedInput
@@ -876,7 +864,6 @@ export type StudentResultStoryCreateManyWorkspaceInput = {
 }
 
 export type StudentResultStoryUpdateWithoutWorkspaceInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   studentMembership?: Prisma.MembershipUpdateOneRequiredWithoutResultStoriesNestedInput
@@ -913,7 +900,6 @@ export type StudentResultStoryCreateManyStudentMembershipInput = {
 }
 
 export type StudentResultStoryUpdateWithoutStudentMembershipInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutResultStoriesNestedInput

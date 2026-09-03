@@ -701,13 +701,13 @@ model StudentResultStory {
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
   workspace           Workspace             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  studentMembership   Membership            @relation("ResultStoryStudentMembership", fields: [studentMembershipId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  studentMembership   Membership            @relation("ResultStoryStudentMembership", fields: [studentMembershipId, workspaceId], references: [id, workspaceId], onDelete: Restrict)
   createdBy           User                  @relation("ResultStoryCreator", fields: [createdById], references: [id], onDelete: Restrict)
   versions            StudentResultVersion[] @relation("StoryVersions")
-  currentVersion      StudentResultVersion? @relation("StoryCurrentVersion", fields: [currentVersionId, workspaceId], references: [id, workspaceId], onDelete: Restrict)
+  currentVersion      StudentResultVersion? @relation("StoryCurrentVersion", fields: [currentVersionId, id, workspaceId], references: [id, storyId, workspaceId], onDelete: Restrict)
 
   @@unique([id, workspaceId])
-  @@unique([currentVersionId, workspaceId])
+  @@unique([currentVersionId, id, workspaceId])
   @@index([workspaceId, studentMembershipId])
 }
 
@@ -737,6 +737,7 @@ model StudentResultVersion {
   @@unique([storyId, versionNumber])
   @@unique([workspaceId, mutationKey])
   @@unique([id, workspaceId])
+  @@unique([id, storyId, workspaceId])
   @@index([workspaceId, storyId])
 }
 
@@ -766,7 +767,7 @@ model StudentResultApproval {
   revokeMutationKey  String?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
-  resultVersion      StudentResultVersion @relation(fields: [resultVersionId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  resultVersion      StudentResultVersion @relation(fields: [resultVersionId, workspaceId], references: [id, workspaceId], onDelete: Restrict)
   student            User                 @relation("ResultApprovalStudent", fields: [studentId], references: [id], onDelete: Restrict)
   /// Enforces same-workspace membership; the STUDENT role check belongs to the Batch 4 transactional command.
   studentMembership  Membership           @relation("ResultApprovalStudentMembership", fields: [workspaceId, studentId], references: [workspaceId, userId], onDelete: Restrict)

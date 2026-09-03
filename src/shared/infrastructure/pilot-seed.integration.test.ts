@@ -24,6 +24,7 @@ integration("deterministic pilot seed reset against PostgreSQL", () => {
   });
 
   it("can seed twice without duplicates and preserves non-pilot tenants", { timeout: 30_000 }, async () => {
+    const landingHashes: string[] = [];
     for (let attempt = 0; attempt < 2; attempt += 1) {
       const result = spawnSync("pnpm", ["prisma", "db", "seed"], {
         cwd: process.cwd(),
@@ -31,7 +32,11 @@ integration("deterministic pilot seed reset against PostgreSQL", () => {
         encoding: "utf8",
       });
       expect(result.status, result.stderr || result.stdout).toBe(0);
+      landingHashes.push((await database.coachLandingRevision.findUniqueOrThrow({ where: { id: "pilot-landing-revision-1" } })).payloadHash);
     }
+
+    expect(landingHashes[0]).toMatch(/^[a-f0-9]{64}$/);
+    expect(new Set(landingHashes).size).toBe(1);
 
     const pilotWorkspaceIds = ["pilot-workspace-north", "pilot-workspace-south"];
     expect(await database.workspace.count({ where: { id: { in: pilotWorkspaceIds } } })).toBe(2);

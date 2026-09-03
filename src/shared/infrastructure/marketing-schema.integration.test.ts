@@ -50,7 +50,7 @@ integration("marketing schema contract against PostgreSQL", () => {
     await expect(database.coachLanding.create({ data: { workspaceId } })).rejects.toSatisfy(isUniqueViolation);
   });
 
-  it("keeps revision numbers immutable and unique per landing, and mutation keys unique per workspace", async () => {
+  it("keeps revision numbers unique per landing and mutation keys unique per workspace", async () => {
     const landing = await database.coachLanding.findUniqueOrThrow({ where: { workspaceId } });
     const revisionInput = {
       workspaceId,
@@ -142,6 +142,28 @@ integration("marketing schema contract against PostgreSQL", () => {
         workspaceId, resultVersionId: version.id, studentId: studentUserId, approvedFingerprint: "fp-2", approveMutationKey: "approve-2",
       } }),
     ).rejects.toSatisfy(isUniqueViolation);
+  });
+
+  it("preserves approval evidence by rejecting direct result-version deletion", async () => {
+    const story = await database.studentResultStory.create({ data: {
+      workspaceId, studentMembershipId, createdById: coachId,
+    } });
+    const version = await database.studentResultVersion.create({ data: {
+      workspaceId, storyId: story.id, versionNumber: 1, createdById: coachId, headline: "History",
+      attributionLabel: "Anonymous", mutationKey: "history-version", payloadHash: "history-hash",
+    } });
+    await database.studentResultApproval.create({ data: {
+      workspaceId, resultVersionId: version.id, studentId: studentUserId,
+      approvedFingerprint: "history-hash", approveMutationKey: "history-approval",
+    } });
+
+    await expect(database.studentResultVersion.delete({ where: { id: version.id } })).rejects.toSatisfy(isForeignKeyViolation);
+    expect(await database.studentResultApproval.count({ where: { resultVersionId: version.id } })).toBe(1);
+  });
+
+  it("preserves result history by rejecting direct subject-membership deletion", async () => {
+    await expect(database.membership.delete({ where: { id: studentMembershipId } })).rejects.toSatisfy(isForeignKeyViolation);
+    expect(await database.studentResultStory.count({ where: { studentMembershipId } })).toBeGreaterThan(0);
   });
 
   it("persists assets, public metric snapshots, and landing result selections", async () => {
@@ -321,6 +343,21 @@ integration("marketing schema tenant boundaries against PostgreSQL", () => {
   it("rejects a version attached to another workspace story", async () => {
     await expect(database.studentResultVersion.create({ data: { id: `${ids.versionA}-foreign-story`, workspaceId: ids.workspaceA, storyId: ids.storyB, versionNumber: 2, createdById: ids.coachA, headline: "Foreign", attributionLabel: "Anonymous", mutationKey: `${ids.versionA}-foreign-story`, payloadHash: "foreign" } })).rejects.toSatisfy(isForeignKeyViolation);
     await expect(database.studentResultStory.update({ where: { id: ids.storyA }, data: { currentVersionId: ids.versionB } })).rejects.toSatisfy(isForeignKeyViolation);
+  });
+
+  it("rejects a current-version pointer to a different story in the same workspace", async () => {
+    const otherStory = await database.studentResultStory.create({ data: {
+      id: `${ids.storyA}-other`, workspaceId: ids.workspaceA, studentMembershipId: ids.membershipA, createdById: ids.coachA,
+    } });
+    const otherVersion = await database.studentResultVersion.create({ data: {
+      id: `${ids.versionA}-other`, workspaceId: ids.workspaceA, storyId: otherStory.id, versionNumber: 1,
+      createdById: ids.coachA, headline: "Other", attributionLabel: "Anonymous",
+      mutationKey: `${ids.versionA}-other`, payloadHash: "other",
+    } });
+
+    await expect(database.studentResultStory.update({
+      where: { id: ids.storyA }, data: { currentVersionId: otherVersion.id },
+    })).rejects.toSatisfy(isForeignKeyViolation);
   });
 
   it("rejects an approval for a foreign version or non-member student", async () => {
