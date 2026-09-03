@@ -22,6 +22,25 @@ integration("marketing schema contract against PostgreSQL", () => {
   let studentUserId: string;
   let workspaceId: string;
 
+  it("records the original landing migration and its consent-integrity upgrade", async () => {
+    const migrations = await database.$queryRaw<Array<{ migration_name: string }>>`
+      SELECT migration_name
+      FROM "_prisma_migrations"
+      WHERE migration_name IN (
+        '20260830181322_marketing_landing',
+        '20260903033000_marketing_consent_integrity'
+      )
+      AND finished_at IS NOT NULL
+      AND rolled_back_at IS NULL
+      ORDER BY migration_name
+    `;
+
+    expect(migrations.map(({ migration_name }) => migration_name)).toEqual([
+      "20260830181322_marketing_landing",
+      "20260903033000_marketing_consent_integrity",
+    ]);
+  });
+
   beforeAll(async () => {
     const coach = await database.user.create({ data: { name: "Schema Coach", email: `schema-${suffix}-coach@example.test` } });
     const student = await database.user.create({ data: { name: "Schema Student", email: `schema-${suffix}-student@example.test` } });

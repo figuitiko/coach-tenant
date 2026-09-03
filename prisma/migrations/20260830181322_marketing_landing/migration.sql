@@ -282,7 +282,7 @@ CREATE INDEX "StudentResultStory_workspaceId_studentMembershipId_idx" ON "Studen
 CREATE UNIQUE INDEX "StudentResultStory_id_workspaceId_key" ON "StudentResultStory"("id", "workspaceId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "StudentResultStory_currentVersionId_id_workspaceId_key" ON "StudentResultStory"("currentVersionId", "id", "workspaceId");
+CREATE UNIQUE INDEX "StudentResultStory_currentVersionId_workspaceId_key" ON "StudentResultStory"("currentVersionId", "workspaceId");
 
 -- CreateIndex
 CREATE INDEX "StudentResultVersion_workspaceId_storyId_idx" ON "StudentResultVersion"("workspaceId", "storyId");
@@ -295,9 +295,6 @@ CREATE UNIQUE INDEX "StudentResultVersion_workspaceId_mutationKey_key" ON "Stude
 
 -- CreateIndex
 CREATE UNIQUE INDEX "StudentResultVersion_id_workspaceId_key" ON "StudentResultVersion"("id", "workspaceId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "StudentResultVersion_id_storyId_workspaceId_key" ON "StudentResultVersion"("id", "storyId", "workspaceId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "StudentResultMetricSnapshot_resultVersionId_order_key" ON "StudentResultMetricSnapshot"("resultVersionId", "order");
@@ -390,13 +387,13 @@ ALTER TABLE "LandingRevisionResult" ADD CONSTRAINT "LandingRevisionResult_result
 ALTER TABLE "StudentResultStory" ADD CONSTRAINT "StudentResultStory_workspaceId_fkey" FOREIGN KEY ("workspaceId") REFERENCES "Workspace"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "StudentResultStory" ADD CONSTRAINT "StudentResultStory_studentMembershipId_workspaceId_fkey" FOREIGN KEY ("studentMembershipId", "workspaceId") REFERENCES "Membership"("id", "workspaceId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "StudentResultStory" ADD CONSTRAINT "StudentResultStory_studentMembershipId_workspaceId_fkey" FOREIGN KEY ("studentMembershipId", "workspaceId") REFERENCES "Membership"("id", "workspaceId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "StudentResultStory" ADD CONSTRAINT "StudentResultStory_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "StudentResultStory" ADD CONSTRAINT "StudentResultStory_currentVersionId_id_workspaceId_fkey" FOREIGN KEY ("currentVersionId", "id", "workspaceId") REFERENCES "StudentResultVersion"("id", "storyId", "workspaceId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "StudentResultStory" ADD CONSTRAINT "StudentResultStory_currentVersionId_workspaceId_fkey" FOREIGN KEY ("currentVersionId", "workspaceId") REFERENCES "StudentResultVersion"("id", "workspaceId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "StudentResultVersion" ADD CONSTRAINT "StudentResultVersion_storyId_workspaceId_fkey" FOREIGN KEY ("storyId", "workspaceId") REFERENCES "StudentResultStory"("id", "workspaceId") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -408,7 +405,7 @@ ALTER TABLE "StudentResultVersion" ADD CONSTRAINT "StudentResultVersion_createdB
 ALTER TABLE "StudentResultMetricSnapshot" ADD CONSTRAINT "StudentResultMetricSnapshot_resultVersionId_workspaceId_fkey" FOREIGN KEY ("resultVersionId", "workspaceId") REFERENCES "StudentResultVersion"("id", "workspaceId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "StudentResultApproval" ADD CONSTRAINT "StudentResultApproval_resultVersionId_workspaceId_fkey" FOREIGN KEY ("resultVersionId", "workspaceId") REFERENCES "StudentResultVersion"("id", "workspaceId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "StudentResultApproval" ADD CONSTRAINT "StudentResultApproval_resultVersionId_workspaceId_fkey" FOREIGN KEY ("resultVersionId", "workspaceId") REFERENCES "StudentResultVersion"("id", "workspaceId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "StudentResultApproval" ADD CONSTRAINT "StudentResultApproval_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
