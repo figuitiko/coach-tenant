@@ -3,6 +3,7 @@ import { PrismaClient } from "@/generated/prisma/client";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { ProgressAccessDeniedError, ProgressService } from "../application/progress-service";
 import { PrismaProgressRepository } from "./prisma-progress-repository";
+import { deleteWorkspaceMarketingData } from "../../../../prisma/marketing-cleanup";
 
 const connectionString = process.env.TEST_DATABASE_URL!;
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
@@ -10,8 +11,10 @@ const service = new ProgressService(new PrismaProgressRepository(prisma), () => 
 
 describe("PrismaProgressRepository PostgreSQL boundaries", () => {
   beforeEach(async () => {
+    const workspaceIds = (await prisma.workspace.findMany({ select: { id: true } })).map(({ id }) => id);
     await prisma.reviewReply.deleteMany(); await prisma.reviewNote.deleteMany(); await prisma.progressPhoto.deleteMany(); await prisma.measurementCheckIn.deleteMany();
     await prisma.setLog.deleteMany(); await prisma.exerciseLog.deleteMany(); await prisma.workoutSession.deleteMany(); await prisma.assignedExercise.deleteMany(); await prisma.assignedWorkout.deleteMany(); await prisma.studentPlanAssignment.deleteMany(); await prisma.planWorkout.deleteMany(); await prisma.workoutPlan.deleteMany(); await prisma.templateExercise.deleteMany(); await prisma.workoutTemplate.deleteMany(); await prisma.exercise.deleteMany();
+    await deleteWorkspaceMarketingData(prisma, workspaceIds);
     await prisma.productEvent.deleteMany(); await prisma.auditEvent.deleteMany(); await prisma.membership.deleteMany(); await prisma.invitation.deleteMany(); await prisma.session.deleteMany(); await prisma.account.deleteMany(); await prisma.workspace.deleteMany(); await prisma.user.deleteMany();
   });
   afterAll(() => prisma.$disconnect());

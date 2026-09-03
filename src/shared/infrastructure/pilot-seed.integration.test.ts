@@ -42,6 +42,12 @@ integration("deterministic pilot seed reset against PostgreSQL", () => {
     expect(await database.assignedWorkout.count({ where: { workspaceId: "pilot-workspace-north" } })).toBe(2);
     expect(await database.measurementCheckIn.count({ where: { workspaceId: "pilot-workspace-north" } })).toBe(2);
     expect(await database.reviewNote.count({ where: { workspaceId: "pilot-workspace-north" } })).toBe(1);
+    const seededResult = await database.studentResultVersion.findUniqueOrThrow({
+      where: { id: "pilot-result-version-1" },
+      include: { approval: true, metrics: true },
+    });
+    expect(seededResult.approval?.approvedFingerprint).toBe(seededResult.payloadHash);
+    expect(seededResult.metrics).toHaveLength(1);
     expect(await database.workspace.count({ where: { id: workspaceId } })).toBe(1);
   });
 });

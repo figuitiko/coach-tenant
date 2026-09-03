@@ -54,6 +54,25 @@ enum UploadIntentStatus {
   EXPIRED
 }
 
+enum ResultAttributionMode {
+  ANONYMOUS
+  FIRST_NAME_INITIAL
+  FULL_NAME
+}
+
+enum PublicMetricUnit {
+  KG
+  LB
+  CM
+  IN
+  PERCENT
+}
+
+enum MarketingAssetKind {
+  LOGO
+  PORTRAIT
+}
+
 model User {
   id               String                  @id @default(cuid())
   name             String
@@ -81,6 +100,11 @@ model User {
   reviewNotes      ReviewNote[]             @relation("ReviewCoach")
   reviewReplies    ReviewReply[]            @relation("ReviewReplyStudent")
   photoUploadIntents PhotoUploadIntent[]    @relation("UploadIntentStudent")
+  landingRevisionsCreated     CoachLandingRevision[]      @relation("LandingRevisionCreator")
+  resultStoriesCreated        StudentResultStory[]        @relation("ResultStoryCreator")
+  resultVersionsCreated       StudentResultVersion[]      @relation("ResultVersionCreator")
+  resultApprovalsAsStudent    StudentResultApproval[]     @relation("ResultApprovalStudent")
+  marketingUploadIntentsCreated MarketingAssetUploadIntent[] @relation("MarketingUploadCreator")
 }
 
 model Session {
@@ -151,6 +175,11 @@ model Workspace {
   reviewNotes      ReviewNote[]
   reviewReplies    ReviewReply[]
   photoUploadIntents PhotoUploadIntent[]
+  coachLanding             CoachLanding?
+  resultStories            StudentResultStory[]
+  marketingAssetUploadIntents MarketingAssetUploadIntent[]
+  marketingAssets          MarketingAsset[]
+  publicLandingMetricsDaily PublicLandingMetricDaily[]
 
   @@index([ownerId])
 }
@@ -165,8 +194,11 @@ model Membership {
   workspace       Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   user            User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   planAssignments StudentPlanAssignment[] @relation("AssignedStudentMembership")
+  resultStories   StudentResultStory[]     @relation("ResultStoryStudentMembership")
+  resultApprovals StudentResultApproval[]  @relation("ResultApprovalStudentMembership")
 
   @@unique([workspaceId, userId])
+  @@unique([id, workspaceId])
   @@index([userId])
 }
 
@@ -531,4 +563,273 @@ model SetLog {
   exerciseLog   ExerciseLog @relation(fields: [exerciseLogId], references: [id], onDelete: Cascade)
 
   @@unique([exerciseLogId, setNumber])
+}
+
+// --- Marketing module: workspace coach landing page (docs/PLAN-landing.md) ---
+
+model CoachLanding {
+  id                     String                @id @default(cuid())
+  workspaceId            String                @unique
+  currentDraftRevisionId String?               @unique
+  publishedRevisionId    String?               @unique
+  publishedAt            DateTime?
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  workspace              Workspace             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  revisions              CoachLandingRevision[] @relation("LandingRevisions")
+  currentDraftRevision   CoachLandingRevision? @relation("LandingCurrentDraft", fields: [currentDraftRevisionId, workspaceId], references: [id, workspaceId], onDelete: Restrict)
+  publishedRevision      CoachLandingRevision? @relation("LandingPublishedRevision", fields: [publishedRevisionId, workspaceId], references: [id, workspaceId], onDelete: Restrict)
+
+  @@unique([id, workspaceId])
+  @@unique([currentDraftRevisionId, workspaceId])
+  @@unique([publishedRevisionId, workspaceId])
+}
+
+model CoachLandingRevision {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  landingId        String
+  revisionNumber   Int
+  themeKey         String
+  createdById      String
+  mutationKey      String
+  payloadHash      String
+  coachDisplayName String
+  heroEyebrow      String?
+  heroHeadline     String
+  heroSubheadline  String
+  valueProposition String?
+  servicesHeading     String?
+  methodologyHeading  String?
+  resultsHeading      String?
+  aboutHeading     String?
+  aboutBody        String?
+  faqHeading       String?
+  ctaHeading       String
+  ctaBody          String?
+  whatsappDigits   String
+  whatsappMessage  String
+  instagramUrl     String?
+  publicEmail      String?
+  seoTitle         String?
+  seoDescription   String?
+  logoAssetId      String?
+  portraitAssetId  String?
+  createdAt        DateTime  @default(now())
+  landing          CoachLanding @relation("LandingRevisions", fields: [landingId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  draftFor         CoachLanding? @relation("LandingCurrentDraft")
+  publishedFor     CoachLanding? @relation("LandingPublishedRevision")
+  createdBy        User      @relation("LandingRevisionCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  logoAsset        MarketingAsset? @relation("LandingRevisionLogo", fields: [logoAssetId, workspaceId], references: [id, workspaceId], onDelete: Restrict)
+  portraitAsset    MarketingAsset? @relation("LandingRevisionPortrait", fields: [portraitAssetId, workspaceId], references: [id, workspaceId], onDelete: Restrict)
+  credibilityFacts LandingCredibilityFact[]
+  programs         LandingProgram[]
+  methodSteps      LandingMethodStep[]
+  faqs             LandingFaq[]
+  resultSelections LandingRevisionResult[]
+  metricsDaily     PublicLandingMetricDaily[]
+
+  @@unique([landingId, revisionNumber])
+  @@unique([workspaceId, mutationKey])
+  @@unique([id, workspaceId])
+  @@index([workspaceId, createdAt])
+}
+
+model LandingCredibilityFact {
+  id         String               @id @default(cuid())
+  revisionId String
+  order      Int
+  label      String
+  value      String
+  revision   CoachLandingRevision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+
+  @@unique([revisionId, order])
+}
+
+model LandingProgram {
+  id          String               @id @default(cuid())
+  revisionId  String
+  order       Int
+  title       String
+  description String
+  revision    CoachLandingRevision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+
+  @@unique([revisionId, order])
+}
+
+model LandingMethodStep {
+  id          String               @id @default(cuid())
+  revisionId  String
+  order       Int
+  title       String
+  description String
+  revision    CoachLandingRevision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+
+  @@unique([revisionId, order])
+}
+
+model LandingFaq {
+  id         String               @id @default(cuid())
+  revisionId String
+  order      Int
+  question   String
+  answer     String
+  revision   CoachLandingRevision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+
+  @@unique([revisionId, order])
+}
+
+model LandingRevisionResult {
+  id              String               @id @default(cuid())
+  workspaceId     String
+  revisionId      String
+  order           Int
+  resultVersionId String
+  revision        CoachLandingRevision @relation(fields: [revisionId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  resultVersion   StudentResultVersion @relation(fields: [resultVersionId, workspaceId], references: [id, workspaceId], onDelete: Restrict)
+
+  @@unique([revisionId, order])
+  @@unique([revisionId, resultVersionId])
+}
+
+model StudentResultStory {
+  id                  String                @id @default(cuid())
+  workspaceId         String
+  studentMembershipId String
+  createdById         String
+  currentVersionId    String?               @unique
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  workspace           Workspace             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  studentMembership   Membership            @relation("ResultStoryStudentMembership", fields: [studentMembershipId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  createdBy           User                  @relation("ResultStoryCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  versions            StudentResultVersion[] @relation("StoryVersions")
+  currentVersion      StudentResultVersion? @relation("StoryCurrentVersion", fields: [currentVersionId, workspaceId], references: [id, workspaceId], onDelete: Restrict)
+
+  @@unique([id, workspaceId])
+  @@unique([currentVersionId, workspaceId])
+  @@index([workspaceId, studentMembershipId])
+}
+
+model StudentResultVersion {
+  id               String              @id @default(cuid())
+  workspaceId      String
+  storyId          String
+  versionNumber    Int
+  createdById      String
+  headline         String
+  narrative        String?
+  testimonial      String?
+  attributionMode  ResultAttributionMode @default(ANONYMOUS)
+  attributionLabel String
+  requestedAt      DateTime            @default(now())
+  supersededAt     DateTime?
+  mutationKey      String
+  payloadHash      String
+  createdAt        DateTime            @default(now())
+  story            StudentResultStory  @relation("StoryVersions", fields: [storyId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  currentFor       StudentResultStory? @relation("StoryCurrentVersion")
+  createdBy        User                @relation("ResultVersionCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  metrics          StudentResultMetricSnapshot[]
+  approval         StudentResultApproval?
+  landingSelections LandingRevisionResult[]
+
+  @@unique([storyId, versionNumber])
+  @@unique([workspaceId, mutationKey])
+  @@unique([id, workspaceId])
+  @@index([workspaceId, storyId])
+}
+
+model StudentResultMetricSnapshot {
+  id              String               @id @default(cuid())
+  workspaceId     String
+  resultVersionId String
+  label           String
+  beforeValue     Decimal              @db.Decimal(10, 2)
+  afterValue      Decimal              @db.Decimal(10, 2)
+  unit            PublicMetricUnit
+  order           Int
+  resultVersion   StudentResultVersion @relation(fields: [resultVersionId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+
+  @@unique([resultVersionId, order])
+}
+
+model StudentResultApproval {
+  id                 String               @id @default(cuid())
+  workspaceId        String
+  resultVersionId    String               @unique
+  studentId          String
+  approvedFingerprint String
+  approvedAt         DateTime             @default(now())
+  revokedAt          DateTime?
+  approveMutationKey String
+  revokeMutationKey  String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  resultVersion      StudentResultVersion @relation(fields: [resultVersionId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  student            User                 @relation("ResultApprovalStudent", fields: [studentId], references: [id], onDelete: Restrict)
+  /// Enforces same-workspace membership; the STUDENT role check belongs to the Batch 4 transactional command.
+  studentMembership  Membership           @relation("ResultApprovalStudentMembership", fields: [workspaceId, studentId], references: [workspaceId, userId], onDelete: Restrict)
+
+  @@unique([workspaceId, approveMutationKey])
+  @@unique([resultVersionId, workspaceId])
+}
+
+model MarketingAssetUploadIntent {
+  id             String             @id @default(cuid())
+  workspaceId    String
+  createdById    String
+  kind           MarketingAssetKind
+  idempotencyKey String
+  objectKey      String             @unique
+  mimeType       String
+  sizeBytes      Int
+  checksumSha256 String
+  expiresAt      DateTime
+  status         UploadIntentStatus @default(PENDING)
+  consumedAt     DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  workspace      Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy      User               @relation("MarketingUploadCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  asset          MarketingAsset?
+
+  @@index([workspaceId, createdById, status])
+  @@unique([workspaceId, idempotencyKey])
+  @@unique([id, workspaceId])
+}
+
+model MarketingAsset {
+  id             String                      @id @default(cuid())
+  workspaceId    String
+  kind           MarketingAssetKind
+  objectKey      String                      @unique
+  mimeType       String
+  sizeBytes      Int
+  checksumSha256 String
+  idempotencyKey String
+  uploadIntentId String                      @unique
+  createdAt      DateTime                    @default(now())
+  workspace      Workspace                   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  uploadIntent   MarketingAssetUploadIntent  @relation(fields: [uploadIntentId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  revisionsAsLogo     CoachLandingRevision[] @relation("LandingRevisionLogo")
+  revisionsAsPortrait CoachLandingRevision[] @relation("LandingRevisionPortrait")
+
+  @@unique([workspaceId, idempotencyKey])
+  @@unique([id, workspaceId])
+  @@unique([uploadIntentId, workspaceId])
+  @@index([workspaceId, kind])
+}
+
+model PublicLandingMetricDaily {
+  id                  String               @id @default(cuid())
+  workspaceId         String
+  publishedRevisionId String
+  day                 DateTime             @db.Date
+  views               Int                  @default(0)
+  whatsappClicks      Int                  @default(0)
+  workspace           Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  revision            CoachLandingRevision @relation(fields: [publishedRevisionId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+
+  @@unique([workspaceId, publishedRevisionId, day])
 }
