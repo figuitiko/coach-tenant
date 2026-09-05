@@ -35,6 +35,10 @@ describe("marketing domain contracts", () => {
     expect(normalizeWhatsAppDigits("+54 (11) 1234-5678")).toBe("541112345678");
     expect(() => normalizeWhatsAppDigits("5551234")).toThrow();
     expect(() => normalizeWhatsAppDigits("+541234567")).toThrow();
+    expect(() => normalizeWhatsAppDigits("+0000000000")).toThrow();
+    expect(() => normalizeWhatsAppDigits("+9991234567")).toThrow();
+    expect(normalizeWhatsAppDigits("+52 55 1234 5678")).toBe("525512345678");
+    expect(normalizeWhatsAppDigits("+1 (202) 555-0123")).toBe("12025550123");
     expect(() => normalizeWhatsAppDigits("+5412345678901234")).toThrow();
   });
 
