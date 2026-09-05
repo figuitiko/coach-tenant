@@ -38,13 +38,14 @@ function collection<T>(items: T[] | undefined, map: (item: T) => T): T[] {
 export function normalizeWhatsAppDigits(value: string): string {
   if (/[^0-9+()\s.-]/.test(value)) throw new MarketingValidationError("Invalid WhatsApp number", { whatsappDigits: "Use only an international number" });
   const digits = value.replace(/[^0-9]/g, "");
-  if (digits.length < 8 || digits.length > 15 || /[^0-9]/.test(digits)) throw new MarketingValidationError("Invalid WhatsApp number", { whatsappDigits: "Use 8–15 international digits" });
+  const international = /^\+/.test(value) ? digits.length >= 10 : /^(?:1\d{10}|[2-9]\d{8,14})$/.test(digits);
+  if (digits.length < 8 || digits.length > 15 || !international || /[^0-9]/.test(digits)) throw new MarketingValidationError("Invalid WhatsApp number", { whatsappDigits: "Use 8–15 international digits" });
   return digits;
 }
 function url(value: string | null | undefined, field: string): string | null {
   const normalized = text(value, 500);
   if (!normalized) return null;
-  try { const parsed = new URL(normalized); if (parsed.protocol !== "https:") throw new Error(); return parsed.toString(); }
+  try { const parsed = new URL(normalized); if (/^https:\/\/[^/]+:\d/.test(normalized) || parsed.protocol !== "https:" || parsed.username || parsed.password || parsed.port || !["instagram.com", "www.instagram.com"].includes(parsed.hostname.toLowerCase())) throw new Error(); return parsed.toString(); }
   catch { throw new MarketingValidationError(`Invalid ${field}`, { [field]: "Use an HTTPS URL" }); }
 }
 function email(value: string | null | undefined): string | null {
@@ -61,7 +62,9 @@ function metric(metric: MetricInput): MetricInput {
   return { label, beforeValue: metric.beforeValue, afterValue: metric.afterValue, unit: metric.unit, order: metric.order };
 }
 export function normalizeLandingContent(input: LandingContentInput): LandingContentInput & { themeKey: LandingThemeKey; resultAttributionMode: AttributionMode; whatsappDigits: string } {
-  const themeKey = (input.themeKey ?? "editorial") as LandingThemeKey; resolveLandingTheme(themeKey);
+  const themeValue = input.themeKey ?? "editorial";
+  resolveLandingTheme(themeValue);
+  const themeKey = themeValue as LandingThemeKey;
   return {
     ...input, themeKey, coachDisplayName: text(input.coachDisplayName, LIMITS.display)!,
     heroEyebrow: text(input.heroEyebrow, LIMITS.item), heroHeadline: text(input.heroHeadline, LIMITS.headline)!, heroSubheadline: text(input.heroSubheadline, LIMITS.summary)!,
@@ -82,7 +85,7 @@ export function buildWhatsAppUrl(digits: string, message: string): string { retu
 export function normalizeResultVersionInput(input: ResultVersionInput): ResultVersionInput {
   const mode = input.attributionMode ?? "ANONYMOUS";
   if (!["ANONYMOUS", "FIRST_NAME_INITIAL", "FULL_NAME"].includes(mode)) throw new MarketingValidationError("Invalid attribution mode");
-  const attributionLabel = text(input.attributionLabel, LIMITS.display) ?? "";
+  const attributionLabel = mode === "ANONYMOUS" ? "Anónimo" : text(input.attributionLabel, LIMITS.display) ?? "";
   if (mode !== "ANONYMOUS" && !attributionLabel) throw new MarketingValidationError("Named attribution requires a label");
   const metrics = input.metrics.map(metric);
   if (new Set(metrics.map((item) => item.order)).size !== metrics.length) throw new MarketingValidationError("Metric order must be unique");

@@ -1,11 +1,16 @@
 import { resolveLandingTheme, type LandingThemeKey } from "./theme";
-import type { AttributionMode, PublicMetricUnit } from "./contracts";
+import { normalizeResultVersionInput, type AttributionMode, type PublicMetricUnit } from "./contracts";
 export type PublicLandingMetricDto = { label: string; beforeValue: string; afterValue: string; unit: PublicMetricUnit };
 export type PublicLandingResultDto = { headline: string; narrative: string | null; testimonial: string | null; attributionMode: AttributionMode; attributionLabel: string; metrics: PublicLandingMetricDto[] };
 export type PublicCoachLandingDto = { themeKey: LandingThemeKey; coachDisplayName: string; hero: { eyebrow: string | null; headline: string; subheadline: string }; valueProposition: string | null; services: Array<{ title: string; description: string }>; methodology: Array<{ title: string; description: string }>; about: { heading: string | null; body: string | null }; faqs: Array<{ question: string; answer: string }>; cta: { heading: string; body: string | null; whatsappUrl: string; publicEmail: string | null; instagramUrl: string | null }; results: PublicLandingResultDto[]; seo: { title: string; description: string } };
 type Source = Record<string, unknown>;
 export function toPublicCoachLandingDto(source: Source): PublicCoachLandingDto {
-  const results = Array.isArray(source.results) ? source.results.map((result) => { const r = result as Source; return { headline: String(r.headline ?? ""), narrative: (r.narrative as string | null) ?? null, testimonial: (r.testimonial as string | null) ?? null, attributionMode: (r.attributionMode as AttributionMode) ?? "ANONYMOUS", attributionLabel: String(r.attributionLabel ?? "Anónimo"), metrics: Array.isArray(r.metrics) ? r.metrics.map((m) => { const metric = m as Source; return { label: String(metric.label), beforeValue: String(metric.beforeValue), afterValue: String(metric.afterValue), unit: metric.unit as PublicMetricUnit }; }) : [] }; }) : [];
+  if (source.results !== undefined && !Array.isArray(source.results)) throw new Error("Malformed public results");
+  const results = Array.isArray(source.results) ? source.results.map((result) => {
+    const r = result as Source;
+    const normalized = normalizeResultVersionInput({ headline: String(r.headline ?? ""), narrative: (r.narrative as string | null) ?? null, testimonial: (r.testimonial as string | null) ?? null, attributionMode: r.attributionMode as AttributionMode, attributionLabel: r.attributionLabel as string | null, metrics: Array.isArray(r.metrics) ? r.metrics.map((m) => { const metric = m as Source; return { label: String(metric.label ?? ""), beforeValue: Number(metric.beforeValue), afterValue: Number(metric.afterValue), unit: metric.unit as PublicMetricUnit, order: Number(metric.order ?? 0) }; }) : [] });
+    return { headline: normalized.headline!, narrative: normalized.narrative ?? null, testimonial: normalized.testimonial ?? null, attributionMode: normalized.attributionMode!, attributionLabel: normalized.attributionLabel!, metrics: normalized.metrics.map(({ label, beforeValue, afterValue, unit }) => ({ label, beforeValue: beforeValue.toFixed(2), afterValue: afterValue.toFixed(2), unit })) };
+  }) : [];
   const themeKey = resolveLandingTheme(String(source.themeKey ?? "")).key;
   // The public projection exposes only a same-origin intent; the server resolves the canonical destination at click time.
   const wa = "/go/whatsapp";

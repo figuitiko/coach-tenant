@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildWhatsAppUrl,
   fingerprintResultVersion,
+  normalizeResultVersionInput,
   normalizeLandingContent,
   normalizeWhatsAppDigits,
   validateDraft,
@@ -32,6 +33,9 @@ describe("marketing domain contracts", () => {
     expect(value.coachDisplayName).toBe("Fuerza Norte");
     expect(value.whatsappDigits).toBe("541112345678");
     expect(normalizeWhatsAppDigits("+54 (11) 1234-5678")).toBe("541112345678");
+    expect(() => normalizeWhatsAppDigits("5551234")).toThrow();
+    expect(() => normalizeWhatsAppDigits("+541234567")).toThrow();
+    expect(() => normalizeWhatsAppDigits("+5412345678901234")).toThrow();
   });
 
   it("allows incomplete drafts but requires publication fields", () => {
@@ -43,6 +47,9 @@ describe("marketing domain contracts", () => {
   it("rejects executable markup, unsafe links, and invalid metrics", () => {
     expect(() => validateDraft({ ...draft, heroHeadline: "<script>alert(1)</script>" })).toThrow();
     expect(() => validateDraft({ ...draft, instagramUrl: "javascript:alert(1)" })).toThrow();
+    expect(() => validateDraft({ ...draft, instagramUrl: "https://example.com/profile" })).toThrow();
+    expect(() => validateDraft({ ...draft, instagramUrl: "https://user:pass@instagram.com/profile" })).toThrow();
+    expect(() => validateDraft({ ...draft, instagramUrl: "https://instagram.com:443/profile" })).toThrow();
     expect(() => validateDraft({ ...draft, publicEmail: "nope" })).toThrow();
     expect(() => validateDraft({ ...draft, services: Array.from({ length: 11 }, () => ({ title: "x", description: "y" })) })).toThrow();
     expect(() => validateDraft({ ...draft, resultAttributionLabel: "x" })).not.toThrow();
@@ -63,6 +70,9 @@ describe("marketing domain contracts", () => {
 
   it("defaults attribution to anonymous and fails closed on themes", () => {
     expect(validateDraft({ ...draft, resultAttributionMode: undefined }).resultAttributionMode).toBe("ANONYMOUS");
+    expect(normalizeResultVersionInput({ ...result, attributionMode: "ANONYMOUS", attributionLabel: "Lucía" }).attributionLabel).toBe("Anónimo");
+    expect(() => normalizeResultVersionInput({ ...result, attributionMode: "BOGUS" as never })).toThrow();
+    expect(() => normalizeResultVersionInput({ ...result, metrics: [{ ...result.metrics[0], unit: "BOGUS" as never }] })).toThrow();
     expect(resolveLandingTheme("editorial").key).toBe("editorial");
     expect(() => resolveLandingTheme("neon")).toThrow(UnknownLandingThemeError);
   });
@@ -72,6 +82,7 @@ describe("marketing domain contracts", () => {
     expect(dto).toEqual(expect.objectContaining({ themeKey: "editorial", cta: expect.objectContaining({ publicEmail: "coach@example.com" }) }));
     expect(JSON.stringify(dto)).not.toContain("workspaceId");
     expect(JSON.stringify(dto)).not.toContain("541112345678");
+    expect(() => toPublicCoachLandingDto({ ...({ ...draft, themeKey: "editorial", heroHeadline: "Go", heroSubheadline: "Now", ctaHeading: "Contact" }), results: [{ attributionMode: "ANONYMOUS", attributionLabel: "Lucía", metrics: [{ label: "Peso", beforeValue: "80", afterValue: "72", unit: "BOGUS" }] }] })).toThrow();
     expect(JSON.stringify(dto)).not.toContain("s3/secret");
     expect(JSON.stringify(dto)).not.toContain('"id"');
   });
