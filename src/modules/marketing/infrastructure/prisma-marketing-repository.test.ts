@@ -425,6 +425,32 @@ describe("PrismaMarketingRepository result consent mutations", () => {
     );
   });
 
+  it("rejects replacing an existing result when the expected current version is omitted", async () => {
+    const tx = createTransaction();
+    tx.state.resultStory = {
+      id: "story-a",
+      workspaceId: "workspace-a",
+      studentMembershipId: "membership-student-a",
+      currentVersionId: "result-version-1",
+      currentVersion: { id: "result-version-1", versionNumber: 1 },
+    };
+    const { database } = createDatabase(tx);
+    const repository = new PrismaMarketingRepository(database as never);
+
+    await expect(
+      repository.requestResultApproval(coach, {
+        storyId: "story-a",
+        studentMembershipId: "membership-student-a",
+        content: { ...resultContent, headline: "Stale replacement" },
+        idempotencyKey: "result-stale-floating",
+      }),
+    ).rejects.toBeInstanceOf(MarketingConflictError);
+
+    expect(tx.studentResultVersion.update).not.toHaveBeenCalled();
+    expect(tx.studentResultVersion.create).not.toHaveBeenCalled();
+    expect(tx.studentResultStory.update).not.toHaveBeenCalled();
+  });
+
   it("replaces the current version by superseding v1 and making v2 pending without publishing a landing", async () => {
     const tx = createTransaction();
     tx.state.resultStory = {

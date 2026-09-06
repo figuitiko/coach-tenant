@@ -270,7 +270,10 @@ export class PrismaMarketingRepository implements MarketingLandingRepository {
       if (!story) throw new MarketingNotFoundError();
 
       const currentVersion = story.currentVersion as { id: string; versionNumber: number } | null | undefined;
-      if ((command.expectedCurrentVersionId ?? currentVersion?.id ?? null) !== (currentVersion?.id ?? null)) {
+      if (currentVersion && command.expectedCurrentVersionId !== currentVersion.id) {
+        throw new MarketingConflictError("Stale result version");
+      }
+      if (!currentVersion && command.expectedCurrentVersionId) {
         throw new MarketingConflictError("Stale result version");
       }
 
