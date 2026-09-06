@@ -1,18 +1,145 @@
+import { buildWhatsAppUrl, normalizeResultVersionInput, type PublicMetricUnit } from "./contracts";
 import { resolveLandingTheme, type LandingThemeKey } from "./theme";
-import { normalizeResultVersionInput, type AttributionMode, type PublicMetricUnit } from "./contracts";
-export type PublicLandingMetricDto = { label: string; beforeValue: string; afterValue: string; unit: PublicMetricUnit };
-export type PublicLandingResultDto = { headline: string; narrative: string | null; testimonial: string | null; attributionMode: AttributionMode; attributionLabel: string; metrics: PublicLandingMetricDto[] };
-export type PublicCoachLandingDto = { themeKey: LandingThemeKey; coachDisplayName: string; hero: { eyebrow: string | null; headline: string; subheadline: string }; valueProposition: string | null; services: Array<{ title: string; description: string }>; methodology: Array<{ title: string; description: string }>; about: { heading: string | null; body: string | null }; faqs: Array<{ question: string; answer: string }>; cta: { heading: string; body: string | null; whatsappUrl: string; publicEmail: string | null; instagramUrl: string | null }; results: PublicLandingResultDto[]; seo: { title: string; description: string } };
+
+export type PublicLandingMetricDto = { label: string; before: string; after: string; unit: PublicMetricUnit };
+export type PublicLandingResultDto = {
+  publicId: string;
+  headline: string;
+  narrative: string | null;
+  testimonial: string | null;
+  attributionLabel: string;
+  metrics: PublicLandingMetricDto[];
+};
+export type PublicCoachLandingDto = {
+  workspaceSlug: string;
+  revisionId: string;
+  themeKey: LandingThemeKey;
+  brand: {
+    workspaceName: string;
+    coachDisplayName: string;
+    logoUrl: string | null;
+    portraitUrl: string | null;
+  };
+  hero: { eyebrow: string | null; headline: string; subheadline: string };
+  credibility: Array<{ label: string; value: string }>;
+  programs: Array<{ title: string; description: string }>;
+  methodology: Array<{ title: string; description: string }>;
+  results: PublicLandingResultDto[];
+  about: { heading: string; body: string } | null;
+  faq: Array<{ question: string; answer: string }>;
+  cta: { heading: string; body: string | null; href: string };
+  seo: { title: string; description: string; canonicalUrl: string };
+};
+
 type Source = Record<string, unknown>;
+
+type PublicResultSource = {
+  publicId: string;
+  headline: string;
+  narrative?: string | null;
+  testimonial?: string | null;
+  attributionLabel: string;
+  metrics?: Array<{ label: string; beforeValue: unknown; afterValue: unknown; unit: PublicMetricUnit; order?: number }>;
+};
+
 export function toPublicCoachLandingDto(source: Source): PublicCoachLandingDto {
   if (source.results !== undefined && !Array.isArray(source.results)) throw new Error("Malformed public results");
-  const results = Array.isArray(source.results) ? source.results.map((result) => {
-    const r = result as Source;
-    const normalized = normalizeResultVersionInput({ headline: String(r.headline ?? ""), narrative: (r.narrative as string | null) ?? null, testimonial: (r.testimonial as string | null) ?? null, attributionMode: r.attributionMode as AttributionMode, attributionLabel: r.attributionLabel as string | null, metrics: Array.isArray(r.metrics) ? r.metrics.map((m) => { const metric = m as Source; return { label: String(metric.label ?? ""), beforeValue: Number(metric.beforeValue), afterValue: Number(metric.afterValue), unit: metric.unit as PublicMetricUnit, order: Number(metric.order ?? 0) }; }) : [] });
-    return { headline: normalized.headline!, narrative: normalized.narrative ?? null, testimonial: normalized.testimonial ?? null, attributionMode: normalized.attributionMode!, attributionLabel: normalized.attributionLabel!, metrics: normalized.metrics.map(({ label, beforeValue, afterValue, unit }) => ({ label, beforeValue: beforeValue.toFixed(2), afterValue: afterValue.toFixed(2), unit })) };
-  }) : [];
+  const workspaceSlug = String(source.workspaceSlug ?? "");
+  const revisionId = String(source.revisionId ?? "");
   const themeKey = resolveLandingTheme(String(source.themeKey ?? "")).key;
-  // The public projection exposes only a same-origin intent; the server resolves the canonical destination at click time.
-  const wa = "/go/whatsapp";
-  return { themeKey, coachDisplayName: String(source.coachDisplayName ?? ""), hero: { eyebrow: (source.heroEyebrow as string | null) ?? null, headline: String(source.heroHeadline ?? ""), subheadline: String(source.heroSubheadline ?? "") }, valueProposition: (source.valueProposition as string | null) ?? null, services: Array.isArray(source.services) ? source.services.map((i) => ({ title: String((i as Source).title), description: String((i as Source).description) })) : [], methodology: Array.isArray(source.methodology) ? source.methodology.map((i) => ({ title: String((i as Source).title), description: String((i as Source).description) })) : [], about: { heading: (source.aboutHeading as string | null) ?? null, body: (source.aboutBody as string | null) ?? null }, faqs: Array.isArray(source.faqs) ? source.faqs.map((i) => ({ question: String((i as Source).question), answer: String((i as Source).answer) })) : [], cta: { heading: String(source.ctaHeading ?? ""), body: (source.ctaBody as string | null) ?? null, whatsappUrl: wa, publicEmail: (source.publicEmail as string | null) ?? null, instagramUrl: (source.instagramUrl as string | null) ?? null }, results, seo: { title: String(source.seoTitle ?? source.coachDisplayName ?? ""), description: String(source.seoDescription ?? source.heroSubheadline ?? "") } };
+  const coachDisplayName = String(source.coachDisplayName ?? "");
+  const heroHeadline = String(source.heroHeadline ?? "");
+  const heroSubheadline = String(source.heroSubheadline ?? "");
+  const whatsappDigits = String(source.whatsappDigits ?? "");
+  const whatsappMessage = String(source.whatsappMessage ?? "");
+  const results = Array.isArray(source.results) ? source.results.map(toPublicResultDto) : [];
+
+  return {
+    workspaceSlug,
+    revisionId,
+    themeKey,
+    brand: {
+      workspaceName: String(source.workspaceName ?? ""),
+      coachDisplayName,
+      logoUrl: (source.logoUrl as string | null) ?? null,
+      portraitUrl: (source.portraitUrl as string | null) ?? null,
+    },
+    hero: {
+      eyebrow: (source.heroEyebrow as string | null) ?? null,
+      headline: heroHeadline,
+      subheadline: heroSubheadline,
+    },
+    credibility: Array.isArray(source.credibility)
+      ? source.credibility.map((item) => ({
+          label: String((item as Source).label),
+          value: String((item as Source).value),
+        }))
+      : [],
+    programs: Array.isArray(source.services)
+      ? source.services.map((item) => ({
+          title: String((item as Source).title),
+          description: String((item as Source).description),
+        }))
+      : [],
+    methodology: Array.isArray(source.methodology)
+      ? source.methodology.map((item) => ({
+          title: String((item as Source).title),
+          description: String((item as Source).description),
+        }))
+      : [],
+    results,
+    about:
+      source.aboutHeading || source.aboutBody
+        ? { heading: String(source.aboutHeading ?? ""), body: String(source.aboutBody ?? "") }
+        : null,
+    faq: Array.isArray(source.faqs)
+      ? source.faqs.map((item) => ({
+          question: String((item as Source).question),
+          answer: String((item as Source).answer),
+        }))
+      : [],
+    cta: {
+      heading: String(source.ctaHeading ?? ""),
+      body: (source.ctaBody as string | null) ?? null,
+      href: workspaceSlug ? `/c/${workspaceSlug}/go/whatsapp` : buildWhatsAppUrl(whatsappDigits, whatsappMessage),
+    },
+    seo: {
+      title: String(source.seoTitle ?? (coachDisplayName || heroHeadline)),
+      description: String(source.seoDescription ?? heroSubheadline),
+      canonicalUrl: workspaceSlug ? `/c/${workspaceSlug}` : "",
+    },
+  };
+}
+
+function toPublicResultDto(result: unknown): PublicLandingResultDto {
+  const source = result as PublicResultSource;
+  const normalized = normalizeResultVersionInput({
+    headline: source.headline,
+    narrative: source.narrative ?? null,
+    testimonial: source.testimonial ?? null,
+    attributionMode: "ANONYMOUS",
+    attributionLabel: source.attributionLabel,
+    metrics: Array.isArray(source.metrics)
+      ? source.metrics.map((metric) => ({
+          label: metric.label,
+          beforeValue: Number(metric.beforeValue),
+          afterValue: Number(metric.afterValue),
+          unit: metric.unit,
+          order: Number(metric.order ?? 0),
+        }))
+      : [],
+  });
+  return {
+    publicId: source.publicId,
+    headline: normalized.headline,
+    narrative: normalized.narrative ?? null,
+    testimonial: normalized.testimonial ?? null,
+    attributionLabel: normalized.attributionLabel ?? "Anónimo",
+    metrics: normalized.metrics.map(({ label, beforeValue, afterValue, unit }) => ({
+      label,
+      before: beforeValue.toFixed(2),
+      after: afterValue.toFixed(2),
+      unit,
+    })),
+  };
 }

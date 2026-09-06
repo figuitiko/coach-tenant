@@ -25,7 +25,14 @@ import {
   type MetricInput,
   type ResultVersionInput,
 } from "../domain/contracts";
-import { MarketingAccessDeniedError, MarketingConflictError, MarketingNotFoundError } from "../domain/errors";
+import {
+  MarketingAccessDeniedError,
+  MarketingConflictError,
+  MarketingNotFoundError,
+  MarketingPublicationBlockedError,
+  type PublicationBlocker,
+} from "../domain/errors";
+import { toPublicCoachLandingDto, type PublicCoachLandingDto } from "../domain/dto";
 
 type TransactionClient = Parameters<Parameters<PrismaClient["$transaction"]>[0]>[0];
 type HashFunction = (value: unknown) => string;
@@ -158,6 +165,7 @@ export class PrismaMarketingRepository implements MarketingLandingRepository {
               programs: { orderBy: { order: "asc" } },
               methodSteps: { orderBy: { order: "asc" } },
               faqs: { orderBy: { order: "asc" } },
+              resultSelections: { orderBy: { order: "asc" } },
             },
           },
         },
@@ -166,6 +174,14 @@ export class PrismaMarketingRepository implements MarketingLandingRepository {
       if (landing.currentDraftRevision.revisionNumber !== command.expectedRevisionNumber)
         throw new MarketingConflictError("Stale landing revision");
       validatePublication(revisionToContent(landing.currentDraftRevision));
+      await assertAssetsReadyForPublication(tx, actor.workspaceId, [
+        landing.currentDraftRevision.logoAssetId,
+        landing.currentDraftRevision.portraitAssetId,
+      ]);
+      const selectedResultVersionIds = selectedResultIds(landing.currentDraftRevision);
+      await assertSelectedResultsBelongToWorkspace(tx, actor.workspaceId, selectedResultVersionIds);
+      const blockers = await findPublicationBlockers(tx, actor.workspaceId, selectedResultVersionIds);
+      if (blockers.length) throw new MarketingPublicationBlockedError(blockers);
       const publishedAt = new Date();
       await tx.coachLanding.update({
         where: { id: landing.id },
@@ -433,6 +449,46 @@ export class PrismaMarketingRepository implements MarketingLandingRepository {
         output,
       });
       return output;
+    });
+  }
+
+  async getPublishedLanding(workspaceSlug: string): Promise<PublicCoachLandingDto | null> {
+    return this.transaction(async (tx) => {
+      const workspace = await tx.workspace.findUnique({
+        where: { slug: workspaceSlug },
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          coachLanding: {
+            select: {
+              publishedRevisionId: true,
+              publishedRevision: {
+                include: {
+                  credibilityFacts: { orderBy: { order: "asc" } },
+                  programs: { orderBy: { order: "asc" } },
+                  methodSteps: { orderBy: { order: "asc" } },
+                  faqs: { orderBy: { order: "asc" } },
+                  resultSelections: { orderBy: { order: "asc" } },
+                },
+              },
+            },
+          },
+        },
+      });
+      const landing = workspace?.coachLanding as
+        { publishedRevisionId: string | null; publishedRevision?: Record<string, unknown> | null } | null | undefined;
+      const revision = landing?.publishedRevision;
+      if (!workspace || !landing?.publishedRevisionId || !revision) return null;
+      const selectedIds = selectedResultIds(revision);
+      const eligibleResults = selectedIds.length ? await findEligiblePublicResults(tx, workspace.id, selectedIds) : [];
+      return toPublicCoachLandingDto({
+        workspaceSlug: workspace.slug,
+        workspaceName: workspace.name,
+        revisionId: publicRevisionId(revision),
+        ...revisionToPublicSource(revision),
+        results: eligibleResults,
+      });
     });
   }
 
@@ -777,4 +833,146 @@ function stableStringify(value: unknown): string {
       .join(",")}}`;
   }
   return JSON.stringify(value);
+}
+
+function selectedResultIds(revision: Record<string, unknown>): string[] {
+  if (!Array.isArray(revision.resultSelections)) return [];
+  return revision.resultSelections.map((selection) => String((selection as Record<string, unknown>).resultVersionId));
+}
+
+async function assertAssetsReadyForPublication(
+  tx: TransactionClient,
+  workspaceId: string,
+  assetIds: Array<string | null | undefined>,
+) {
+  const ids = assetIds.filter((id): id is string => Boolean(id));
+  if (!ids.length) return;
+  const count = await tx.marketingAsset.count({
+    where: { id: { in: ids }, workspaceId, uploadIntent: { status: "CONSUMED" } },
+  });
+  if (count !== new Set(ids).size) throw new MarketingNotFoundError();
+}
+
+async function assertSelectedResultsBelongToWorkspace(
+  tx: TransactionClient,
+  workspaceId: string,
+  resultVersionIds: string[],
+) {
+  if (!resultVersionIds.length) return;
+  const versions = await tx.studentResultVersion.findMany({
+    where: { id: { in: resultVersionIds }, workspaceId, story: { workspaceId } },
+    select: { id: true },
+  });
+  if (versions.length !== new Set(resultVersionIds).size) throw new MarketingNotFoundError();
+}
+
+async function findPublicationBlockers(
+  tx: TransactionClient,
+  workspaceId: string,
+  resultVersionIds: string[],
+): Promise<PublicationBlocker[]> {
+  if (!resultVersionIds.length) return [];
+  const versions = await tx.studentResultVersion.findMany({
+    where: { id: { in: resultVersionIds }, workspaceId, story: { workspaceId } },
+    include: { story: { select: { currentVersionId: true } }, metrics: { orderBy: { order: "asc" } }, approval: true },
+  });
+  return versions.flatMap((version: Record<string, unknown>): PublicationBlocker[] => {
+    const id = String(version.id);
+    const approval = version.approval as { revokedAt?: Date | null; approvedFingerprint?: string } | null | undefined;
+    const currentVersionId = String((version.story as Record<string, unknown>).currentVersionId ?? "");
+    if (version.supersededAt || currentVersionId !== id)
+      return [{ resultVersionId: id, reason: "SUPERSEDED" as const }];
+    if (!approval) return [{ resultVersionId: id, reason: "PENDING_APPROVAL" as const }];
+    if (approval.revokedAt) return [{ resultVersionId: id, reason: "REVOKED" as const }];
+    if (approval.approvedFingerprint !== fingerprintResultVersion(versionToResultInput(version))) {
+      return [{ resultVersionId: id, reason: "SUPERSEDED" as const }];
+    }
+    return [];
+  });
+}
+
+async function findEligiblePublicResults(tx: TransactionClient, workspaceId: string, resultVersionIds: string[]) {
+  const versions = await tx.studentResultVersion.findMany({
+    where: { id: { in: resultVersionIds }, workspaceId, story: { workspaceId } },
+    include: { story: { select: { currentVersionId: true } }, metrics: { orderBy: { order: "asc" } }, approval: true },
+  });
+  const byId = new Map(versions.map((version: Record<string, unknown>) => [String(version.id), version]));
+  return resultVersionIds.flatMap((id, index) => {
+    const version = byId.get(id);
+    if (!version) return [];
+    const blockers = publicResultBlockers(version);
+    if (blockers.length) return [];
+    return [
+      {
+        publicId: `result-${index + 1}`,
+        headline: String(version.headline),
+        narrative: (version.narrative as string | null) ?? null,
+        testimonial: (version.testimonial as string | null) ?? null,
+        attributionLabel: String(version.attributionLabel ?? "Anónimo"),
+        metrics: Array.isArray(version.metrics)
+          ? version.metrics.map((metric) => ({
+              label: String((metric as Record<string, unknown>).label),
+              beforeValue: (metric as Record<string, unknown>).beforeValue,
+              afterValue: (metric as Record<string, unknown>).afterValue,
+              unit: (metric as Record<string, unknown>).unit,
+              order: Number((metric as Record<string, unknown>).order),
+            }))
+          : [],
+      },
+    ];
+  });
+}
+
+function publicResultBlockers(version: Record<string, unknown>): PublicationBlocker[] {
+  const id = String(version.id);
+  const approval = version.approval as { revokedAt?: Date | null; approvedFingerprint?: string } | null | undefined;
+  const currentVersionId = String((version.story as Record<string, unknown>).currentVersionId ?? "");
+  if (version.supersededAt || currentVersionId !== id) return [{ resultVersionId: id, reason: "SUPERSEDED" }];
+  if (!approval) return [{ resultVersionId: id, reason: "PENDING_APPROVAL" }];
+  if (approval.revokedAt) return [{ resultVersionId: id, reason: "REVOKED" }];
+  if (approval.approvedFingerprint !== fingerprintResultVersion(versionToResultInput(version))) {
+    return [{ resultVersionId: id, reason: "SUPERSEDED" }];
+  }
+  return [];
+}
+
+function publicRevisionId(revision: Record<string, unknown>) {
+  return `revision-${String(revision.revisionNumber)}`;
+}
+
+function revisionToPublicSource(revision: Record<string, unknown>) {
+  return {
+    themeKey: revision.themeKey,
+    coachDisplayName: revision.coachDisplayName,
+    heroEyebrow: revision.heroEyebrow,
+    heroHeadline: revision.heroHeadline,
+    heroSubheadline: revision.heroSubheadline,
+    valueProposition: revision.valueProposition,
+    services: Array.isArray(revision.programs)
+      ? revision.programs.map((item) => ({
+          title: String((item as Record<string, unknown>).title),
+          description: String((item as Record<string, unknown>).description),
+        }))
+      : [],
+    methodology: Array.isArray(revision.methodSteps)
+      ? revision.methodSteps.map((item) => ({
+          title: String((item as Record<string, unknown>).title),
+          description: String((item as Record<string, unknown>).description),
+        }))
+      : [],
+    aboutHeading: revision.aboutHeading,
+    aboutBody: revision.aboutBody,
+    faqs: Array.isArray(revision.faqs)
+      ? revision.faqs.map((item) => ({
+          question: String((item as Record<string, unknown>).question),
+          answer: String((item as Record<string, unknown>).answer),
+        }))
+      : [],
+    ctaHeading: revision.ctaHeading,
+    ctaBody: revision.ctaBody,
+    whatsappDigits: revision.whatsappDigits,
+    whatsappMessage: revision.whatsappMessage,
+    seoTitle: revision.seoTitle,
+    seoDescription: revision.seoDescription,
+  };
 }

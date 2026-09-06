@@ -55,6 +55,7 @@ function createTransaction() {
       currentDraftRevisionId: string | null;
       publishedRevisionId: string | null;
       currentDraftRevision?: ({ id?: string; revisionNumber: number } & Partial<LandingContentInput>) | null;
+      publishedRevision?: ({ id?: string; revisionNumber: number } & Partial<LandingContentInput>) | null;
     },
     revisionCount: 0,
     resultStory: null as null | {
@@ -83,6 +84,18 @@ function createTransaction() {
     user: {
       findFirst: vi.fn(async ({ where }) =>
         where.id === "admin-a" && where.platformRole === "SUPER_ADMIN" ? { id: "admin-a" } : null,
+      ),
+    },
+    workspace: {
+      findUnique: vi.fn(async ({ where }) =>
+        where.slug === "fuerza-norte" && state.landing?.publishedRevisionId
+          ? {
+              id: "workspace-a",
+              slug: "fuerza-norte",
+              name: "Fuerza Norte",
+              coachLanding: state.landing,
+            }
+          : null,
       ),
     },
     auditEvent: {
@@ -171,7 +184,12 @@ function createTransaction() {
         return state.resultVersion ?? { id: where.id_workspaceId?.id, ...data };
       }),
       findFirst: vi.fn(async ({ where }) => (state.resultVersion?.id === where.id ? state.resultVersion : null)),
-      findMany: vi.fn(async () => (state.resultVersion ? [state.resultVersion] : [])),
+      findMany: vi.fn(async ({ where } = {}) => {
+        const ids = where?.id?.in as string[] | undefined;
+        if (!state.resultVersion) return [];
+        if (ids && !ids.includes(state.resultVersion.id)) return [];
+        return [state.resultVersion];
+      }),
     },
     studentResultMetricSnapshot: {
       create: vi.fn(async ({ data }) => ({ id: `metric-${data.order}`, ...data })),
@@ -582,5 +600,283 @@ describe("PrismaMarketingRepository result consent mutations", () => {
     ).resolves.toMatchObject({ versionId: "result-version-1", state: "REVOKED" });
 
     expect(tx.studentResultApproval.update).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("PrismaMarketingRepository Batch 5 publication safety", () => {
+  const approvedResultContent = {
+    headline: "Transformación sostenible",
+    narrative: "Entrena con constancia y mejor técnica.",
+    testimonial: "Me siento con más energía.",
+    attributionMode: "ANONYMOUS" as const,
+    attributionLabel: "Anónimo",
+    metrics: [{ label: "Peso", beforeValue: 90, afterValue: 84, unit: "KG" as const, order: 0 }],
+  };
+
+  it("blocks publishing a draft with pending selected results without changing the live pointer or events", async () => {
+    const tx = createTransaction();
+    tx.state.resultVersion = {
+      id: "result-version-pending",
+      workspaceId: "workspace-a",
+      storyId: "story-a",
+      versionNumber: 1,
+      ...approvedResultContent,
+      metrics: approvedResultContent.metrics,
+      supersededAt: null,
+      approval: null,
+      story: {
+        id: "story-a",
+        currentVersionId: "result-version-pending",
+        studentMembership: { id: "membership-student-a", userId: "student-a" },
+      },
+    };
+    tx.state.landing = {
+      id: "landing-a",
+      workspaceId: "workspace-a",
+      currentDraftRevisionId: "revision-2",
+      publishedRevisionId: "revision-1",
+      currentDraftRevision: {
+        ...content,
+        id: "revision-2",
+        revisionNumber: 2,
+        resultSelections: [{ resultVersionId: "result-version-pending", order: 0 }],
+      } as never,
+    };
+    const { database } = createDatabase(tx);
+    const repository = new PrismaMarketingRepository(database as never);
+
+    await expect(
+      repository.publishLanding(coach, {
+        revisionId: "revision-2",
+        expectedRevisionNumber: 2,
+        idempotencyKey: "publish-pending",
+      }),
+    ).rejects.toMatchObject({
+      code: "PUBLICATION_BLOCKED",
+      blockers: [{ resultVersionId: "result-version-pending", reason: "PENDING_APPROVAL" }],
+    });
+
+    expect(tx.coachLanding.update).not.toHaveBeenCalled();
+    expect(tx.auditEvent.create).not.toHaveBeenCalled();
+    expect(tx.productEvent.create).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [
+      "revoked",
+      {
+        approval: { id: "approval-a", revokedAt: new Date("2026-09-06T00:00:00.000Z"), approvedFingerprint: "MATCH" },
+        supersededAt: null,
+        currentVersionId: "result-version-1",
+        reason: "REVOKED",
+      },
+    ],
+    [
+      "superseded",
+      {
+        approval: { id: "approval-a", revokedAt: null, approvedFingerprint: "MATCH" },
+        supersededAt: new Date("2026-09-06T00:00:00.000Z"),
+        currentVersionId: "result-version-2",
+        reason: "SUPERSEDED",
+      },
+    ],
+    [
+      "fingerprint-mismatched",
+      {
+        approval: { id: "approval-a", revokedAt: null, approvedFingerprint: "stale-fingerprint" },
+        supersededAt: null,
+        currentVersionId: "result-version-1",
+        reason: "SUPERSEDED",
+      },
+    ],
+  ] as const)("blocks publishing a draft with a %s selected result", async (_caseName, state) => {
+    const tx = createTransaction();
+    const approvedFingerprint =
+      state.approval.approvedFingerprint === "MATCH"
+        ? fingerprintResultVersion(approvedResultContent)
+        : state.approval.approvedFingerprint;
+    tx.state.resultVersion = {
+      id: "result-version-1",
+      workspaceId: "workspace-a",
+      storyId: "story-a",
+      versionNumber: 1,
+      ...approvedResultContent,
+      metrics: approvedResultContent.metrics,
+      supersededAt: state.supersededAt,
+      approval: { ...state.approval, approvedFingerprint },
+      story: {
+        id: "story-a",
+        currentVersionId: state.currentVersionId,
+        studentMembership: { id: "membership-student-a", userId: "student-a" },
+      },
+    };
+    tx.state.landing = {
+      id: "landing-a",
+      workspaceId: "workspace-a",
+      currentDraftRevisionId: "revision-2",
+      publishedRevisionId: "revision-1",
+      currentDraftRevision: {
+        ...content,
+        id: "revision-2",
+        revisionNumber: 2,
+        resultSelections: [{ resultVersionId: "result-version-1", order: 0 }],
+      } as never,
+    };
+    const { database } = createDatabase(tx);
+    const repository = new PrismaMarketingRepository(database as never);
+
+    await expect(
+      repository.publishLanding(coach, {
+        revisionId: "revision-2",
+        expectedRevisionNumber: 2,
+        idempotencyKey: `publish-${_caseName}`,
+      }),
+    ).rejects.toMatchObject({
+      code: "PUBLICATION_BLOCKED",
+      blockers: [{ resultVersionId: "result-version-1", reason: state.reason }],
+    });
+
+    expect(tx.coachLanding.update).not.toHaveBeenCalled();
+    expect(tx.auditEvent.create).not.toHaveBeenCalled();
+  });
+
+  it("fails closed when a draft selects a non-ready or foreign marketing asset", async () => {
+    const tx = createTransaction();
+    tx.state.landing = {
+      id: "landing-a",
+      workspaceId: "workspace-a",
+      currentDraftRevisionId: "revision-2",
+      publishedRevisionId: "revision-1",
+      currentDraftRevision: {
+        ...content,
+        id: "revision-2",
+        revisionNumber: 2,
+        logoAssetId: "asset-not-ready",
+      } as never,
+    };
+    const { database } = createDatabase(tx);
+    const repository = new PrismaMarketingRepository(database as never);
+
+    await expect(
+      repository.publishLanding(coach, {
+        revisionId: "revision-2",
+        expectedRevisionNumber: 2,
+        idempotencyKey: "publish-asset",
+      }),
+    ).rejects.toBeInstanceOf(MarketingNotFoundError);
+
+    expect(tx.marketingAsset.count).toHaveBeenCalledWith({
+      where: { id: { in: ["asset-not-ready"] }, workspaceId: "workspace-a", uploadIntent: { status: "CONSUMED" } },
+    });
+    expect(tx.coachLanding.update).not.toHaveBeenCalled();
+  });
+
+  it("fails closed for foreign selected result IDs before constructing blockers", async () => {
+    const tx = createTransaction();
+    tx.studentResultVersion.count.mockResolvedValueOnce(0);
+    tx.state.landing = {
+      id: "landing-a",
+      workspaceId: "workspace-a",
+      currentDraftRevisionId: "revision-2",
+      publishedRevisionId: "revision-1",
+      currentDraftRevision: {
+        ...content,
+        id: "revision-2",
+        revisionNumber: 2,
+        resultSelections: [{ resultVersionId: "foreign-result-version", order: 0 }],
+      } as never,
+    };
+    const { database } = createDatabase(tx);
+    const repository = new PrismaMarketingRepository(database as never);
+
+    await expect(
+      repository.publishLanding(coach, {
+        revisionId: "revision-2",
+        expectedRevisionNumber: 2,
+        idempotencyKey: "publish-foreign",
+      }),
+    ).rejects.toBeInstanceOf(MarketingNotFoundError);
+
+    expect(tx.coachLanding.update).not.toHaveBeenCalled();
+    expect(tx.auditEvent.create).not.toHaveBeenCalled();
+  });
+
+  it("returns a public allowlist from the published revision and omits revoked or superseded selected result cards", async () => {
+    const tx = createTransaction();
+    tx.state.resultVersion = {
+      id: "result-version-1",
+      workspaceId: "workspace-a",
+      storyId: "story-a",
+      versionNumber: 1,
+      ...approvedResultContent,
+      metrics: approvedResultContent.metrics,
+      supersededAt: null,
+      approval: {
+        id: "approval-a",
+        revokedAt: null,
+        approvedFingerprint: fingerprintResultVersion(approvedResultContent),
+      },
+      story: {
+        id: "story-a",
+        currentVersionId: "result-version-1",
+        studentMembership: { id: "membership-student-a", userId: "student-a" },
+      },
+    };
+    tx.state.landing = {
+      id: "landing-a",
+      workspaceId: "workspace-a",
+      currentDraftRevisionId: "revision-2",
+      publishedRevisionId: "revision-1",
+      currentDraftRevision: { ...content, id: "revision-2", revisionNumber: 2, heroHeadline: "Draft copy" },
+      publishedRevision: {
+        ...content,
+        id: "revision-1",
+        revisionNumber: 1,
+        heroHeadline: "Live copy",
+        resultSelections: [{ resultVersionId: "result-version-1", order: 0 }],
+        programs: content.services?.map((item, order) => ({ ...item, order })),
+        methodSteps: [],
+        faqs: [],
+      } as never,
+    };
+    const { database } = createDatabase(tx);
+    const repository = new PrismaMarketingRepository(database as never);
+
+    const dto = await (
+      repository as unknown as { getPublishedLanding(slug: string): Promise<unknown> }
+    ).getPublishedLanding("fuerza-norte");
+
+    expect(dto).toMatchObject({
+      workspaceSlug: "fuerza-norte",
+      revisionId: "revision-1",
+      themeKey: "editorial",
+      hero: { headline: "Live copy" },
+      results: [{ publicId: "result-1", headline: "Transformación sostenible" }],
+      cta: { href: "/c/fuerza-norte/go/whatsapp" },
+    });
+    expect(JSON.stringify(dto)).not.toContain("workspaceId");
+    expect(JSON.stringify(dto)).not.toContain("membership-student-a");
+    expect(JSON.stringify(dto)).not.toContain("result-version-1");
+    expect(JSON.stringify(dto)).not.toContain("541112345678");
+
+    tx.state.resultVersion.approval = { ...tx.state.resultVersion.approval!, revokedAt: new Date() };
+    await expect(
+      (
+        repository as unknown as { getPublishedLanding(slug: string): Promise<{ results: unknown[] }> }
+      ).getPublishedLanding("fuerza-norte"),
+    ).resolves.toMatchObject({ results: [] });
+
+    tx.state.resultVersion.approval = {
+      id: "approval-a",
+      revokedAt: null,
+      approvedFingerprint: fingerprintResultVersion(approvedResultContent),
+    };
+    tx.state.resultVersion.supersededAt = new Date();
+    tx.state.resultVersion.story.currentVersionId = "result-version-2";
+    await expect(
+      (
+        repository as unknown as { getPublishedLanding(slug: string): Promise<{ results: unknown[] }> }
+      ).getPublishedLanding("fuerza-norte"),
+    ).resolves.toMatchObject({ results: [] });
   });
 });

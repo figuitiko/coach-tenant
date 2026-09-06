@@ -49,6 +49,7 @@ function repositoryStub(overrides: Partial<MarketingLandingRepository> = {}): Ma
     listApprovalRequests: vi.fn(async () => []),
     approveResultVersion: vi.fn(),
     revokeResultVersion: vi.fn(),
+    getPublishedLanding: vi.fn(async () => null),
     ...overrides,
   };
 }

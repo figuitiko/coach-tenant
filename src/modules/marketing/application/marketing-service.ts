@@ -4,6 +4,7 @@ import {
   type LandingContentInput,
   type ResultVersionInput,
 } from "../domain/contracts";
+import type { PublicCoachLandingDto } from "../domain/dto";
 import { MarketingAccessDeniedError } from "../domain/errors";
 
 export type MarketingActorRole = "COACH" | "STUDENT" | "SUPER_ADMIN";
@@ -98,6 +99,7 @@ export interface MarketingLandingRepository {
     actor: MarketingActor,
     command: RevokeResultVersionCommand,
   ): Promise<ResultApprovalDecisionResult>;
+  getPublishedLanding(workspaceSlug: string): Promise<PublicCoachLandingDto | null>;
 }
 
 export class MarketingService {
@@ -149,6 +151,10 @@ export class MarketingService {
   async revokeResultVersion(actor: MarketingActor, command: RevokeResultVersionCommand) {
     requireStudent(actor);
     return this.repository.revokeResultVersion(actor, command);
+  }
+
+  async getPublishedLanding(workspaceSlug: string) {
+    return this.repository.getPublishedLanding(workspaceSlug);
   }
 }
 
