@@ -11,14 +11,27 @@ import type {
   UnpublishLandingCommand,
   UnpublishLandingResult,
   LandingRevisionCommand,
+  RequestResultApprovalCommand,
+  ResultApprovalDecisionResult,
+  ResultApprovalRequestResult,
+  StudentResultApprovalDto,
+  ApproveResultVersionCommand,
+  RevokeResultVersionCommand,
 } from "../application/marketing-service";
-import { validatePublication, type LandingContentInput } from "../domain/contracts";
+import {
+  fingerprintResultVersion,
+  validatePublication,
+  type LandingContentInput,
+  type MetricInput,
+  type ResultVersionInput,
+} from "../domain/contracts";
 import { MarketingAccessDeniedError, MarketingConflictError, MarketingNotFoundError } from "../domain/errors";
 
 type TransactionClient = Parameters<Parameters<PrismaClient["$transaction"]>[0]>[0];
 type HashFunction = (value: unknown) => string;
 
-type IdempotentOutput = LandingMutationResult | UnpublishLandingResult;
+type IdempotentOutput =
+  LandingMutationResult | UnpublishLandingResult | ResultApprovalRequestResult | ResultApprovalDecisionResult;
 
 export class PrismaMarketingRepository implements MarketingLandingRepository {
   constructor(
@@ -207,6 +220,212 @@ export class PrismaMarketingRepository implements MarketingLandingRepository {
         name: "marketing_landing_unpublished",
         entityType: "CoachLanding",
         entityId: landing.id,
+        payloadHash,
+        output,
+      });
+      return output;
+    });
+  }
+
+  async requestResultApproval(
+    actor: MarketingActor,
+    command: RequestResultApprovalCommand,
+  ): Promise<ResultApprovalRequestResult> {
+    const fingerprint = fingerprintResultVersion(command.content);
+    const payloadHash = this.hash({
+      action: "requestResultApproval",
+      actorId: actor.actorId,
+      workspaceId: actor.workspaceId,
+      storyId: command.storyId ?? null,
+      studentMembershipId: command.studentMembershipId,
+      expectedCurrentVersionId: command.expectedCurrentVersionId ?? null,
+      content: command.content,
+      fingerprint,
+    });
+    const dedupeKey = mutationKey(actor, "requestResultApproval", command.idempotencyKey);
+
+    return this.transaction(async (tx) => {
+      await assertLandingAuthor(tx, actor);
+      const replay = await resolveReplay<ResultApprovalRequestResult>(tx, actor.workspaceId, dedupeKey, payloadHash);
+      if (replay) return replay;
+
+      await assertStudentMembership(tx, actor.workspaceId, command.studentMembershipId);
+      const story = command.storyId
+        ? await tx.studentResultStory.findFirst({
+            where: {
+              id: command.storyId,
+              workspaceId: actor.workspaceId,
+              studentMembershipId: command.studentMembershipId,
+            },
+            include: { currentVersion: { select: { id: true, versionNumber: true } } },
+          })
+        : await tx.studentResultStory.create({
+            data: {
+              workspaceId: actor.workspaceId,
+              studentMembershipId: command.studentMembershipId,
+              createdById: actor.actorId,
+            },
+            include: { currentVersion: { select: { id: true, versionNumber: true } } },
+          });
+      if (!story) throw new MarketingNotFoundError();
+
+      const currentVersion = story.currentVersion as { id: string; versionNumber: number } | null | undefined;
+      if ((command.expectedCurrentVersionId ?? currentVersion?.id ?? null) !== (currentVersion?.id ?? null)) {
+        throw new MarketingConflictError("Stale result version");
+      }
+
+      const versionNumber = (currentVersion?.versionNumber ?? 0) + 1;
+      if (currentVersion) {
+        await tx.studentResultVersion.update({
+          where: { id_workspaceId: { id: currentVersion.id, workspaceId: actor.workspaceId } },
+          data: { supersededAt: new Date() },
+        });
+      }
+      const version = await tx.studentResultVersion.create({
+        data: resultVersionCreateData(actor, story.id, versionNumber, dedupeKey, payloadHash, command.content),
+      });
+      await createResultMetrics(tx, actor.workspaceId, version.id, command.content.metrics);
+      await tx.studentResultStory.update({ where: { id: story.id }, data: { currentVersionId: version.id } });
+
+      const output: ResultApprovalRequestResult = {
+        storyId: story.id,
+        versionId: version.id,
+        versionNumber,
+        fingerprint,
+        state: "PENDING",
+      };
+      await createEventPair(tx, actor, {
+        dedupeKey,
+        action: "marketing.result.version_requested",
+        name: "marketing_result_version_requested",
+        entityType: "StudentResultVersion",
+        entityId: version.id,
+        payloadHash,
+        output,
+      });
+      return output;
+    });
+  }
+
+  async listApprovalRequests(actor: MarketingActor): Promise<StudentResultApprovalDto[]> {
+    return this.transaction(async (tx) => {
+      await assertStudentActor(tx, actor);
+      const versions = await tx.studentResultVersion.findMany({
+        where: {
+          workspaceId: actor.workspaceId,
+          story: { workspaceId: actor.workspaceId, studentMembership: { userId: actor.actorId, role: "STUDENT" } },
+        },
+        include: {
+          story: { select: { id: true, currentVersionId: true } },
+          metrics: { orderBy: { order: "asc" } },
+          approval: true,
+        },
+        orderBy: { requestedAt: "desc" },
+      });
+      return versions.map((version: Record<string, unknown>) => ({
+        storyId: String((version.story as Record<string, unknown>).id),
+        versionId: String(version.id),
+        versionNumber: Number(version.versionNumber),
+        fingerprint: fingerprintResultVersion(versionToResultInput(version)),
+        content: versionToResultInput(version),
+        state: resultState(version),
+      }));
+    });
+  }
+
+  async approveResultVersion(
+    actor: MarketingActor,
+    command: ApproveResultVersionCommand,
+  ): Promise<ResultApprovalDecisionResult> {
+    const payloadHash = this.hash({
+      action: "approveResultVersion",
+      actorId: actor.actorId,
+      workspaceId: actor.workspaceId,
+      resultVersionId: command.resultVersionId,
+      fingerprint: command.fingerprint,
+    });
+    const dedupeKey = mutationKey(actor, "approveResultVersion", command.idempotencyKey);
+
+    return this.transaction(async (tx) => {
+      await assertStudentActor(tx, actor);
+      const replay = await resolveReplay<ResultApprovalDecisionResult>(tx, actor.workspaceId, dedupeKey, payloadHash);
+      if (replay) return replay;
+      const version = await findOwnedResultVersion(tx, actor, command.resultVersionId);
+      const currentVersionId = String((version.story as Record<string, unknown>).currentVersionId ?? "");
+      if (version.supersededAt || currentVersionId !== version.id)
+        throw new MarketingConflictError("Stale result version");
+      const approval = version.approval as { revokedAt?: Date | null; approvedFingerprint?: string } | null | undefined;
+      if (approval?.revokedAt) throw new MarketingConflictError("Result approval was revoked");
+      const fingerprint = fingerprintResultVersion(versionToResultInput(version));
+      if (fingerprint !== command.fingerprint) throw new MarketingConflictError("Result fingerprint mismatch");
+      if (!approval) {
+        await tx.studentResultApproval.create({
+          data: {
+            workspaceId: actor.workspaceId,
+            resultVersionId: version.id,
+            studentId: actor.actorId,
+            approvedFingerprint: fingerprint,
+            approveMutationKey: dedupeKey,
+          },
+        });
+      }
+      const output: ResultApprovalDecisionResult = {
+        storyId: String(version.storyId),
+        versionId: version.id,
+        fingerprint,
+        state: "APPROVED",
+      };
+      if (!approval) {
+        await createEventPair(tx, actor, {
+          dedupeKey,
+          action: "marketing.result.approved",
+          name: "marketing_result_approved",
+          entityType: "StudentResultVersion",
+          entityId: version.id,
+          payloadHash,
+          output,
+        });
+      }
+      return output;
+    });
+  }
+
+  async revokeResultVersion(
+    actor: MarketingActor,
+    command: RevokeResultVersionCommand,
+  ): Promise<ResultApprovalDecisionResult> {
+    const payloadHash = this.hash({
+      action: "revokeResultVersion",
+      actorId: actor.actorId,
+      workspaceId: actor.workspaceId,
+      resultVersionId: command.resultVersionId,
+    });
+    const dedupeKey = mutationKey(actor, "revokeResultVersion", command.idempotencyKey);
+
+    return this.transaction(async (tx) => {
+      await assertStudentActor(tx, actor);
+      const replay = await resolveReplay<ResultApprovalDecisionResult>(tx, actor.workspaceId, dedupeKey, payloadHash);
+      if (replay) return replay;
+      const version = await findOwnedResultVersion(tx, actor, command.resultVersionId);
+      const approval = version.approval as
+        { id: string; revokedAt?: Date | null; approvedFingerprint?: string } | null | undefined;
+      if (!approval) throw new MarketingConflictError("Result version is not approved");
+      const output: ResultApprovalDecisionResult = {
+        storyId: String(version.storyId),
+        versionId: version.id,
+        state: "REVOKED",
+      };
+      if (approval.revokedAt) return output;
+      await tx.studentResultApproval.update({
+        where: { id: approval.id },
+        data: { revokedAt: new Date(), revokeMutationKey: dedupeKey },
+      });
+      await createEventPair(tx, actor, {
+        dedupeKey,
+        action: "marketing.result.revoked",
+        name: "marketing_result_revoked",
+        entityType: "StudentResultVersion",
+        entityId: version.id,
         payloadHash,
         output,
       });
@@ -431,6 +650,115 @@ function revisionToContent(revision: Record<string, unknown>): LandingContentInp
     seoTitle: (revision.seoTitle as string | null) ?? null,
     seoDescription: (revision.seoDescription as string | null) ?? null,
   };
+}
+
+async function assertStudentMembership(tx: TransactionClient, workspaceId: string, membershipId: string) {
+  const membership = await tx.membership.findFirst({
+    where: { id: membershipId, workspaceId, role: "STUDENT" },
+    select: { id: true, userId: true },
+  });
+  if (!membership) throw new MarketingNotFoundError();
+  return membership;
+}
+
+async function assertStudentActor(tx: TransactionClient, actor: MarketingActor) {
+  if (actor.role !== "STUDENT") throw new MarketingAccessDeniedError();
+  const membership = await tx.membership.findFirst({
+    where: { workspaceId: actor.workspaceId, userId: actor.actorId, role: "STUDENT" },
+    select: { id: true },
+  });
+  if (!membership) throw new MarketingAccessDeniedError();
+}
+
+async function findOwnedResultVersion(tx: TransactionClient, actor: MarketingActor, resultVersionId: string) {
+  const version = await tx.studentResultVersion.findFirst({
+    where: { id: resultVersionId, workspaceId: actor.workspaceId, story: { workspaceId: actor.workspaceId } },
+    include: {
+      story: {
+        select: { id: true, currentVersionId: true, studentMembership: { select: { id: true, userId: true } } },
+      },
+      metrics: { orderBy: { order: "asc" } },
+      approval: true,
+    },
+  });
+  if (!version) throw new MarketingNotFoundError();
+  const story = version.story as { studentMembership?: { userId?: string } };
+  if (story.studentMembership?.userId !== actor.actorId) throw new MarketingNotFoundError();
+  return version as Record<string, unknown> & { id: string; storyId: string; supersededAt?: Date | null };
+}
+
+function resultVersionCreateData(
+  actor: MarketingActor,
+  storyId: string,
+  versionNumber: number,
+  mutationKeyValue: string,
+  payloadHash: string,
+  content: ResultVersionInput,
+) {
+  return {
+    workspaceId: actor.workspaceId,
+    storyId,
+    versionNumber,
+    createdById: actor.actorId,
+    headline: content.headline,
+    narrative: content.narrative ?? null,
+    testimonial: content.testimonial ?? null,
+    attributionMode: content.attributionMode ?? "ANONYMOUS",
+    attributionLabel: content.attributionLabel ?? "Anónimo",
+    mutationKey: mutationKeyValue,
+    payloadHash,
+  };
+}
+
+async function createResultMetrics(
+  tx: TransactionClient,
+  workspaceId: string,
+  resultVersionId: string,
+  metrics: MetricInput[],
+) {
+  await Promise.all(
+    metrics.map((metric) =>
+      tx.studentResultMetricSnapshot.create({
+        data: {
+          workspaceId,
+          resultVersionId,
+          label: metric.label,
+          beforeValue: metric.beforeValue,
+          afterValue: metric.afterValue,
+          unit: metric.unit,
+          order: metric.order,
+        },
+      }),
+    ),
+  );
+}
+
+function versionToResultInput(version: Record<string, unknown>): ResultVersionInput {
+  return {
+    headline: String(version.headline),
+    narrative: (version.narrative as string | null) ?? null,
+    testimonial: (version.testimonial as string | null) ?? null,
+    attributionMode: version.attributionMode as ResultVersionInput["attributionMode"],
+    attributionLabel: (version.attributionLabel as string | null) ?? null,
+    metrics: Array.isArray(version.metrics)
+      ? version.metrics.map((metric) => ({
+          label: String((metric as Record<string, unknown>).label),
+          beforeValue: Number((metric as Record<string, unknown>).beforeValue),
+          afterValue: Number((metric as Record<string, unknown>).afterValue),
+          unit: (metric as Record<string, unknown>).unit as MetricInput["unit"],
+          order: Number((metric as Record<string, unknown>).order),
+        }))
+      : [],
+  };
+}
+
+function resultState(version: Record<string, unknown>): StudentResultApprovalDto["state"] {
+  if (version.supersededAt || (version.story as Record<string, unknown>).currentVersionId !== version.id)
+    return "SUPERSEDED";
+  const approval = version.approval as { revokedAt?: Date | null } | null | undefined;
+  if (approval?.revokedAt) return "REVOKED";
+  if (approval) return "APPROVED";
+  return "PENDING";
 }
 
 function stableHash(value: unknown) {

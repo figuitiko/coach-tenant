@@ -45,6 +45,10 @@ function repositoryStub(overrides: Partial<MarketingLandingRepository> = {}): Ma
       publishedAt: new Date("2026-09-05T12:00:00.000Z"),
     })),
     unpublishLanding: vi.fn(async () => ({ landingId: "landing-a", unpublished: true as const })),
+    requestResultApproval: vi.fn(),
+    listApprovalRequests: vi.fn(async () => []),
+    approveResultVersion: vi.fn(),
+    revokeResultVersion: vi.fn(),
     ...overrides,
   };
 }
@@ -124,5 +128,99 @@ describe("MarketingService landing authoring", () => {
     await expect(
       service.saveDraft(coach, { content: validDraft, expectedRevisionNumber: 3, idempotencyKey: "draft-2" }),
     ).rejects.toMatchObject({ code: "CONFLICT" });
+  });
+});
+
+describe("MarketingService result consent", () => {
+  const resultInput = {
+    headline: "Cambió su entrenamiento",
+    narrative: "Entrena con constancia tres veces por semana.",
+    testimonial: "Ahora me siento fuerte.",
+    metrics: [{ label: "Peso", beforeValue: 90, afterValue: 84, unit: "KG" as const, order: 0 }],
+  };
+
+  it("lets coaches request an anonymous frozen result approval after normalization", async () => {
+    const repository = repositoryStub({
+      requestResultApproval: vi.fn(async () => ({
+        storyId: "story-a",
+        versionId: "version-a",
+        versionNumber: 1,
+        fingerprint: "fingerprint-a",
+        state: "PENDING" as const,
+      })),
+    });
+    const service = new MarketingService(repository);
+
+    await expect(
+      service.requestResultApproval(coach, {
+        studentMembershipId: "membership-student-a",
+        content: { ...resultInput, headline: "  Cambió su entrenamiento  " },
+        idempotencyKey: "result-1",
+      }),
+    ).resolves.toMatchObject({ versionId: "version-a", state: "PENDING" });
+
+    expect(repository.requestResultApproval).toHaveBeenCalledWith(
+      coach,
+      expect.objectContaining({
+        studentMembershipId: "membership-student-a",
+        idempotencyKey: "result-1",
+        content: expect.objectContaining({
+          headline: "Cambió su entrenamiento",
+          attributionMode: "ANONYMOUS",
+          attributionLabel: "Anónimo",
+        }),
+      }),
+    );
+  });
+
+  it("rejects student attempts to create result approval requests", async () => {
+    const repository = repositoryStub({ requestResultApproval: vi.fn() });
+    const service = new MarketingService(repository);
+
+    await expect(
+      service.requestResultApproval(student, {
+        studentMembershipId: "membership-student-a",
+        content: resultInput,
+        idempotencyKey: "result-1",
+      }),
+    ).rejects.toBeInstanceOf(MarketingAccessDeniedError);
+
+    expect(repository.requestResultApproval).not.toHaveBeenCalled();
+  });
+
+  it("lets only students approve or revoke result versions", async () => {
+    const repository = repositoryStub({
+      approveResultVersion: vi.fn(async () => ({
+        versionId: "version-a",
+        storyId: "story-a",
+        fingerprint: "fingerprint-a",
+        state: "APPROVED" as const,
+      })),
+      revokeResultVersion: vi.fn(async () => ({
+        versionId: "version-a",
+        storyId: "story-a",
+        state: "REVOKED" as const,
+      })),
+    });
+    const service = new MarketingService(repository);
+
+    await expect(
+      service.approveResultVersion(student, {
+        resultVersionId: "version-a",
+        fingerprint: "fingerprint-a",
+        idempotencyKey: "approve-1",
+      }),
+    ).resolves.toMatchObject({ state: "APPROVED" });
+    await expect(
+      service.revokeResultVersion(student, { resultVersionId: "version-a", idempotencyKey: "revoke-1" }),
+    ).resolves.toMatchObject({ state: "REVOKED" });
+
+    await expect(
+      service.approveResultVersion(coach, {
+        resultVersionId: "version-a",
+        fingerprint: "fingerprint-a",
+        idempotencyKey: "approve-2",
+      }),
+    ).rejects.toBeInstanceOf(MarketingAccessDeniedError);
   });
 });

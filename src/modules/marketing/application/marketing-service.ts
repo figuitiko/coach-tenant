@@ -1,4 +1,9 @@
-import { validateDraft, type LandingContentInput } from "../domain/contracts";
+import {
+  validateDraft,
+  validateResultVersion,
+  type LandingContentInput,
+  type ResultVersionInput,
+} from "../domain/contracts";
 import { MarketingAccessDeniedError } from "../domain/errors";
 
 export type MarketingActorRole = "COACH" | "STUDENT" | "SUPER_ADMIN";
@@ -26,6 +31,37 @@ export type PublishLandingCommand = {
 
 export type PreviewRevisionCommand = { revisionId: string };
 export type UnpublishLandingCommand = { expectedPublishedRevisionId?: string | null; idempotencyKey: string };
+export type RequestResultApprovalCommand = {
+  storyId?: string | null;
+  studentMembershipId: string;
+  expectedCurrentVersionId?: string | null;
+  content: ResultVersionInput;
+  idempotencyKey: string;
+};
+export type ApproveResultVersionCommand = { resultVersionId: string; fingerprint: string; idempotencyKey: string };
+export type RevokeResultVersionCommand = { resultVersionId: string; idempotencyKey: string };
+
+export type ResultApprovalRequestResult = {
+  storyId: string;
+  versionId: string;
+  versionNumber: number;
+  fingerprint: string;
+  state: "PENDING" | "APPROVED" | "REVOKED" | "SUPERSEDED";
+};
+export type ResultApprovalDecisionResult = {
+  storyId: string;
+  versionId: string;
+  fingerprint?: string;
+  state: "APPROVED" | "REVOKED";
+};
+export type StudentResultApprovalDto = {
+  storyId: string;
+  versionId: string;
+  versionNumber: number;
+  fingerprint: string;
+  content: ResultVersionInput;
+  state: "PENDING" | "APPROVED" | "REVOKED" | "SUPERSEDED";
+};
 
 export type LandingMutationResult = {
   landingId: string;
@@ -49,6 +85,19 @@ export interface MarketingLandingRepository {
   previewRevision(actor: MarketingActor, command: PreviewRevisionCommand): Promise<LandingPreviewDto>;
   publishLanding(actor: MarketingActor, command: PublishLandingCommand): Promise<LandingMutationResult>;
   unpublishLanding(actor: MarketingActor, command: UnpublishLandingCommand): Promise<UnpublishLandingResult>;
+  requestResultApproval(
+    actor: MarketingActor,
+    command: RequestResultApprovalCommand,
+  ): Promise<ResultApprovalRequestResult>;
+  listApprovalRequests(actor: MarketingActor): Promise<StudentResultApprovalDto[]>;
+  approveResultVersion(
+    actor: MarketingActor,
+    command: ApproveResultVersionCommand,
+  ): Promise<ResultApprovalDecisionResult>;
+  revokeResultVersion(
+    actor: MarketingActor,
+    command: RevokeResultVersionCommand,
+  ): Promise<ResultApprovalDecisionResult>;
 }
 
 export class MarketingService {
@@ -78,10 +127,37 @@ export class MarketingService {
     requireLandingAuthor(actor);
     return this.repository.unpublishLanding(actor, command);
   }
+
+  async requestResultApproval(actor: MarketingActor, command: RequestResultApprovalCommand) {
+    requireLandingAuthor(actor);
+    return this.repository.requestResultApproval(actor, {
+      ...command,
+      content: validateResultVersion(command.content),
+    });
+  }
+
+  async listApprovalRequests(actor: MarketingActor) {
+    requireStudent(actor);
+    return this.repository.listApprovalRequests(actor);
+  }
+
+  async approveResultVersion(actor: MarketingActor, command: ApproveResultVersionCommand) {
+    requireStudent(actor);
+    return this.repository.approveResultVersion(actor, command);
+  }
+
+  async revokeResultVersion(actor: MarketingActor, command: RevokeResultVersionCommand) {
+    requireStudent(actor);
+    return this.repository.revokeResultVersion(actor, command);
+  }
 }
 
 function requireLandingAuthor(actor: MarketingActor) {
   if (actor.role === "COACH") return;
   if (actor.role === "SUPER_ADMIN" && actor.accessMode === "WORKSPACE") return;
   throw new MarketingAccessDeniedError();
+}
+
+function requireStudent(actor: MarketingActor) {
+  if (actor.role !== "STUDENT") throw new MarketingAccessDeniedError();
 }
