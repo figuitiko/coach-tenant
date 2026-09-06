@@ -1,4 +1,4 @@
-import { validateDraft, validatePublication, type LandingContentInput } from "../domain/contracts";
+import { validateDraft, type LandingContentInput } from "../domain/contracts";
 import { MarketingAccessDeniedError } from "../domain/errors";
 
 export type MarketingActorRole = "COACH" | "STUDENT" | "SUPER_ADMIN";
@@ -21,7 +21,6 @@ export type LandingRevisionCommand = {
 export type PublishLandingCommand = {
   revisionId: string;
   expectedRevisionNumber: number;
-  content: LandingContentInput;
   idempotencyKey: string;
 };
 
@@ -72,7 +71,7 @@ export class MarketingService {
 
   async publishLanding(actor: MarketingActor, command: PublishLandingCommand) {
     requireLandingAuthor(actor);
-    return this.repository.publishLanding(actor, { ...command, content: validatePublication(command.content) });
+    return this.repository.publishLanding(actor, command);
   }
 
   async unpublishLanding(actor: MarketingActor, command: UnpublishLandingCommand) {

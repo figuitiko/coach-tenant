@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { MarketingAccessDeniedError, MarketingConflictError, MarketingNotFoundError } from "../domain/errors";
+import {
+  MarketingAccessDeniedError,
+  MarketingConflictError,
+  MarketingNotFoundError,
+  MarketingValidationError,
+} from "../domain/errors";
 import { PrismaMarketingRepository } from "./prisma-marketing-repository";
 import type { LandingContentInput } from "../domain/contracts";
 import type { MarketingActor } from "../application/marketing-service";
@@ -33,7 +38,7 @@ function createTransaction() {
       workspaceId: string;
       currentDraftRevisionId: string | null;
       publishedRevisionId: string | null;
-      currentDraftRevision?: { revisionNumber: number } | null;
+      currentDraftRevision?: ({ id?: string; revisionNumber: number } & Partial<LandingContentInput>) | null;
     },
     revisionCount: 0,
   };
@@ -215,6 +220,37 @@ describe("PrismaMarketingRepository landing mutations", () => {
         where: { id: "revision-foreign", workspaceId: "workspace-a", landing: { workspaceId: "workspace-a" } },
       }),
     );
+  });
+
+  it("validates the persisted draft before publishing instead of trusting caller content", async () => {
+    const tx = createTransaction();
+    tx.state.landing = {
+      id: "landing-a",
+      workspaceId: "workspace-a",
+      currentDraftRevisionId: "revision-incomplete",
+      publishedRevisionId: "revision-live",
+      currentDraftRevision: {
+        ...content,
+        id: "revision-incomplete",
+        revisionNumber: 2,
+        whatsappDigits: "",
+      },
+    };
+    const { database } = createDatabase(tx);
+    const repository = new PrismaMarketingRepository(database as never);
+
+    await expect(
+      repository.publishLanding(coach, {
+        revisionId: "revision-incomplete",
+        expectedRevisionNumber: 2,
+        idempotencyKey: "publish-invalid-persisted",
+        content,
+      } as never),
+    ).rejects.toBeInstanceOf(MarketingValidationError);
+
+    expect(tx.coachLanding.update).not.toHaveBeenCalled();
+    expect(tx.auditEvent.create).not.toHaveBeenCalled();
+    expect(tx.productEvent.create).not.toHaveBeenCalled();
   });
 
   it("denies students at the repository boundary too", async () => {

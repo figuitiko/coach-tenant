@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { MarketingAccessDeniedError, MarketingConflictError, MarketingValidationError } from "../domain/errors";
+import { MarketingAccessDeniedError, MarketingConflictError } from "../domain/errors";
 import { MarketingService, type MarketingActor, type MarketingLandingRepository } from "./marketing-service";
 import type { LandingContentInput } from "../domain/contracts";
 
@@ -94,7 +94,7 @@ describe("MarketingService landing authoring", () => {
     ).resolves.toMatchObject({ revisionId: "revision-a" });
   });
 
-  it("validates publication completeness separately from draft saving", async () => {
+  it("publishes by revision identity without accepting caller-supplied content", async () => {
     const repository = repositoryStub();
     const service = new MarketingService(repository);
 
@@ -102,18 +102,15 @@ describe("MarketingService landing authoring", () => {
       service.publishLanding(coach, {
         revisionId: "revision-a",
         expectedRevisionNumber: 1,
-        content: { ...validDraft, whatsappDigits: "" },
-        idempotencyKey: "publish-1",
-      }),
-    ).rejects.toBeInstanceOf(MarketingValidationError);
-    await expect(
-      service.publishLanding(coach, {
-        revisionId: "revision-a",
-        expectedRevisionNumber: 1,
-        content: validDraft,
         idempotencyKey: "publish-1",
       }),
     ).resolves.toMatchObject({ revisionId: "revision-a" });
+
+    expect(repository.publishLanding).toHaveBeenCalledWith(coach, {
+      revisionId: "revision-a",
+      expectedRevisionNumber: 1,
+      idempotencyKey: "publish-1",
+    });
   });
 
   it("surfaces repository stale revision conflicts", async () => {

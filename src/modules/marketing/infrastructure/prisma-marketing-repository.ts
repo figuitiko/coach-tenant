@@ -12,7 +12,7 @@ import type {
   UnpublishLandingResult,
   LandingRevisionCommand,
 } from "../application/marketing-service";
-import type { LandingContentInput } from "../domain/contracts";
+import { validatePublication, type LandingContentInput } from "../domain/contracts";
 import { MarketingAccessDeniedError, MarketingConflictError, MarketingNotFoundError } from "../domain/errors";
 
 type TransactionClient = Parameters<Parameters<PrismaClient["$transaction"]>[0]>[0];
@@ -47,7 +47,6 @@ export class PrismaMarketingRepository implements MarketingLandingRepository {
       actorId: actor.actorId,
       workspaceId: actor.workspaceId,
       expectedRevisionNumber: command.expectedRevisionNumber ?? null,
-      content: command.content,
       logoAssetId: command.logoAssetId ?? null,
       portraitAssetId: command.portraitAssetId ?? null,
       selectedResultVersionIds: command.selectedResultVersionIds ?? [],
@@ -131,7 +130,6 @@ export class PrismaMarketingRepository implements MarketingLandingRepository {
       workspaceId: actor.workspaceId,
       revisionId: command.revisionId,
       expectedRevisionNumber: command.expectedRevisionNumber,
-      content: command.content,
     });
     const dedupeKey = mutationKey(actor, "publishLanding", command.idempotencyKey);
 
@@ -141,11 +139,20 @@ export class PrismaMarketingRepository implements MarketingLandingRepository {
       if (replay) return replay;
       const landing = await tx.coachLanding.findUnique({
         where: { workspaceId: actor.workspaceId },
-        include: { currentDraftRevision: { select: { id: true, revisionNumber: true } } },
+        include: {
+          currentDraftRevision: {
+            include: {
+              programs: { orderBy: { order: "asc" } },
+              methodSteps: { orderBy: { order: "asc" } },
+              faqs: { orderBy: { order: "asc" } },
+            },
+          },
+        },
       });
       if (!landing || landing.currentDraftRevision?.id !== command.revisionId) throw new MarketingNotFoundError();
       if (landing.currentDraftRevision.revisionNumber !== command.expectedRevisionNumber)
         throw new MarketingConflictError("Stale landing revision");
+      validatePublication(revisionToContent(landing.currentDraftRevision));
       const publishedAt = new Date();
       await tx.coachLanding.update({
         where: { id: landing.id },
