@@ -908,6 +908,7 @@ async function findEligiblePublicResults(tx: TransactionClient, workspaceId: str
         headline: String(version.headline),
         narrative: (version.narrative as string | null) ?? null,
         testimonial: (version.testimonial as string | null) ?? null,
+        attributionMode: version.attributionMode,
         attributionLabel: String(version.attributionLabel ?? "Anónimo"),
         metrics: Array.isArray(version.metrics)
           ? version.metrics.map((metric) => ({

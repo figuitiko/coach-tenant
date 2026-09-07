@@ -859,6 +859,25 @@ describe("PrismaMarketingRepository Batch 5 publication safety", () => {
     expect(JSON.stringify(dto)).not.toContain("result-version-1");
     expect(JSON.stringify(dto)).not.toContain("541112345678");
 
+    tx.state.resultVersion.attributionMode = "FIRST_NAME_INITIAL";
+    tx.state.resultVersion.attributionLabel = "Mati";
+    tx.state.resultVersion.approval = {
+      ...tx.state.resultVersion.approval!,
+      approvedFingerprint: fingerprintResultVersion({
+        ...approvedResultContent,
+        attributionMode: "FIRST_NAME_INITIAL",
+        attributionLabel: "Mati",
+      }),
+    };
+
+    await expect(
+      (
+        repository as unknown as {
+          getPublishedLanding(slug: string): Promise<{ results: Array<{ attributionLabel: string }> }>;
+        }
+      ).getPublishedLanding("fuerza-norte"),
+    ).resolves.toMatchObject({ results: [{ attributionLabel: "Mati" }] });
+
     tx.state.resultVersion.approval = { ...tx.state.resultVersion.approval!, revokedAt: new Date() };
     await expect(
       (

@@ -1,4 +1,9 @@
-import { buildWhatsAppUrl, normalizeResultVersionInput, type PublicMetricUnit } from "./contracts";
+import {
+  buildWhatsAppUrl,
+  normalizeResultVersionInput,
+  type PublicMetricUnit,
+  type ResultVersionInput,
+} from "./contracts";
 import { resolveLandingTheme, type LandingThemeKey } from "./theme";
 
 export type PublicLandingMetricDto = { label: string; before: string; after: string; unit: PublicMetricUnit };
@@ -38,6 +43,7 @@ type PublicResultSource = {
   headline: string;
   narrative?: string | null;
   testimonial?: string | null;
+  attributionMode?: ResultVersionInput["attributionMode"];
   attributionLabel: string;
   metrics?: Array<{ label: string; beforeValue: unknown; afterValue: unknown; unit: PublicMetricUnit; order?: number }>;
 };
@@ -117,7 +123,7 @@ function toPublicResultDto(result: unknown): PublicLandingResultDto {
     headline: source.headline,
     narrative: source.narrative ?? null,
     testimonial: source.testimonial ?? null,
-    attributionMode: "ANONYMOUS",
+    attributionMode: source.attributionMode,
     attributionLabel: source.attributionLabel,
     metrics: Array.isArray(source.metrics)
       ? source.metrics.map((metric) => ({
