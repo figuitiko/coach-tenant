@@ -4,6 +4,7 @@ import {
   type LandingContentInput,
   type ResultVersionInput,
 } from "../domain/contracts";
+import { validateMarketingAssetInput, type MarketingAssetKind } from "../domain/assets";
 import type { PublicCoachLandingDto } from "../domain/dto";
 import { MarketingAccessDeniedError } from "../domain/errors";
 
@@ -41,6 +42,25 @@ export type RequestResultApprovalCommand = {
 };
 export type ApproveResultVersionCommand = { resultVersionId: string; fingerprint: string; idempotencyKey: string };
 export type RevokeResultVersionCommand = { resultVersionId: string; idempotencyKey: string };
+export type CreateAssetUploadIntentCommand = {
+  workspaceSlug: string;
+  kind: MarketingAssetKind;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  checksumSha256: string;
+  idempotencyKey: string;
+};
+export type VerifyAssetUploadCommand = { intentId: string; idempotencyKey: string };
+export type MarketingAssetUploadIntentDto = {
+  intentId: string;
+  objectKey: string;
+  uploadUrl: string;
+  uploadHeaders: Record<string, string>;
+  expiresAt: Date;
+};
+export type MarketingAssetDto = { assetId: string; kind: MarketingAssetKind; publicUrl: string };
+export type PublishedMarketingAssetDescriptor = { objectKey: string; mimeType: string; sizeBytes: number };
 
 export type ResultApprovalRequestResult = {
   storyId: string;
@@ -100,6 +120,12 @@ export interface MarketingLandingRepository {
     command: RevokeResultVersionCommand,
   ): Promise<ResultApprovalDecisionResult>;
   getPublishedLanding(workspaceSlug: string): Promise<PublicCoachLandingDto | null>;
+  createAssetUploadIntent(
+    actor: MarketingActor,
+    command: CreateAssetUploadIntentCommand,
+  ): Promise<MarketingAssetUploadIntentDto>;
+  verifyAssetUpload(actor: MarketingActor, command: VerifyAssetUploadCommand): Promise<MarketingAssetDto>;
+  getPublishedAsset(workspaceSlug: string, assetId: string): Promise<PublishedMarketingAssetDescriptor | null>;
 }
 
 export class MarketingService {
@@ -155,6 +181,21 @@ export class MarketingService {
 
   async getPublishedLanding(workspaceSlug: string) {
     return this.repository.getPublishedLanding(workspaceSlug);
+  }
+
+  async createAssetUploadIntent(actor: MarketingActor, command: CreateAssetUploadIntentCommand) {
+    validateMarketingAssetInput(command);
+    requireLandingAuthor(actor);
+    return this.repository.createAssetUploadIntent(actor, command);
+  }
+
+  async verifyAssetUpload(actor: MarketingActor, command: VerifyAssetUploadCommand) {
+    requireLandingAuthor(actor);
+    return this.repository.verifyAssetUpload(actor, command);
+  }
+
+  async getPublishedAsset(workspaceSlug: string, assetId: string) {
+    return this.repository.getPublishedAsset(workspaceSlug, assetId);
   }
 }
 

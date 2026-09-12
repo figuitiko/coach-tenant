@@ -17,6 +17,11 @@ import type {
   StudentResultApprovalDto,
   ApproveResultVersionCommand,
   RevokeResultVersionCommand,
+  CreateAssetUploadIntentCommand,
+  VerifyAssetUploadCommand,
+  MarketingAssetUploadIntentDto,
+  MarketingAssetDto,
+  PublishedMarketingAssetDescriptor,
 } from "../application/marketing-service";
 import {
   fingerprintResultVersion,
@@ -33,12 +38,18 @@ import {
   type PublicationBlocker,
 } from "../domain/errors";
 import { toPublicCoachLandingDto, type PublicCoachLandingDto } from "../domain/dto";
+import { marketingPrivateMediaFromEnvironment } from "./marketing-private-media";
 
 type TransactionClient = Parameters<Parameters<PrismaClient["$transaction"]>[0]>[0];
 type HashFunction = (value: unknown) => string;
 
 type IdempotentOutput =
-  LandingMutationResult | UnpublishLandingResult | ResultApprovalRequestResult | ResultApprovalDecisionResult;
+  | LandingMutationResult
+  | UnpublishLandingResult
+  | ResultApprovalRequestResult
+  | ResultApprovalDecisionResult
+  | MarketingAssetUploadIntentDto
+  | MarketingAssetDto;
 
 export class PrismaMarketingRepository implements MarketingLandingRepository {
   constructor(
@@ -452,6 +463,148 @@ export class PrismaMarketingRepository implements MarketingLandingRepository {
     });
   }
 
+  async createAssetUploadIntent(
+    actor: MarketingActor,
+    command: CreateAssetUploadIntentCommand,
+  ): Promise<MarketingAssetUploadIntentDto> {
+    const payloadHash = this.hash({
+      action: "createAssetUploadIntent",
+      actorId: actor.actorId,
+      workspaceId: actor.workspaceId,
+      kind: command.kind,
+      mimeType: command.mimeType,
+      sizeBytes: command.sizeBytes,
+      checksumSha256: command.checksumSha256,
+    });
+    const dedupeKey = mutationKey(actor, "createAssetUploadIntent", command.idempotencyKey);
+    const storageIntent = await marketingPrivateMediaFromEnvironment().createUploadIntent({
+      workspaceId: actor.workspaceId,
+      kind: command.kind,
+      mimeType: command.mimeType,
+      sizeBytes: command.sizeBytes,
+      checksumSha256: command.checksumSha256,
+    });
+
+    return this.transaction(async (tx) => {
+      await assertLandingAuthor(tx, actor);
+      const replay = await tx.marketingAssetUploadIntent.findFirst({
+        where: { workspaceId: actor.workspaceId, idempotencyKey: dedupeKey },
+      });
+      if (replay) {
+        if (
+          replay.kind !== command.kind ||
+          replay.mimeType !== command.mimeType ||
+          replay.sizeBytes !== command.sizeBytes ||
+          replay.checksumSha256 !== command.checksumSha256
+        ) {
+          throw new MarketingConflictError("Idempotency key was reused with different asset input");
+        }
+        return {
+          intentId: replay.id,
+          objectKey: replay.objectKey,
+          uploadUrl: storageIntent.uploadUrl,
+          uploadHeaders: storageIntent.uploadHeaders,
+          expiresAt: replay.expiresAt,
+        };
+      }
+      const intent = await tx.marketingAssetUploadIntent.create({
+        data: {
+          workspaceId: actor.workspaceId,
+          createdById: actor.actorId,
+          kind: command.kind,
+          idempotencyKey: dedupeKey,
+          objectKey: storageIntent.objectKey,
+          mimeType: command.mimeType,
+          sizeBytes: command.sizeBytes,
+          checksumSha256: command.checksumSha256,
+          expiresAt: storageIntent.expiresAt,
+          status: "PENDING",
+        },
+      });
+      const output: MarketingAssetUploadIntentDto = {
+        intentId: intent.id,
+        objectKey: intent.objectKey,
+        uploadUrl: storageIntent.uploadUrl,
+        uploadHeaders: storageIntent.uploadHeaders,
+        expiresAt: intent.expiresAt,
+      };
+      await createEventPair(tx, actor, {
+        dedupeKey,
+        action: "marketing.asset.upload_intent_created",
+        name: "marketing_asset_upload_intent_created",
+        entityType: "MarketingAssetUploadIntent",
+        entityId: intent.id,
+        payloadHash,
+        output,
+      });
+      return output;
+    });
+  }
+
+  async verifyAssetUpload(actor: MarketingActor, command: VerifyAssetUploadCommand): Promise<MarketingAssetDto> {
+    const payloadHash = this.hash({
+      action: "verifyAssetUpload",
+      actorId: actor.actorId,
+      workspaceId: actor.workspaceId,
+      intentId: command.intentId,
+    });
+    const dedupeKey = mutationKey(actor, "verifyAssetUpload", command.idempotencyKey);
+
+    return this.transaction(async (tx) => {
+      await assertLandingAuthor(tx, actor);
+      const intent = await tx.marketingAssetUploadIntent.findFirst({
+        where: { id: command.intentId, workspaceId: actor.workspaceId, createdById: actor.actorId },
+        include: { asset: true, workspace: { select: { slug: true } } },
+      });
+      if (!intent) throw new MarketingNotFoundError();
+      if (intent.asset)
+        return {
+          assetId: intent.asset.id,
+          kind: intent.asset.kind,
+          publicUrl: `/c/${intent.workspace.slug}/media/${intent.asset.id}`,
+        };
+      if (intent.status !== "PENDING" || intent.expiresAt.getTime() < Date.now())
+        throw new MarketingConflictError("Upload intent is not pending");
+      await marketingPrivateMediaFromEnvironment().verifyUploadedObject({
+        objectKey: intent.objectKey,
+        mimeType: intent.mimeType,
+        sizeBytes: intent.sizeBytes,
+        checksumSha256: intent.checksumSha256,
+      });
+      const asset = await tx.marketingAsset.create({
+        data: {
+          workspaceId: actor.workspaceId,
+          kind: intent.kind,
+          objectKey: intent.objectKey,
+          mimeType: intent.mimeType,
+          sizeBytes: intent.sizeBytes,
+          checksumSha256: intent.checksumSha256,
+          idempotencyKey: dedupeKey,
+          uploadIntentId: intent.id,
+        },
+      });
+      await tx.marketingAssetUploadIntent.update({
+        where: { id: intent.id },
+        data: { status: "CONSUMED", consumedAt: new Date() },
+      });
+      const output: MarketingAssetDto = {
+        assetId: asset.id,
+        kind: asset.kind,
+        publicUrl: `/c/${intent.workspace.slug}/media/${asset.id}`,
+      };
+      await createEventPair(tx, actor, {
+        dedupeKey,
+        action: "marketing.asset.verified",
+        name: "marketing_asset_verified",
+        entityType: "MarketingAsset",
+        entityId: asset.id,
+        payloadHash,
+        output,
+      });
+      return output;
+    });
+  }
+
   async getPublishedLanding(workspaceSlug: string): Promise<PublicCoachLandingDto | null> {
     return this.transaction(async (tx) => {
       const workspace = await tx.workspace.findUnique({
@@ -489,6 +642,37 @@ export class PrismaMarketingRepository implements MarketingLandingRepository {
         ...revisionToPublicSource(revision),
         results: eligibleResults,
       });
+    });
+  }
+
+  async getPublishedAsset(workspaceSlug: string, assetId: string): Promise<PublishedMarketingAssetDescriptor | null> {
+    return this.transaction(async (tx) => {
+      const workspace = await tx.workspace.findUnique({
+        where: { slug: workspaceSlug },
+        select: {
+          id: true,
+          coachLanding: {
+            select: {
+              publishedRevision: {
+                select: { logoAssetId: true, portraitAssetId: true },
+              },
+            },
+          },
+        },
+      });
+      const revision = workspace?.coachLanding?.publishedRevision;
+      if (!workspace || !revision) return null;
+      if (![revision.logoAssetId, revision.portraitAssetId].includes(assetId)) return null;
+      const asset = await tx.marketingAsset.findFirst({
+        where: {
+          id: assetId,
+          workspaceId: workspace.id,
+          kind: { in: ["LOGO", "PORTRAIT"] },
+          uploadIntent: { status: "CONSUMED" },
+        },
+        select: { objectKey: true, mimeType: true, sizeBytes: true },
+      });
+      return asset;
     });
   }
 
@@ -975,5 +1159,7 @@ function revisionToPublicSource(revision: Record<string, unknown>) {
     whatsappMessage: revision.whatsappMessage,
     seoTitle: revision.seoTitle,
     seoDescription: revision.seoDescription,
+    logoAssetId: revision.logoAssetId,
+    portraitAssetId: revision.portraitAssetId,
   };
 }

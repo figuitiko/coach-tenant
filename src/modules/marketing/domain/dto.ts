@@ -67,8 +67,9 @@ export function toPublicCoachLandingDto(source: Source): PublicCoachLandingDto {
     brand: {
       workspaceName: String(source.workspaceName ?? ""),
       coachDisplayName,
-      logoUrl: (source.logoUrl as string | null) ?? null,
-      portraitUrl: (source.portraitUrl as string | null) ?? null,
+      logoUrl: mediaProxyUrl(workspaceSlug, source.logoAssetId) ?? (source.logoUrl as string | null) ?? null,
+      portraitUrl:
+        mediaProxyUrl(workspaceSlug, source.portraitAssetId) ?? (source.portraitUrl as string | null) ?? null,
     },
     hero: {
       eyebrow: (source.heroEyebrow as string | null) ?? null,
@@ -148,4 +149,9 @@ function toPublicResultDto(result: unknown): PublicLandingResultDto {
       unit,
     })),
   };
+}
+
+function mediaProxyUrl(workspaceSlug: string, assetId: unknown): string | null {
+  if (!workspaceSlug || typeof assetId !== "string" || !assetId) return null;
+  return `/c/${workspaceSlug}/media/${assetId}`;
 }

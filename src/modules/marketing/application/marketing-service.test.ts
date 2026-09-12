@@ -50,6 +50,19 @@ function repositoryStub(overrides: Partial<MarketingLandingRepository> = {}): Ma
     approveResultVersion: vi.fn(),
     revokeResultVersion: vi.fn(),
     getPublishedLanding: vi.fn(async () => null),
+    createAssetUploadIntent: vi.fn(async () => ({
+      intentId: "intent-a",
+      objectKey: "workspaces/workspace-a/marketing/asset.jpg",
+      uploadUrl: "https://storage.test/upload",
+      uploadHeaders: { "Content-Type": "image/jpeg", "x-amz-checksum-sha256": "abc", "If-None-Match": "*" },
+      expiresAt: new Date("2026-09-12T12:05:00.000Z"),
+    })),
+    verifyAssetUpload: vi.fn(async () => ({
+      assetId: "asset-a",
+      kind: "LOGO" as const,
+      publicUrl: "/c/fuerza-norte/media/asset-a",
+    })),
+    getPublishedAsset: vi.fn(async () => null),
     ...overrides,
   };
 }
@@ -223,5 +236,93 @@ describe("MarketingService result consent", () => {
         idempotencyKey: "approve-2",
       }),
     ).rejects.toBeInstanceOf(MarketingAccessDeniedError);
+  });
+});
+
+describe("MarketingService asset uploads", () => {
+  const checksum = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=";
+
+  it("lets coaches create validated logo upload intents without accepting raw object keys", async () => {
+    const repository = repositoryStub();
+    const service = new MarketingService(repository);
+
+    await expect(
+      service.createAssetUploadIntent(coach, {
+        workspaceSlug: "fuerza-norte",
+        kind: "LOGO",
+        fileName: "Logo Final.PNG",
+        mimeType: "image/png",
+        sizeBytes: 1024,
+        checksumSha256: checksum,
+        idempotencyKey: "asset-intent-1",
+      }),
+    ).resolves.toMatchObject({
+      intentId: "intent-a",
+      objectKey: expect.stringContaining("workspaces/workspace-a/marketing/"),
+    });
+
+    expect(repository.createAssetUploadIntent).toHaveBeenCalledWith(
+      coach,
+      expect.objectContaining({ kind: "LOGO", mimeType: "image/png", sizeBytes: 1024 }),
+    );
+  });
+
+  it("rejects students and unsupported marketing asset input before repository calls", async () => {
+    const repository = repositoryStub({ createAssetUploadIntent: vi.fn() });
+    const service = new MarketingService(repository);
+
+    await expect(
+      service.createAssetUploadIntent(student, {
+        workspaceSlug: "fuerza-norte",
+        kind: "PORTRAIT",
+        fileName: "portrait.gif",
+        mimeType: "image/gif",
+        sizeBytes: 1024,
+        checksumSha256: checksum,
+        idempotencyKey: "asset-intent-2",
+      }),
+    ).rejects.toMatchObject({ code: "VALIDATION" });
+
+    await expect(
+      service.createAssetUploadIntent(student, {
+        workspaceSlug: "fuerza-norte",
+        kind: "LOGO",
+        fileName: "logo.png",
+        mimeType: "image/png",
+        sizeBytes: 1024,
+        checksumSha256: checksum,
+        idempotencyKey: "asset-intent-3",
+      }),
+    ).rejects.toBeInstanceOf(MarketingAccessDeniedError);
+
+    expect(repository.createAssetUploadIntent).not.toHaveBeenCalled();
+  });
+
+  it("rejects oversized files and arbitrary asset kinds", async () => {
+    const service = new MarketingService(repositoryStub());
+
+    await expect(
+      service.createAssetUploadIntent(coach, {
+        workspaceSlug: "fuerza-norte",
+        kind: "PROGRESS_PHOTO" as never,
+        fileName: "before.jpg",
+        mimeType: "image/jpeg",
+        sizeBytes: 1024,
+        checksumSha256: checksum,
+        idempotencyKey: "asset-intent-4",
+      }),
+    ).rejects.toMatchObject({ code: "VALIDATION" });
+
+    await expect(
+      service.createAssetUploadIntent(coach, {
+        workspaceSlug: "fuerza-norte",
+        kind: "LOGO",
+        fileName: "logo.jpg",
+        mimeType: "image/jpeg",
+        sizeBytes: 5 * 1024 * 1024 + 1,
+        checksumSha256: checksum,
+        idempotencyKey: "asset-intent-5",
+      }),
+    ).rejects.toMatchObject({ code: "VALIDATION" });
   });
 });

@@ -151,3 +151,27 @@ describe("marketing domain contracts", () => {
     expect(JSON.stringify(dto)).not.toContain('"id"');
   });
 });
+
+describe("public landing marketing media DTO", () => {
+  it("generates same-origin proxy URLs from published asset IDs and never exposes object keys", () => {
+    const dto = toPublicCoachLandingDto({
+      workspaceSlug: "fuerza-norte",
+      workspaceName: "Fuerza Norte",
+      revisionId: "revision-1",
+      themeKey: "editorial",
+      coachDisplayName: "Fuerza Norte",
+      heroHeadline: "Entrená con dirección",
+      heroSubheadline: "Un plan simple para volver a moverte mejor.",
+      ctaHeading: "Hablemos por WhatsApp",
+      whatsappDigits: "541112345678",
+      whatsappMessage: "Hola, quiero empezar",
+      logoAssetId: "asset-logo",
+      portraitAssetId: "asset-portrait",
+      logoObjectKey: "workspaces/workspace-a/marketing/logo.jpg",
+    });
+
+    expect(dto.brand.logoUrl).toBe("/c/fuerza-norte/media/asset-logo");
+    expect(dto.brand.portraitUrl).toBe("/c/fuerza-norte/media/asset-portrait");
+    expect(JSON.stringify(dto)).not.toContain("workspaces/workspace-a/marketing/logo.jpg");
+  });
+});
