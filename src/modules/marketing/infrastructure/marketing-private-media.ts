@@ -53,10 +53,16 @@ export class MarketingPrivateMedia {
     mimeType: string;
     sizeBytes: number;
     checksumSha256: string;
+    objectKey?: string;
   }) {
     validateMarketingObjectInput(input);
     const mimeType = input.mimeType as MarketingAssetMimeType;
-    const objectKey = `workspaces/${segment(input.workspaceId)}/marketing/${this.options.uuid?.() ?? randomUUID()}.${extensionFor(mimeType)}`;
+    const objectKey = resolveUploadObjectKey({
+      workspaceId: input.workspaceId,
+      mimeType,
+      uuid: this.options.uuid,
+      objectKey: input.objectKey,
+    });
     const uploadUrl = await this.options.signer.sign({
       method: "PUT",
       bucket: this.options.bucket,
@@ -122,6 +128,20 @@ function validateMarketingObjectInput(input: {
   if (!/^[A-Za-z0-9+/]{43}=$/.test(input.checksumSha256)) {
     throw new MarketingPrivateMediaError("Invalid SHA-256 checksum");
   }
+}
+
+function resolveUploadObjectKey(input: {
+  workspaceId: string;
+  mimeType: MarketingAssetMimeType;
+  uuid?: () => string;
+  objectKey?: string;
+}) {
+  const scope = `workspaces/${segment(input.workspaceId)}/marketing/`;
+  if (!input.objectKey) return `${scope}${input.uuid?.() ?? randomUUID()}.${extensionFor(input.mimeType)}`;
+
+  assertMarketingObjectKey(input.objectKey);
+  if (!input.objectKey.startsWith(scope)) throw new MarketingPrivateMediaError("Marketing object unavailable");
+  return input.objectKey;
 }
 
 function assertMarketingObjectKey(objectKey: string) {

@@ -477,13 +477,6 @@ export class PrismaMarketingRepository implements MarketingLandingRepository {
       checksumSha256: command.checksumSha256,
     });
     const dedupeKey = mutationKey(actor, "createAssetUploadIntent", command.idempotencyKey);
-    const storageIntent = await marketingPrivateMediaFromEnvironment().createUploadIntent({
-      workspaceId: actor.workspaceId,
-      kind: command.kind,
-      mimeType: command.mimeType,
-      sizeBytes: command.sizeBytes,
-      checksumSha256: command.checksumSha256,
-    });
 
     return this.transaction(async (tx) => {
       await assertLandingAuthor(tx, actor);
@@ -499,6 +492,14 @@ export class PrismaMarketingRepository implements MarketingLandingRepository {
         ) {
           throw new MarketingConflictError("Idempotency key was reused with different asset input");
         }
+        const storageIntent = await marketingPrivateMediaFromEnvironment().createUploadIntent({
+          workspaceId: actor.workspaceId,
+          kind: command.kind,
+          mimeType: command.mimeType,
+          sizeBytes: command.sizeBytes,
+          checksumSha256: command.checksumSha256,
+          objectKey: replay.objectKey,
+        });
         return {
           intentId: replay.id,
           objectKey: replay.objectKey,
@@ -507,6 +508,13 @@ export class PrismaMarketingRepository implements MarketingLandingRepository {
           expiresAt: replay.expiresAt,
         };
       }
+      const storageIntent = await marketingPrivateMediaFromEnvironment().createUploadIntent({
+        workspaceId: actor.workspaceId,
+        kind: command.kind,
+        mimeType: command.mimeType,
+        sizeBytes: command.sizeBytes,
+        checksumSha256: command.checksumSha256,
+      });
       const intent = await tx.marketingAssetUploadIntent.create({
         data: {
           workspaceId: actor.workspaceId,

@@ -1,4 +1,16 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const mediaMocks = vi.hoisted(() => ({
+  createUploadIntent: vi.fn(),
+  verifyUploadedObject: vi.fn(),
+}));
+
+vi.mock("./marketing-private-media", () => ({
+  marketingPrivateMediaFromEnvironment: () => ({
+    createUploadIntent: mediaMocks.createUploadIntent,
+    verifyUploadedObject: mediaMocks.verifyUploadedObject,
+  }),
+}));
 import {
   MarketingAccessDeniedError,
   MarketingConflictError,
@@ -18,6 +30,10 @@ const admin: MarketingActor = {
   role: "SUPER_ADMIN",
   accessMode: "WORKSPACE",
 };
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 const content: LandingContentInput & { themeKey: "editorial"; resultAttributionMode: "ANONYMOUS" } = {
   themeKey: "editorial",
@@ -67,6 +83,21 @@ function createTransaction() {
     },
     resultVersion: null as null | MockResultVersionRow,
     resultVersionCount: 0,
+    assetIntent: null as null | {
+      id: string;
+      workspaceId: string;
+      createdById: string;
+      kind: "LOGO" | "PORTRAIT";
+      idempotencyKey: string;
+      objectKey: string;
+      mimeType: string;
+      sizeBytes: number;
+      checksumSha256: string;
+      expiresAt: Date;
+      status: "PENDING" | "CONSUMED";
+      asset?: { id: string; kind: "LOGO" | "PORTRAIT" } | null;
+      workspace?: { slug: string };
+    },
   };
   return {
     state,
@@ -129,7 +160,30 @@ function createTransaction() {
           : { id: where.id, workspaceId: "workspace-a", landingId: "landing-a", revisionNumber: 1, ...content },
       ),
     },
-    marketingAsset: { count: vi.fn(async () => 0) },
+    marketingAssetUploadIntent: {
+      findFirst: vi.fn(async ({ where }) =>
+        state.assetIntent &&
+        state.assetIntent.workspaceId === where.workspaceId &&
+        (where.idempotencyKey ? state.assetIntent.idempotencyKey === where.idempotencyKey : true) &&
+        (where.id ? state.assetIntent.id === where.id : true)
+          ? { ...state.assetIntent, workspace: { slug: "fuerza-norte" } }
+          : null,
+      ),
+      create: vi.fn(async ({ data }) => {
+        state.assetIntent = { id: "intent-a", status: "PENDING", ...data };
+        return state.assetIntent;
+      }),
+      update: vi.fn(async ({ data }) => {
+        if (!state.assetIntent) throw new Error("missing asset intent");
+        state.assetIntent = { ...state.assetIntent, ...data };
+        return state.assetIntent;
+      }),
+    },
+    marketingAsset: {
+      count: vi.fn(async () => 0),
+      create: vi.fn(async ({ data }) => ({ id: "asset-a", ...data })),
+      findFirst: vi.fn(async () => null),
+    },
     landingProgram: { create: vi.fn(async ({ data }) => ({ id: `program-${data.order}`, ...data })) },
     landingMethodStep: { create: vi.fn(async ({ data }) => ({ id: `step-${data.order}`, ...data })) },
     landingFaq: { create: vi.fn(async ({ data }) => ({ id: `faq-${data.order}`, ...data })) },
@@ -600,6 +654,72 @@ describe("PrismaMarketingRepository result consent mutations", () => {
     ).resolves.toMatchObject({ versionId: "result-version-1", state: "REVOKED" });
 
     expect(tx.studentResultApproval.update).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("PrismaMarketingRepository marketing asset uploads", () => {
+  const assetCommand = {
+    workspaceSlug: "fuerza-norte",
+    kind: "LOGO" as const,
+    fileName: "logo.png",
+    mimeType: "image/png",
+    sizeBytes: 1024,
+    checksumSha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=",
+    idempotencyKey: "asset-intent-1",
+  };
+
+  it("replays an existing upload intent by signing its original object key", async () => {
+    const tx = createTransaction();
+    tx.state.assetIntent = {
+      id: "intent-existing",
+      workspaceId: "workspace-a",
+      createdById: "coach-a",
+      kind: "LOGO",
+      idempotencyKey: "marketing:workspace-a:coach-a:createAssetUploadIntent:asset-intent-1",
+      objectKey: "workspaces/workspace-a/marketing/original-logo.png",
+      mimeType: "image/png",
+      sizeBytes: 1024,
+      checksumSha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=",
+      expiresAt: new Date("2026-09-12T12:00:00.000Z"),
+      status: "PENDING",
+      asset: null,
+    };
+    mediaMocks.createUploadIntent.mockImplementation(async (input) => ({
+      objectKey: input.objectKey ?? "workspaces/workspace-a/marketing/new-logo.png",
+      uploadUrl: `https://storage.test/upload?key=${encodeURIComponent(input.objectKey ?? "new")}`,
+      uploadHeaders: {},
+      expiresAt: new Date("2026-09-12T12:05:00.000Z"),
+    }));
+    const { database } = createDatabase(tx);
+    const repository = new PrismaMarketingRepository(database as never);
+
+    await expect(repository.createAssetUploadIntent(coach, assetCommand)).resolves.toMatchObject({
+      intentId: "intent-existing",
+      objectKey: "workspaces/workspace-a/marketing/original-logo.png",
+      uploadUrl: "https://storage.test/upload?key=workspaces%2Fworkspace-a%2Fmarketing%2Foriginal-logo.png",
+    });
+
+    expect(mediaMocks.createUploadIntent).toHaveBeenCalledWith(
+      expect.objectContaining({ objectKey: "workspaces/workspace-a/marketing/original-logo.png" }),
+    );
+    expect(tx.marketingAssetUploadIntent.create).not.toHaveBeenCalled();
+  });
+
+  it("denies students before creating private storage upload intents", async () => {
+    mediaMocks.createUploadIntent.mockResolvedValue({
+      objectKey: "workspaces/workspace-a/marketing/logo.png",
+      uploadUrl: "https://storage.test/upload",
+      uploadHeaders: {},
+      expiresAt: new Date("2026-09-12T12:00:00.000Z"),
+    });
+    const { database } = createDatabase();
+    const repository = new PrismaMarketingRepository(database as never);
+
+    await expect(repository.createAssetUploadIntent(student, assetCommand)).rejects.toBeInstanceOf(
+      MarketingAccessDeniedError,
+    );
+
+    expect(mediaMocks.createUploadIntent).not.toHaveBeenCalled();
   });
 });
 
