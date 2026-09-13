@@ -60,14 +60,41 @@ export class PrismaMarketingRepository implements MarketingLandingRepository {
   async getEditor(actor: MarketingActor): Promise<LandingEditorDto> {
     return this.transaction(async (tx) => {
       await assertLandingAuthor(tx, actor);
+      const workspace = await tx.workspace.findUnique({
+        where: { id: actor.workspaceId },
+        select: { slug: true, name: true },
+      });
+      if (!workspace) throw new MarketingNotFoundError();
       const landing = await tx.coachLanding.findUnique({
         where: { workspaceId: actor.workspaceId },
-        select: { id: true, currentDraftRevisionId: true, publishedRevisionId: true },
+        select: {
+          id: true,
+          currentDraftRevisionId: true,
+          publishedRevisionId: true,
+          publishedAt: true,
+          currentDraftRevision: {
+            include: {
+              programs: { orderBy: { order: "asc" } },
+              methodSteps: { orderBy: { order: "asc" } },
+              faqs: { orderBy: { order: "asc" } },
+              resultSelections: { orderBy: { order: "asc" } },
+            },
+          },
+        },
       });
+      const draft = landing?.currentDraftRevision as Record<string, unknown> | null | undefined;
       return {
+        workspaceSlug: workspace.slug,
+        workspaceName: workspace.name,
         landingId: landing?.id ?? null,
         currentDraftRevisionId: landing?.currentDraftRevisionId ?? null,
+        currentDraftRevisionNumber: Number(draft?.revisionNumber ?? 0),
         publishedRevisionId: landing?.publishedRevisionId ?? null,
+        publishedAt: landing?.publishedAt ?? null,
+        draftContent: draft ? revisionToContent(draft) : null,
+        logoAssetId: draft ? ((draft.logoAssetId as string | null) ?? null) : null,
+        portraitAssetId: draft ? ((draft.portraitAssetId as string | null) ?? null) : null,
+        selectedResultVersionIds: selectedResultIds(draft ?? {}),
       };
     });
   }

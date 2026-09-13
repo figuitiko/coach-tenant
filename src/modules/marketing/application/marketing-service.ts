@@ -94,9 +94,17 @@ export type LandingMutationResult = {
 
 export type UnpublishLandingResult = { landingId: string; unpublished: true; publishedRevisionId?: null };
 export type LandingEditorDto = {
+  workspaceSlug: string;
+  workspaceName: string;
   landingId: string | null;
   currentDraftRevisionId: string | null;
+  currentDraftRevisionNumber: number;
   publishedRevisionId: string | null;
+  publishedAt: Date | null;
+  draftContent: LandingContentInput | null;
+  logoAssetId: string | null;
+  portraitAssetId: string | null;
+  selectedResultVersionIds: string[];
 };
 export type LandingPreviewDto = LandingMutationResult & { content: LandingContentInput; liveRevisionId: string | null };
 
