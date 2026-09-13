@@ -16,6 +16,7 @@ export function WorkspaceNavigation({ workspaceSlug, role }: { workspaceSlug: st
           [root, "Inicio"],
           [`${root}/training`, "Entrenamiento"],
           [`${root}/progress`, "Progreso"],
+          [`${root}/results`, "Resultados"],
         ];
 
   return (

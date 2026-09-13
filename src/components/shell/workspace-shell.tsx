@@ -39,6 +39,7 @@ export function WorkspaceShell({
         { href: root, label: "Inicio" },
         { href: `${root}/training`, label: "Entrenamiento" },
         { href: `${root}/progress`, label: "Progreso" },
+        { href: `${root}/results`, label: "Resultados" },
       ];
 
   return (

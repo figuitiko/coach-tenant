@@ -101,7 +101,7 @@ describe("WorkspaceShell", () => {
         role: "STUDENT" as const,
         accessMode: "MEMBERSHIP" as const,
       },
-      3,
+      4,
     ],
     ["super admin", defaultAdminMembership, 5],
   ] as const)(

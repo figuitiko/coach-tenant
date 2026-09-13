@@ -9,7 +9,7 @@ vi.mock("next/navigation", () => ({
 describe("WorkspaceNavigation", () => {
   it.each([
     ["COACH", 5],
-    ["STUDENT", 3],
+    ["STUDENT", 4],
   ] as const)("places logout last in desktop and mobile navigation for %s", (role, linkCount) => {
     render(<WorkspaceNavigation role={role} workspaceSlug="fuerza-norte" />);
 
@@ -28,5 +28,12 @@ describe("WorkspaceNavigation", () => {
 
     rerender(<WorkspaceNavigation role="STUDENT" workspaceSlug="fuerza-norte" />);
     expect(screen.queryByRole("link", { name: "Landing" })).not.toBeInTheDocument();
+  });
+  it("shows result consent navigation only to students", () => {
+    const { rerender } = render(<WorkspaceNavigation role="STUDENT" workspaceSlug="fuerza-norte" />);
+    expect(screen.getAllByRole("link", { name: "Resultados" })[0]).toHaveAttribute("href", "/w/fuerza-norte/results");
+
+    rerender(<WorkspaceNavigation role="COACH" workspaceSlug="fuerza-norte" />);
+    expect(screen.queryByRole("link", { name: "Resultados" })).not.toBeInTheDocument();
   });
 });
