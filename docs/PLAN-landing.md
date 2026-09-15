@@ -49,9 +49,7 @@ El coach podrá editar contenido estructurado, previsualizarlo en privado y publ
 7. Construir editor, preview, navegación y estados de UI del coach.
 8. Construir experiencia de aprobación/revocación del alumno.
 9. Crear ruta pública, renderer editorial, SEO, sitemap, WhatsApp y métricas.
-10. Probar aislamiento, concurrencia, rollback y proyección pública en PostgreSQL.
-11. Cubrir journeys completos desktop/mobile con Playwright.
-12. Ejecutar verificación final y rollout migración → aplicación; nunca ejecutar build.
+10. Ejecutar rollout: migración → aplicación; nunca ejecutar build.
 
 ## Plan de pruebas
 
