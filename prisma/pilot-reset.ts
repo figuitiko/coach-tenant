@@ -1,4 +1,5 @@
 import type { PrismaClient } from "../src/generated/prisma/client";
+import { deleteWorkspaceMarketingData } from "./marketing-cleanup";
 
 export const PILOT_WORKSPACE_SLUGS = ["fuerza-norte-pilot", "movimiento-sur-pilot"] as const;
 
@@ -37,6 +38,7 @@ export async function resetPilotFixtures(database: PrismaClient) {
         { checkIn: { workspaceId: workspaceFilter } },
         { workoutSession: { assignedWorkout: { workspaceId: workspaceFilter } } },
       ] } });
+      await deleteWorkspaceMarketingData(transaction, workspaceIds);
       await transaction.progressPhoto.deleteMany({ where: { OR: [
         { workspaceId: workspaceFilter },
         { checkIn: { workspaceId: workspaceFilter } },

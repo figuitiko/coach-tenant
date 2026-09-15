@@ -13,7 +13,7 @@ const displayFont = Newsreader({
 });
 
 export const metadata: Metadata = {
-  title: "Tenand — Coaching con dirección",
+  title: "CoachFlow — Coaching con dirección",
   description: "El workspace para entrenadores que convierten seguimiento en progreso.",
 };
 

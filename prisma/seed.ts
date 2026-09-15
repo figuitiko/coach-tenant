@@ -4,6 +4,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { hashInvitationToken } from "../src/modules/tenancy/domain/invitation";
 import { resetPilotFixtures } from "./pilot-reset";
+import { fingerprintMarketingFixture } from "./marketing-fixtures";
 
 if (process.env.NODE_ENV === "production" && process.env.ALLOW_PRODUCTION_SEED !== "true") {
   throw new Error("Pilot seed is disabled in production. Set ALLOW_PRODUCTION_SEED=true only for an intentional reset.");
@@ -94,6 +95,77 @@ async function main() {
   await prisma.measurementCheckIn.create({ data: { id: "pilot-checkin-submitted", workspaceId: workspace.id, studentId: students[0].id, status: "SUBMITTED", reviewStatus: "PENDING", weight: 68.4, weightUnit: "KG", waist: 76.5, waistUnit: "CM", notes: "Buena energía; sueño más regular.", submitIdempotencyKey: "pilot-submit-checkin", submittedAt: fixedDate, createdAt: fixedDate, updatedAt: fixedDate } });
   const reviewedCheckIn = await prisma.measurementCheckIn.create({ data: { id: "pilot-checkin-reviewed", workspaceId: workspace.id, studentId: students[1].id, status: "REVIEWED", reviewStatus: "REVIEWED", weight: 81.2, weightUnit: "KG", notes: "Semana sostenida.", submitIdempotencyKey: "pilot-submit-reviewed", submittedAt: new Date("2026-08-12T15:00:00Z"), reviewedAt: fixedDate, createdAt: fixedDate, updatedAt: fixedDate } });
   await prisma.reviewNote.create({ data: { id: "pilot-review-note-completed", workspaceId: workspace.id, coachId: northCoach.id, checkInId: reviewedCheckIn.id, body: "Buen ritmo. Sostenemos cargas y priorizamos descanso.", idempotencyKey: "pilot-completed-review", createdAt: fixedDate } });
+
+  const resultSnapshot = {
+    headline: "Bajó 6kg y mejoró su técnica en sentadilla",
+    narrative: "Sostuvo el plan de fuerza durante el bloque piloto sin saltarse semanas.",
+    testimonial: null,
+    attributionMode: "ANONYMOUS",
+    attributionLabel: "Alumna del piloto",
+    metrics: [{ label: "Peso corporal", beforeValue: "74.40", afterValue: "68.40", unit: "KG", order: 0 }],
+  } as const;
+  const resultFingerprint = fingerprintMarketingFixture(resultSnapshot);
+  const resultStory = await prisma.studentResultStory.create({ data: {
+    id: "pilot-result-story-1", workspaceId: workspace.id, studentMembershipId: "pilot-membership-student-1", createdById: northCoach.id, createdAt: fixedDate, updatedAt: fixedDate,
+  } });
+  const resultVersion = await prisma.studentResultVersion.create({ data: {
+    id: "pilot-result-version-1", workspaceId: workspace.id, storyId: resultStory.id, versionNumber: 1, createdById: northCoach.id,
+    headline: resultSnapshot.headline, narrative: resultSnapshot.narrative,
+    attributionMode: resultSnapshot.attributionMode, attributionLabel: resultSnapshot.attributionLabel, requestedAt: fixedDate, mutationKey: "pilot-result-version-1-request", payloadHash: resultFingerprint,
+    createdAt: fixedDate,
+  } });
+  await prisma.studentResultMetricSnapshot.create({ data: {
+    id: "pilot-result-metric-1", workspaceId: workspace.id, resultVersionId: resultVersion.id, label: resultSnapshot.metrics[0].label, beforeValue: resultSnapshot.metrics[0].beforeValue, afterValue: resultSnapshot.metrics[0].afterValue, unit: resultSnapshot.metrics[0].unit, order: resultSnapshot.metrics[0].order,
+  } });
+  await prisma.studentResultStory.update({ where: { id: resultStory.id }, data: { currentVersionId: resultVersion.id } });
+  await prisma.studentResultApproval.create({ data: {
+    id: "pilot-result-approval-1", workspaceId: workspace.id, resultVersionId: resultVersion.id, studentId: students[0].id,
+    approvedFingerprint: resultFingerprint, approveMutationKey: "pilot-result-approval-1-approve", approvedAt: fixedDate, createdAt: fixedDate, updatedAt: fixedDate,
+  } });
+
+  const landingSnapshot = {
+    themeKey: "editorial",
+    coachDisplayName: northCoach.name,
+    heroEyebrow: "Entrenamiento de fuerza en Fuerza Norte",
+    heroHeadline: "Entrená fuerza real con seguimiento cercano",
+    heroSubheadline: "Planes de fuerza personalizados con revisión semanal de tu coach.",
+    valueProposition: "Menos adivinar, más progreso medible semana a semana.",
+    servicesHeading: "Programas",
+    methodologyHeading: "Cómo trabajamos",
+    resultsHeading: "Resultados",
+    aboutHeading: "Sobre el coach",
+    aboutBody: "Franco acompaña alumnos de Fuerza Norte con planes de fuerza basados en datos.",
+    faqHeading: "Preguntas frecuentes",
+    ctaHeading: "Sumate a Fuerza Norte",
+    ctaBody: "Escribinos por WhatsApp y arrancamos tu plan.",
+    whatsappDigits: "5215555550001",
+    whatsappMessage: "Hola, quiero sumarme a Fuerza Norte",
+    credibilityFacts: [{ order: 0, label: "Alumnos activos", value: "40+" }],
+    programs: [{ order: 0, title: "Fuerza · Base", description: "Bloques de 4 semanas con seguimiento semanal." }],
+    methodSteps: [{ order: 0, title: "Evaluación inicial", description: "Relevamos objetivos y disponibilidad." }],
+    faqs: [{ order: 0, question: "¿Necesito experiencia previa?", answer: "No, adaptamos el plan a tu nivel." }],
+    resultVersionIds: [resultVersion.id],
+  } as const;
+  const landingFingerprint = fingerprintMarketingFixture(landingSnapshot);
+  const landing = await prisma.coachLanding.create({ data: { id: "pilot-landing-north", workspaceId: workspace.id, createdAt: fixedDate, updatedAt: fixedDate } });
+  const landingRevision = await prisma.coachLandingRevision.create({ data: {
+    id: "pilot-landing-revision-1", workspaceId: workspace.id, landingId: landing.id, revisionNumber: 1, themeKey: "editorial", createdById: northCoach.id,
+    mutationKey: "pilot-landing-revision-1-save", payloadHash: landingFingerprint,
+    coachDisplayName: northCoach.name, heroEyebrow: "Entrenamiento de fuerza en Fuerza Norte",
+    heroHeadline: "Entrená fuerza real con seguimiento cercano", heroSubheadline: "Planes de fuerza personalizados con revisión semanal de tu coach.",
+    valueProposition: "Menos adivinar, más progreso medible semana a semana.",
+    servicesHeading: "Programas", methodologyHeading: "Cómo trabajamos", resultsHeading: "Resultados", aboutHeading: "Sobre el coach",
+    aboutBody: "Franco acompaña alumnos de Fuerza Norte con planes de fuerza basados en datos.",
+    faqHeading: "Preguntas frecuentes", ctaHeading: "Sumate a Fuerza Norte", ctaBody: "Escribinos por WhatsApp y arrancamos tu plan.",
+    whatsappDigits: "5215555550001", whatsappMessage: "Hola, quiero sumarme a Fuerza Norte", createdAt: fixedDate,
+  } });
+  await prisma.landingCredibilityFact.create({ data: { id: "pilot-landing-fact-1", revisionId: landingRevision.id, order: 0, label: "Alumnos activos", value: "40+" } });
+  await prisma.landingProgram.create({ data: { id: "pilot-landing-program-1", revisionId: landingRevision.id, order: 0, title: "Fuerza · Base", description: "Bloques de 4 semanas con seguimiento semanal." } });
+  await prisma.landingMethodStep.create({ data: { id: "pilot-landing-method-1", revisionId: landingRevision.id, order: 0, title: "Evaluación inicial", description: "Relevamos objetivos y disponibilidad." } });
+  await prisma.landingFaq.create({ data: { id: "pilot-landing-faq-1", revisionId: landingRevision.id, order: 0, question: "¿Necesito experiencia previa?", answer: "No, adaptamos el plan a tu nivel." } });
+  await prisma.landingRevisionResult.create({ data: { id: "pilot-landing-revision-result-1", workspaceId: workspace.id, revisionId: landingRevision.id, order: 0, resultVersionId: resultVersion.id } });
+  await prisma.coachLanding.update({ where: { id: landing.id }, data: { currentDraftRevisionId: landingRevision.id, publishedRevisionId: landingRevision.id, publishedAt: fixedDate } });
+
   console.info(`Seeded ${workspace.slug}. Local-only accounts use the injected PILOT_SEED_PASSWORD.`);
 }
 

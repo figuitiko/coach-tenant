@@ -1,0 +1,11 @@
+.next
+node_modules
+playwright-report
+test-results
+coverage
+src/generated
+pnpm-lock.yaml
+.env
+AGENTS.md
+CLAUDE.md
+docs/PLAN-landing.md

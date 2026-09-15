@@ -1,27 +1,28 @@
+## TDD Preference Rule
+
+At the start of every new implementation round, batch, feature, bugfix, refactor, or behavior-change task, ask the user whether they want to use strict TDD for that round before applying it. If the user says yes, follow strict RED → GREEN → REFACTOR and show evidence. If the user says no, do not enforce strict TDD for that round, but still add reasonable tests when they are needed to protect behavior. If the user already explicitly requested TDD for the current round or the active task/plan says TDD is mandatory, do not ask again for that same round; follow TDD. Ask again on the next new round.
+
+## Test File Write Approval
+
+Before creating or modifying any test file (`*.test.ts`, `*.test.tsx`, `*.spec.ts`, including under `e2e/`), stop and ask the user for explicit approval first — state which file and why, then wait for a yes before writing. This applies even when the round is proceeding without strict TDD. (Claude Code sessions in this repo enforce this via a `.claude/settings.json` PreToolUse hook; Codex has no equivalent enforcement mechanism, so this rule must be followed manually here.)
+
+## Playwright Execution Approval
+
+Never run any `pnpm test:e2e:*` command or `pnpm exec playwright test ...` unless the user explicitly asks for it in that message. Do not run Playwright as a side effect of "verify", "run tests", or "finish the batch" — those mean the Vitest suite (`pnpm test`) unless the user names Playwright/e2e specifically.
+
 <claude-mem-context>
 # Memory Context
 
-# [coach-tenand] recent context, 2026-08-24 9:49pm CST
+# [coach-tenand] recent context, 2026-08-29 8:02pm CST
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 31 obs (9,342t read) | 377,660t work | 98% savings
+Stats: 50 obs (18,828t read) | 711,597t work | 97% savings
 
 ### Aug 16, 2026
-677 6:33p ⚖️ Coach Management SaaS — Multi-Tenant App Concept Defined
-679 " 🔵 coach-tenand project — empty directory, no git repo, no package.json
-682 6:34p ⚖️ coach-tenand pilot hypothesis — coach workflow validation chosen
-683 6:36p ⚖️ coach-tenand pilot scope — workouts + measurements only, diet and galleries deferred
-684 " ⚖️ coach-tenand preferred stack — Next.js + Prisma + custom database URL
-685 " ⚖️ coach-tenand multi-tenancy model — global accounts, tenant-scoped memberships
-686 " ⚖️ coach-tenand target user context — replacing WhatsApp + spreadsheets
-692 6:37p ⚖️ coach-tenand workout domain model — reusable templates + scheduled plans + per-set logging
-695 " ⚖️ coach-tenand measurement check-ins — body metrics + private progress photos
-697 " ⚖️ coach-tenand feedback model — review notes on logs, no in-app chat
-699 6:38p ⚖️ coach-tenand pilot success metric — active weekly coach workflow over 4 weeks
-701 " ⚖️ coach-tenand database engine — PostgreSQL via Prisma custom connection URL
+701 6:38p ⚖️ coach-tenand database engine — PostgreSQL via Prisma custom connection URL
 703 " ⚖️ coach-tenand auth — database-backed, users/sessions/invitations in PostgreSQL via Prisma
 705 6:39p ⚖️ coach-tenand gallery consent flow — coach drafts, student explicitly approves before publish
 708 " ⚖️ coach-tenand client surface — mobile-first responsive Next.js web app, PWA optional later
@@ -41,8 +42,40 @@ Stats: 31 obs (9,342t read) | 377,660t work | 98% savings
 735 8:48p 🔵 coach-tenand scaffold_foundation subagent running
 736 9:51p ⚖️ coach-platform — Multitenant Coaching SaaS Concept Initiated
 737 10:07p ⚖️ coach-platform — Multitenant Coaching SaaS Concept Initiated
+### Aug 24, 2026
+739 9:54p 🟣 coach-tenand — Visible Logout Design spec created
+740 9:55p 🔵 coach-tenand — SignOutAction TDD RED phase confirmed
+743 " 🟣 coach-tenand — SignOutAction component shipped (Task 1 complete)
+745 9:57p 🔵 coach-tenand visible-logout — Task 1 committed, Task 2 starting
+746 9:59p 🟣 WorkspaceNavigation TDD Task 2 — logout integrated and committed
+747 10:02p 🟣 Logout integrated into workspace dashboard navigation (Task 3)
+748 " 🔵 Dashboard navigation link counts by role: COACH=4, STUDENT=3, SUPER_ADMIN=4
+749 10:04p 🔵 coach-tenand visible logout — Task 5 final verification passed
+### Aug 29, 2026
+849 1:44p 🔵 coach-tenand — cross-workspace isolation not enforced
+851 1:45p 🔵 coach-tenand workspace auth model — no per-route membership guard found
+855 " 🔵 coach-tenand dev server port/BETTER_AUTH_URL mismatch causes INVALID_ORIGIN
+858 3:24p ⚖️ coach-tenand — Coach Landing Page feature SDD initiated
+860 3:25p 🔵 coach-tenand — full project structure and testing stack confirmed for SDD init
+862 3:27p ✅ coach-tenand — SDD init context persisted to Engram
+864 " ⚖️ coach-tenand — New Coach Platform Project Concept Initiated
+865 3:28p 🔵 coach-tenand — Full Project State Confirmed: Architecture, Migrations, and Pilot Acceptance Criteria
+866 " 🔵 coach-tenand — Prior Architecture Decisions Confirmed from Engram (obs #361, #364)
+870 3:29p ⚖️ coach-tenand — Workspace Coach Landing Page Architecture Explored and Recommended Approach Selected
+872 3:30p ⚖️ coach-tenand — Coach Landing Page SDD initiated
+874 3:32p ⚖️ coach-tenand — Coach Landing Page SDD proposal saved to Engram
+876 3:34p ⚖️ New Project — Multi-Tenant Coach Management SaaS Brainstorm Initiated
+877 3:38p ⚖️ coach-tenand — Multi-Tenant Coach Platform Concept Expanded
+878 " 🔵 coach-tenand — Environment Validation Schema Confirmed
+879 " 🔵 coach-tenand — Modular Monolith Structure and Public Landing UI Confirmed
+880 " ⚖️ coach-tenand — Full Technical Design Saved for Workspace Coach Landing Page
+881 7:54p ⚖️ coach-tenand — Coach Landing Page SDD initiated (per-workspace, theme-based)
+884 7:55p 🔵 coach-tenand — All Coach Landing Page SDD artifacts confirmed complete in Engram
+885 7:57p 🔵 coach-tenand — Engram mem_save via exec fails when content contains backtick characters
+887 " ⚖️ coach-tenand — Coach Landing Page 12-batch task list saved to Engram
+889 7:58p ⚖️ coach-tenand — SDD tasks phase complete; session closed with summary
 
-Access 378k tokens of past work via get_observations([IDs]) or mem-search skill.
+Access 712k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
 
 <!-- BEGIN:nextjs-agent-rules -->

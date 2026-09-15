@@ -29,16 +29,14 @@ export function createPasswordResetMailer(
     host: environment.SMTP_HOST,
     port: Number(environment.SMTP_PORT),
     secure: Number(environment.SMTP_PORT) === 465,
-    auth: environment.SMTP_USER
-      ? { user: environment.SMTP_USER, pass: environment.SMTP_PASSWORD }
-      : undefined,
+    auth: environment.SMTP_USER ? { user: environment.SMTP_USER, pass: environment.SMTP_PASSWORD } : undefined,
   });
   return {
     async sendPasswordReset({ to, resetUrl }) {
       await transport.sendMail({
         from: environment.SMTP_FROM,
         to,
-        subject: "Restablecé tu contraseña de Tenand",
+        subject: "Restablecé tu contraseña de CoachFlow",
         text: `Abrí este enlace para elegir una nueva contraseña: ${resetUrl}`,
       });
     },

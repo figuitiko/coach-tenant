@@ -11,14 +11,24 @@ describe("WorkspaceShell", () => {
     render(<WorkspaceShell />);
 
     const navigation = screen.getByRole("navigation", { name: /navegación móvil/i });
-    expect(within(navigation).getAllByRole("link")).toHaveLength(4);
-    expect(within(navigation).getByRole("link", { name: "Inicio" })).toHaveAttribute(
-      "aria-current",
-      "page",
+    expect(within(navigation).getAllByRole("link")).toHaveLength(5);
+    expect(within(navigation).getByRole("link", { name: "Inicio" })).toHaveAttribute("aria-current", "page");
+    expect(within(navigation).getByRole("link", { name: "Alumnos" })).toHaveAttribute(
+      "href",
+      "/w/fuerza-norte/students",
     );
-    expect(within(navigation).getByRole("link", { name: "Alumnos" })).toHaveAttribute("href", "/w/fuerza-norte/students");
-    expect(within(navigation).getByRole("link", { name: "Entrenamiento" })).toHaveAttribute("href", "/w/fuerza-norte/training");
-    expect(within(navigation).getByRole("link", { name: "Revisiones" })).toHaveAttribute("href", "/w/fuerza-norte/progress");
+    expect(within(navigation).getByRole("link", { name: "Entrenamiento" })).toHaveAttribute(
+      "href",
+      "/w/fuerza-norte/training",
+    );
+    expect(within(navigation).getByRole("link", { name: "Revisiones" })).toHaveAttribute(
+      "href",
+      "/w/fuerza-norte/progress",
+    );
+    expect(within(navigation).getByRole("link", { name: "Landing" })).toHaveAttribute(
+      "href",
+      "/w/fuerza-norte/landing",
+    );
   });
 
   it("shows a tenant-scoped coach roster summary and a calm empty state", () => {
@@ -33,10 +43,28 @@ describe("WorkspaceShell", () => {
   it("offers a workspace switch affordance for multi-membership accounts", () => {
     render(
       <WorkspaceShell
-        currentMembership={{ workspaceId: "w-1", workspaceSlug: "north", workspaceName: "North", timeZone: "America/Mexico_City", role: "COACH" }}
+        currentMembership={{
+          workspaceId: "w-1",
+          workspaceSlug: "north",
+          workspaceName: "North",
+          timeZone: "America/Mexico_City",
+          role: "COACH",
+        }}
         memberships={[
-          { workspaceId: "w-1", workspaceSlug: "north", workspaceName: "North", timeZone: "America/Mexico_City", role: "COACH" },
-          { workspaceId: "w-2", workspaceSlug: "south", workspaceName: "South", timeZone: "America/Mexico_City", role: "STUDENT" },
+          {
+            workspaceId: "w-1",
+            workspaceSlug: "north",
+            workspaceName: "North",
+            timeZone: "America/Mexico_City",
+            role: "COACH",
+          },
+          {
+            workspaceId: "w-2",
+            workspaceSlug: "south",
+            workspaceName: "South",
+            timeZone: "America/Mexico_City",
+            role: "STUDENT",
+          },
         ]}
       />,
     );
@@ -51,35 +79,46 @@ describe("WorkspaceShell", () => {
   });
 
   it.each([
-    ["ordinary coach", {
-      workspaceId: "w-coach",
-      workspaceSlug: "north",
-      workspaceName: "North",
-      timeZone: "America/Mexico_City",
-      role: "COACH" as const,
-      accessMode: "MEMBERSHIP" as const,
-    }, 4],
-    ["student", {
-      workspaceId: "w-student",
-      workspaceSlug: "north",
-      workspaceName: "North",
-      timeZone: "America/Mexico_City",
-      role: "STUDENT" as const,
-      accessMode: "MEMBERSHIP" as const,
-    }, 3],
-    ["super admin", defaultAdminMembership, 4],
-  ] as const)("places logout last in desktop and mobile dashboard navigation for %s", (_label, membership, linkCount) => {
-    render(<WorkspaceShell currentMembership={membership} memberships={[membership]} />);
+    [
+      "ordinary coach",
+      {
+        workspaceId: "w-coach",
+        workspaceSlug: "north",
+        workspaceName: "North",
+        timeZone: "America/Mexico_City",
+        role: "COACH" as const,
+        accessMode: "MEMBERSHIP" as const,
+      },
+      5,
+    ],
+    [
+      "student",
+      {
+        workspaceId: "w-student",
+        workspaceSlug: "north",
+        workspaceName: "North",
+        timeZone: "America/Mexico_City",
+        role: "STUDENT" as const,
+        accessMode: "MEMBERSHIP" as const,
+      },
+      4,
+    ],
+    ["super admin", defaultAdminMembership, 5],
+  ] as const)(
+    "places logout last in desktop and mobile dashboard navigation for %s",
+    (_label, membership, linkCount) => {
+      render(<WorkspaceShell currentMembership={membership} memberships={[membership]} />);
 
-    for (const navigation of screen.getAllByRole("navigation")) {
-      expect(within(navigation).getAllByRole("link")).toHaveLength(linkCount);
-      const logout = within(navigation).getByRole("button", { name: "Cerrar sesión" });
-      expect(navigation.lastElementChild).toBe(logout);
-    }
+      for (const navigation of screen.getAllByRole("navigation")) {
+        expect(within(navigation).getAllByRole("link")).toHaveLength(linkCount);
+        const logout = within(navigation).getByRole("button", { name: "Cerrar sesión" });
+        expect(navigation.lastElementChild).toBe(logout);
+      }
 
-    const mobile = screen.getByRole("navigation", { name: /navegación móvil/i });
-    expect(mobile).toHaveStyle({ gridTemplateColumns: `repeat(${linkCount + 1}, minmax(0, 1fr))` });
-  });
+      const mobile = screen.getByRole("navigation", { name: /navegación móvil/i });
+      expect(mobile).toHaveStyle({ gridTemplateColumns: `repeat(${linkCount + 1}, minmax(0, 1fr))` });
+    },
+  );
 });
 
 const defaultAdminMembership = {
