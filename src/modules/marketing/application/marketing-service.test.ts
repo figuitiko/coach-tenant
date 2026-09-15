@@ -63,6 +63,9 @@ function repositoryStub(overrides: Partial<MarketingLandingRepository> = {}): Ma
       publicUrl: "/c/fuerza-norte/media/asset-a",
     })),
     getPublishedAsset: vi.fn(async () => null),
+    listPublishedLandingSitemapEntries: vi.fn(async () => []),
+    recordPublicLandingMetric: vi.fn(async () => undefined),
+    getPublishedLandingWhatsAppUrl: vi.fn(async () => null),
     ...overrides,
   };
 }

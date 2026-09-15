@@ -22,9 +22,12 @@ import type {
   MarketingAssetUploadIntentDto,
   MarketingAssetDto,
   PublishedMarketingAssetDescriptor,
+  PublicLandingMetricKind,
+  PublishedLandingSitemapEntry,
 } from "../application/marketing-service";
 import {
   fingerprintResultVersion,
+  buildWhatsAppUrl,
   validatePublication,
   type LandingContentInput,
   type MetricInput,
@@ -677,6 +680,61 @@ export class PrismaMarketingRepository implements MarketingLandingRepository {
         ...revisionToPublicSource(revision),
         results: eligibleResults,
       });
+    });
+  }
+
+  async listPublishedLandingSitemapEntries(): Promise<PublishedLandingSitemapEntry[]> {
+    return this.transaction(async (tx) => {
+      const landings = await tx.coachLanding.findMany({
+        where: { publishedRevisionId: { not: null } },
+        select: {
+          updatedAt: true,
+          workspace: { select: { slug: true } },
+        },
+        orderBy: { updatedAt: "desc" },
+      });
+      return landings.map((landing) => ({ workspaceSlug: landing.workspace.slug, updatedAt: landing.updatedAt }));
+    });
+  }
+
+  async recordPublicLandingMetric(workspaceSlug: string, kind: PublicLandingMetricKind): Promise<void> {
+    await this.transaction(async (tx) => {
+      const workspace = await tx.workspace.findUnique({
+        where: { slug: workspaceSlug },
+        select: { id: true, coachLanding: { select: { publishedRevisionId: true } } },
+      });
+      const publishedRevisionId = workspace?.coachLanding?.publishedRevisionId;
+      if (!workspace || !publishedRevisionId) return;
+      const day = new Date();
+      day.setUTCHours(0, 0, 0, 0);
+      await tx.publicLandingMetricDaily.upsert({
+        where: { workspaceId_publishedRevisionId_day: { workspaceId: workspace.id, publishedRevisionId, day } },
+        create: {
+          workspaceId: workspace.id,
+          publishedRevisionId,
+          day,
+          views: kind === "VIEW" ? 1 : 0,
+          whatsappClicks: kind === "WHATSAPP_CLICK" ? 1 : 0,
+        },
+        update: kind === "VIEW" ? { views: { increment: 1 } } : { whatsappClicks: { increment: 1 } },
+      });
+    });
+  }
+
+  async getPublishedLandingWhatsAppUrl(workspaceSlug: string): Promise<string | null> {
+    return this.transaction(async (tx) => {
+      const workspace = await tx.workspace.findUnique({
+        where: { slug: workspaceSlug },
+        select: {
+          coachLanding: {
+            select: {
+              publishedRevision: { select: { whatsappDigits: true, whatsappMessage: true } },
+            },
+          },
+        },
+      });
+      const revision = workspace?.coachLanding?.publishedRevision;
+      return revision ? buildWhatsAppUrl(revision.whatsappDigits, revision.whatsappMessage) : null;
     });
   }
 

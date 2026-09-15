@@ -61,6 +61,8 @@ export type MarketingAssetUploadIntentDto = {
 };
 export type MarketingAssetDto = { assetId: string; kind: MarketingAssetKind; publicUrl: string };
 export type PublishedMarketingAssetDescriptor = { objectKey: string; mimeType: string; sizeBytes: number };
+export type PublishedLandingSitemapEntry = { workspaceSlug: string; updatedAt: Date };
+export type PublicLandingMetricKind = "VIEW" | "WHATSAPP_CLICK";
 
 export type ResultApprovalRequestResult = {
   storyId: string;
@@ -134,6 +136,9 @@ export interface MarketingLandingRepository {
   ): Promise<MarketingAssetUploadIntentDto>;
   verifyAssetUpload(actor: MarketingActor, command: VerifyAssetUploadCommand): Promise<MarketingAssetDto>;
   getPublishedAsset(workspaceSlug: string, assetId: string): Promise<PublishedMarketingAssetDescriptor | null>;
+  listPublishedLandingSitemapEntries(): Promise<PublishedLandingSitemapEntry[]>;
+  recordPublicLandingMetric(workspaceSlug: string, kind: PublicLandingMetricKind): Promise<void>;
+  getPublishedLandingWhatsAppUrl(workspaceSlug: string): Promise<string | null>;
 }
 
 export class MarketingService {
@@ -204,6 +209,18 @@ export class MarketingService {
 
   async getPublishedAsset(workspaceSlug: string, assetId: string) {
     return this.repository.getPublishedAsset(workspaceSlug, assetId);
+  }
+
+  async listPublishedLandingSitemapEntries() {
+    return this.repository.listPublishedLandingSitemapEntries();
+  }
+
+  async recordPublicLandingMetric(workspaceSlug: string, kind: PublicLandingMetricKind) {
+    return this.repository.recordPublicLandingMetric(workspaceSlug, kind);
+  }
+
+  async getPublishedLandingWhatsAppUrl(workspaceSlug: string) {
+    return this.repository.getPublishedLandingWhatsAppUrl(workspaceSlug);
   }
 }
 
