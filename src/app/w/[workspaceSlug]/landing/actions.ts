@@ -3,12 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { LandingContentInput } from "@/modules/marketing/domain/contracts";
-import {
-  MarketingAccessDeniedError,
-  MarketingConflictError,
-  MarketingNotFoundError,
-  MarketingValidationError,
-} from "@/modules/marketing/domain/errors";
+import { MarketingNotFoundError, MarketingValidationError } from "@/modules/marketing/domain/errors";
 import type { MarketingActor } from "@/modules/marketing/application/marketing-service";
 import { marketingService } from "@/modules/marketing/infrastructure/marketing-use-cases";
 import { CrossTenantAccessError, UnauthenticatedError } from "@/modules/tenancy/application/workspace-access";
@@ -143,14 +138,3 @@ function csv(data: FormData, key: string) {
     .filter(Boolean);
 }
 
-export function landingActionErrorMessage(error: unknown) {
-  if (
-    error instanceof MarketingAccessDeniedError ||
-    error instanceof MarketingValidationError ||
-    error instanceof MarketingConflictError ||
-    error instanceof MarketingNotFoundError
-  ) {
-    return "No pudimos guardar la landing. Revisá los datos y volvé a intentar.";
-  }
-  throw error;
-}
