@@ -6,6 +6,10 @@ At the start of every new implementation round, batch, feature, bugfix, refactor
 
 Before creating or modifying any test file (`*.test.ts`, `*.test.tsx`, `*.spec.ts`, including under `e2e/`), stop and ask the user for explicit approval first — state which file and why, then wait for a yes before writing. This applies even when the round is proceeding without strict TDD. (Claude Code sessions in this repo enforce this via a `.claude/settings.json` PreToolUse hook; Codex has no equivalent enforcement mechanism, so this rule must be followed manually here.)
 
+## Playwright Execution Approval
+
+Never run any `pnpm test:e2e:*` command or `pnpm exec playwright test ...` unless the user explicitly asks for it in that message. Do not run Playwright as a side effect of "verify", "run tests", or "finish the batch" — those mean the Vitest suite (`pnpm test`) unless the user names Playwright/e2e specifically.
+
 <claude-mem-context>
 # Memory Context
 
