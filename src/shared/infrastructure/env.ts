@@ -13,10 +13,10 @@ const schema = z.object({
 
 const productionSchema = schema.extend({
   BETTER_AUTH_SECRET: z.string().min(32),
-  SMTP_HOST: z.string().min(1),
-  SMTP_FROM: z.string().min(3),
-  SMTP_USER: z.string().min(1),
-  SMTP_PASSWORD: z.string().min(1),
+  SMTP_HOST: z.string().min(1).optional(),
+  SMTP_FROM: z.string().min(3).optional(),
+  SMTP_USER: z.string().min(1).optional(),
+  SMTP_PASSWORD: z.string().min(1).optional(),
   S3_ENDPOINT: httpUrl,
   S3_REGION: z.string().min(1),
   S3_BUCKET: z.string().min(3),

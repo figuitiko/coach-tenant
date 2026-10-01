@@ -15,11 +15,12 @@ export function createPasswordResetMailer(
 ): PasswordResetMailer {
   const configured = environment.SMTP_HOST && environment.SMTP_PORT && environment.SMTP_FROM;
   if (!configured) {
-    if (nodeEnvironment === "production") {
-      throw new Error("SMTP configuration is required for password reset email in production");
-    }
     return {
       async sendPasswordReset({ to, resetUrl }) {
+        if (nodeEnvironment === "production") {
+          developmentLog(`[password reset email disabled] ${to}`);
+          return;
+        }
         developmentLog(`[development password reset] ${to}: ${resetUrl}`);
       },
     };
