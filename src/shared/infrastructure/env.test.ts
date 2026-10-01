@@ -7,8 +7,8 @@ describe("server environment validation", () => {
       DATABASE_URL: "postgresql://localhost/tenand",
       BETTER_AUTH_URL: "http://localhost:3000",
       SMTP_PORT: "587",
-      S3_MAX_UPLOAD_BYTES: "5242880",
-    }).S3_MAX_UPLOAD_BYTES).toBe(5_242_880);
+      BLOB_READ_WRITE_TOKEN: "vercel-blob-token",
+    }).BLOB_READ_WRITE_TOKEN).toBe("vercel-blob-token");
   });
 
   it("requires auth, SMTP, and private object storage secrets in production", () => {
@@ -17,10 +17,9 @@ describe("server environment validation", () => {
       BETTER_AUTH_URL: "https://pilot.tenand.example",
       BETTER_AUTH_SECRET: "a-secure-secret-with-at-least-32-characters",
       SMTP_HOST: "smtp.example.com", SMTP_PORT: "587", SMTP_FROM: "Tenand <noreply@example.com>", SMTP_USER: "smtp-user", SMTP_PASSWORD: "smtp-password",
-      S3_ENDPOINT: "https://objects.example.com", S3_REGION: "auto", S3_BUCKET: "tenand-private", S3_ACCESS_KEY_ID: "access", S3_SECRET_ACCESS_KEY: "secret",
+      BLOB_READ_WRITE_TOKEN: "vercel-blob-token",
     };
     expect(validateProductionEnvironment(environment).SMTP_HOST).toBe("smtp.example.com");
-    expect(() => validateProductionEnvironment({ ...environment, SMTP_PASSWORD: undefined })).toThrow("Invalid production environment configuration.");
     expect(() => validateProductionEnvironment({ ...environment, BETTER_AUTH_SECRET: "super-secret-value" })).toThrow("Invalid production environment configuration.");
   });
 

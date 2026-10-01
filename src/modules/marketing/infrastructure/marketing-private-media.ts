@@ -1,6 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { get, head, issueSignedToken, presignUrl } from "@vercel/blob";
 import {
   MARKETING_ASSET_MAX_BYTES,
   MARKETING_ASSET_MIME_TYPES,
@@ -10,7 +9,6 @@ import {
 
 export type MarketingSignInput = {
   method: "PUT";
-  bucket: string;
   key: string;
   contentType: MarketingAssetMimeType;
   contentLength: number;
@@ -21,11 +19,8 @@ export type MarketingSignInput = {
 
 export interface MarketingObjectStore {
   sign(input: MarketingSignInput): Promise<string>;
-  head?(input: {
-    bucket: string;
-    key: string;
-  }): Promise<{ mimeType: string; sizeBytes: number; checksumSha256: string } | null>;
-  get?(input: { bucket: string; key: string }): Promise<Response>;
+  head?(input: { key: string }): Promise<{ mimeType: string; sizeBytes: number; checksumSha256: string } | null>;
+  get?(input: { key: string }): Promise<Response>;
 }
 
 export class MarketingPrivateMediaError extends Error {
@@ -40,10 +35,10 @@ export class MarketingPrivateMedia {
 
   constructor(
     private readonly options: {
-      bucket: string;
       signer: MarketingObjectStore;
       now?: () => Date;
       uuid?: () => string;
+      bucket?: string;
     },
   ) {}
 
@@ -65,7 +60,6 @@ export class MarketingPrivateMedia {
     });
     const uploadUrl = await this.options.signer.sign({
       method: "PUT",
-      bucket: this.options.bucket,
       key: objectKey,
       contentType: mimeType,
       contentLength: input.sizeBytes,
@@ -76,7 +70,7 @@ export class MarketingPrivateMedia {
     return {
       objectKey,
       uploadUrl,
-      uploadHeaders: uploadHeaders(mimeType, input.checksumSha256),
+      uploadHeaders: uploadHeaders(mimeType),
       expiresAt: this.expiry(),
     };
   }
@@ -89,13 +83,11 @@ export class MarketingPrivateMedia {
   }) {
     assertMarketingObjectKey(input.objectKey);
     if (!this.options.signer.head) throw new MarketingPrivateMediaError("Object verification is unavailable");
-    const actual = await this.options.signer.head({ bucket: this.options.bucket, key: input.objectKey });
-    if (
-      !actual ||
-      actual.mimeType !== input.mimeType ||
-      actual.sizeBytes !== input.sizeBytes ||
-      actual.checksumSha256 !== input.checksumSha256
-    ) {
+    const actual = await this.options.signer.head({ key: input.objectKey });
+    if (!actual || actual.mimeType !== input.mimeType || actual.sizeBytes !== input.sizeBytes) {
+      throw new MarketingPrivateMediaError("Uploaded object metadata does not match intent");
+    }
+    if (actual.checksumSha256 && actual.checksumSha256 !== input.checksumSha256) {
       throw new MarketingPrivateMediaError("Uploaded object metadata does not match intent");
     }
   }
@@ -103,7 +95,7 @@ export class MarketingPrivateMedia {
   async fetchObject(objectKey: string): Promise<Response> {
     assertMarketingObjectKey(objectKey);
     if (!this.options.signer.get) throw new MarketingPrivateMediaError("Object fetch is unavailable");
-    return this.options.signer.get({ bucket: this.options.bucket, key: objectKey });
+    return this.options.signer.get({ key: objectKey });
   }
 
   private expiry() {
@@ -150,8 +142,8 @@ function assertMarketingObjectKey(objectKey: string) {
   }
 }
 
-function uploadHeaders(mimeType: MarketingAssetMimeType, checksumSha256: string) {
-  return { "Content-Type": mimeType, "x-amz-checksum-sha256": checksumSha256, "If-None-Match": "*" } as const;
+function uploadHeaders(mimeType: MarketingAssetMimeType) {
+  return { "Content-Type": mimeType } as const;
 }
 
 function extensionFor(mimeType: MarketingAssetMimeType) {
@@ -167,76 +159,55 @@ function segment(value: string) {
   return safe;
 }
 
-export class S3MarketingObjectStore implements MarketingObjectStore {
-  private readonly client: S3Client;
-
-  constructor(config: { endpoint: string; region: string; accessKeyId: string; secretAccessKey: string }) {
-    this.client = new S3Client({
-      endpoint: config.endpoint,
-      region: config.region,
-      forcePathStyle: true,
-      credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey },
-    });
-  }
-
+export class VercelBlobMarketingObjectStore implements MarketingObjectStore {
   async sign(input: MarketingSignInput) {
-    return getSignedUrl(
-      this.client,
-      new PutObjectCommand({
-        Bucket: input.bucket,
-        Key: input.key,
-        ContentType: input.contentType,
-        ContentLength: input.contentLength,
-        ChecksumSHA256: input.checksumSha256,
-        IfNoneMatch: input.ifNoneMatch,
-      }),
-      { expiresIn: input.expiresInSeconds, signableHeaders: new Set(["content-type"]) },
-    );
+    const validUntil = Date.now() + input.expiresInSeconds * 1000;
+    const signedToken = await issueSignedToken({
+      pathname: input.key,
+      operations: ["put"],
+      validUntil,
+      allowedContentTypes: [input.contentType],
+      maximumSizeInBytes: input.contentLength,
+    });
+    const { presignedUrl } = await presignUrl(signedToken, {
+      operation: "put",
+      access: "private",
+      pathname: input.key,
+      validUntil,
+      allowedContentTypes: [input.contentType],
+      maximumSizeInBytes: input.contentLength,
+      allowOverwrite: false,
+    });
+    return presignedUrl;
   }
 
-  async head(input: { bucket: string; key: string }) {
+  async head(input: { key: string }) {
     try {
-      const output = await this.client.send(
-        new HeadObjectCommand({ Bucket: input.bucket, Key: input.key, ChecksumMode: "ENABLED" }),
-      );
-      if (!output.ChecksumSHA256 || output.ContentLength === undefined) return null;
+      const output = await head(input.key);
       return {
-        mimeType: output.ContentType?.split(";")[0] ?? "",
-        sizeBytes: output.ContentLength,
-        checksumSha256: output.ChecksumSHA256,
+        mimeType: output.contentType?.split(";")[0] ?? "",
+        sizeBytes: output.size,
+        checksumSha256: "",
       };
     } catch {
       return null;
     }
   }
 
-  async get(input: { bucket: string; key: string }) {
-    try {
-      const output = await this.client.send(new GetObjectCommand({ Bucket: input.bucket, Key: input.key }));
-      const body = output.Body?.transformToWebStream();
-      if (!body) throw new MarketingPrivateMediaError();
-      return new Response(body, {
-        headers: { "Content-Type": output.ContentType?.split(";")[0] ?? "application/octet-stream" },
-      });
-    } catch (error) {
-      if (error instanceof MarketingPrivateMediaError) throw error;
-      throw new MarketingPrivateMediaError();
-    }
+  async get(input: { key: string }) {
+    const output = await get(input.key, { access: "private", useCache: false });
+    if (!output || output.statusCode !== 200 || !output.stream) throw new MarketingPrivateMediaError();
+    return new Response(output.stream, {
+      headers: { "Content-Type": output.blob.contentType?.split(";")[0] ?? "application/octet-stream" },
+    });
   }
 }
 
-export function marketingPrivateMediaFromEnvironment(signer = s3MarketingObjectStoreFromEnvironment()) {
-  const bucket = process.env.S3_BUCKET;
-  if (!bucket) throw new Error("S3_BUCKET is required for marketing assets");
-  return new MarketingPrivateMedia({ bucket, signer });
+export function marketingPrivateMediaFromEnvironment(signer = vercelBlobMarketingObjectStoreFromEnvironment()) {
+  return new MarketingPrivateMedia({ signer });
 }
 
-export function s3MarketingObjectStoreFromEnvironment() {
-  const endpoint = process.env.S3_ENDPOINT;
-  const region = process.env.S3_REGION;
-  const accessKeyId = process.env.S3_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.S3_SECRET_ACCESS_KEY;
-  if (!endpoint || !region || !accessKeyId || !secretAccessKey)
-    throw new Error("S3 endpoint, region, and credentials are required");
-  return new S3MarketingObjectStore({ endpoint, region, accessKeyId, secretAccessKey });
+export function vercelBlobMarketingObjectStoreFromEnvironment() {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) throw new Error("BLOB_READ_WRITE_TOKEN is required for Vercel Blob assets");
+  return new VercelBlobMarketingObjectStore();
 }

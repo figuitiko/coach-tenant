@@ -5,10 +5,7 @@ const schema = z.object({
   DATABASE_URL: z.string().refine((value) => value.startsWith("postgresql://") || value.startsWith("postgres://")),
   BETTER_AUTH_URL: httpUrl,
   SMTP_PORT: z.coerce.number().int().min(1).max(65_535).default(587),
-  S3_ENDPOINT: httpUrl.optional(),
-  S3_REGION: z.string().min(1).optional(),
-  S3_BUCKET: z.string().min(3).optional(),
-  S3_MAX_UPLOAD_BYTES: z.coerce.number().int().min(1).max(10_485_760).default(5_242_880),
+  BLOB_READ_WRITE_TOKEN: z.string().min(1).optional(),
 });
 
 const productionSchema = schema.extend({
@@ -17,8 +14,7 @@ const productionSchema = schema.extend({
   SMTP_FROM: z.string().min(3).optional(),
   SMTP_USER: z.string().min(1).optional(),
   SMTP_PASSWORD: z.string().min(1).optional(),
-  S3_ACCESS_KEY_ID: z.string().min(1).optional(),
-  S3_SECRET_ACCESS_KEY: z.string().min(1).optional(),
+  BLOB_READ_WRITE_TOKEN: z.string().min(1).optional(),
 });
 
 export function validateServerEnvironment(environment: Record<string, string | undefined>) {

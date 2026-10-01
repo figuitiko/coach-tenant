@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { ProgressAccessDeniedError, ProgressValidationError, type CheckInMetrics, type ProgressActor, type ReviewKind } from "@/modules/progress/application/progress-service";
-import { PrivateMediaError, privateMediaFromEnvironment, s3SignerFromEnvironment } from "@/modules/progress/infrastructure/private-media";
+import { PrivateMediaError, privateMediaFromEnvironment } from "@/modules/progress/infrastructure/private-media";
 import { progressService } from "@/modules/progress/infrastructure/progress-use-cases";
 import type { ProgressActionState } from "@/modules/progress/presentation/progress-view";
 import { CrossTenantAccessError, UnauthenticatedError } from "@/modules/tenancy/application/workspace-access";
@@ -19,7 +19,7 @@ export async function saveOrSubmitCheckInAction(slug: string, _state: ProgressAc
     else await progressService.submitCurrentDraft(actor, { ...input, idempotencyKey: text(data, "idempotencyKey") });
   }, intent === "SUBMIT" ? "Check-in enviado con tus valores actuales." : "Borrador guardado.");
 }
-export async function attachPhotoAction(slug: string, _state: ProgressActionState, data: FormData) { return execute(slug, async actor => { const uploadIntentId = text(data, "uploadIntentId"); const intent = await progressService.getUploadIntent(actor, uploadIntentId); const media = privateMediaFromEnvironment(s3SignerFromEnvironment()); await media.verifyUploadedObject(intent); await progressService.attachPhoto(actor, { uploadIntentId }); }); }
+export async function attachPhotoAction(slug: string, _state: ProgressActionState, data: FormData) { return execute(slug, async actor => { const uploadIntentId = text(data, "uploadIntentId"); const intent = await progressService.getUploadIntent(actor, uploadIntentId); const media = privateMediaFromEnvironment(); await media.verifyUploadedObject(intent); await progressService.attachPhoto(actor, { uploadIntentId }); }); }
 export async function completeReviewAction(slug: string, _state: ProgressActionState, data: FormData) { return execute(slug, async actor => { await progressService.completeReview(actor, { kind: reviewKind(data), itemId: text(data, "itemId"), note: optional(data, "note") ?? "", idempotencyKey: text(data, "idempotencyKey") }); }); }
 export async function replyToReviewAction(slug: string, _state: ProgressActionState, data: FormData) { return execute(slug, async actor => { await progressService.replyToReview(actor, { reviewNoteId: text(data, "reviewNoteId"), body: text(data, "body") }); }, "Respuesta enviada al coach."); }
 
@@ -30,7 +30,7 @@ export async function requestUploadAction(slug: string, _state: ProgressActionSt
     const checkInId = text(data, "checkInId");
     const dashboard = await progressService.getStudentProgress(actor);
     if (dashboard.draft?.id !== checkInId) throw new ProgressAccessDeniedError();
-    const media = privateMediaFromEnvironment(s3SignerFromEnvironment());
+    const media = privateMediaFromEnvironment();
     const checksumSha256 = text(data, "checksumSha256");
     const proposed = await media.createUploadIntent({ workspaceId: actor.workspaceId, studentId: actor.actorId, fileName: text(data, "fileName"), mimeType: text(data, "mimeType"), sizeBytes: integer(data, "sizeBytes"), checksumSha256 });
     const intent = await progressService.reserveUploadIntent(actor, { checkInId, idempotencyKey: text(data, "idempotencyKey"), objectKey: proposed.objectKey, mimeType: text(data, "mimeType"), sizeBytes: integer(data, "sizeBytes"), checksumSha256, expiresAt: proposed.expiresAt });
