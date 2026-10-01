@@ -17,11 +17,8 @@ const productionSchema = schema.extend({
   SMTP_FROM: z.string().min(3).optional(),
   SMTP_USER: z.string().min(1).optional(),
   SMTP_PASSWORD: z.string().min(1).optional(),
-  S3_ENDPOINT: httpUrl,
-  S3_REGION: z.string().min(1),
-  S3_BUCKET: z.string().min(3),
-  S3_ACCESS_KEY_ID: z.string().min(1),
-  S3_SECRET_ACCESS_KEY: z.string().min(1),
+  S3_ACCESS_KEY_ID: z.string().min(1).optional(),
+  S3_SECRET_ACCESS_KEY: z.string().min(1).optional(),
 });
 
 export function validateServerEnvironment(environment: Record<string, string | undefined>) {
