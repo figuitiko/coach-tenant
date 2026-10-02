@@ -11,12 +11,14 @@ export function WorkspaceNavigation({ workspaceSlug, role }: { workspaceSlug: st
           [`${root}/training`, "Entrenamiento"],
           [`${root}/progress`, "Revisiones"],
           [`${root}/landing`, "Landing"],
+          [`${root}/account`, "Cuenta"],
         ]
       : [
           [root, "Inicio"],
           [`${root}/training`, "Entrenamiento"],
           [`${root}/progress`, "Progreso"],
           [`${root}/results`, "Resultados"],
+          [`${root}/account`, "Cuenta"],
         ];
 
   return (

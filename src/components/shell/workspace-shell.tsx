@@ -34,12 +34,14 @@ export function WorkspaceShell({
         { href: `${root}/training`, label: "Entrenamiento" },
         { href: `${root}/progress`, label: "Revisiones" },
         { href: `${root}/landing`, label: "Landing" },
+        { href: `${root}/account`, label: "Cuenta" },
       ]
     : [
         { href: root, label: "Inicio" },
         { href: `${root}/training`, label: "Entrenamiento" },
         { href: `${root}/progress`, label: "Progreso" },
         { href: `${root}/results`, label: "Resultados" },
+        { href: `${root}/account`, label: "Cuenta" },
       ];
 
   return (
